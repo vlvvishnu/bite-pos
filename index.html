@@ -27,21 +27,178 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;}:root{--brand:#E8440A;--brand-dk:#B53308;--brand-lt:#FEF0EB;--surface:#F9F7F4;--card:#fff;--border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.14);--text:#1A1208;--muted:#7A6E65;--faint:#C0B8B0;--green:#1A7A3A;--green-bg:#EAF4EE;--green-text:#0E5A28;--red:#C0392B;--red-bg:#FDECEA;--red-text:#922B21;--blue:#1A5FA8;--blue-bg:#EAF1FB;--blue-text:#154D8C;--amber:#B87A0A;--amber-bg:#FEF6E4;--amber-text:#8A5C07;--radius:14px;--radius-sm:8px;--radius-xs:6px;--nav-h:60px;}html,body{font-family:'DM Sans',sans-serif;color:var(--text);font-size:14px;line-height:1.5;}
+/* ═══ LANDING ═══ */
+html{scroll-behavior:smooth;}
+body{overflow-x:hidden;}
+#view-landing{display:block;background:#fff;}
+#view-pos{display:none;height:100vh;overflow:hidden;flex-direction:column;background:var(--surface);}
+#view-pos.active{display:flex;}
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:80;padding:0 6%;height:60px;display:flex;align-items:center;justify-content:space-between;transition:background 0.3s,box-shadow 0.3s;}
+.lp-nav.scrolled{background:#fff;box-shadow:0 1px 0 var(--border);}
+.lp-logo{display:flex;flex-direction:column;text-decoration:none;}
+.lp-logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-0.4px;line-height:1;transition:color 0.3s;}
+.lp-nav.scrolled .lp-logo-main{color:var(--text);}
+.lp-logo-main span{color:var(--brand);}
+.lp-logo-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;}
+.lp-nav.scrolled .lp-logo-by{color:var(--faint);}
+.lp-nav-actions{display:flex;align-items:center;gap:8px;}
+.lp-signin-btn{font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.25);background:none;cursor:pointer;transition:all 0.15s;}
+.lp-nav.scrolled .lp-signin-btn{color:var(--text);border-color:var(--border-md);}
+.lp-signin-btn:hover{border-color:rgba(255,255,255,0.7);color:#fff;}
+.lp-nav.scrolled .lp-signin-btn:hover{border-color:var(--brand);color:var(--brand);}
+.lp-cta-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:background 0.15s;}
+.lp-cta-btn:hover{background:var(--brand-dk);}
+.hero{min-height:100vh;background:var(--text);display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 6% 70px;position:relative;overflow:hidden;}
+.hero-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80%;height:60%;background:radial-gradient(ellipse at bottom,rgba(232,68,10,0.2) 0%,transparent 70%);pointer-events:none;}
+.hero-content{position:relative;z-index:1;max-width:720px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:26px;}
+.hero-dot{width:6px;height:6px;background:var(--brand);border-radius:50%;animation:hdot 2s infinite;}
+@keyframes hdot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5.5vw,60px);color:#fff;line-height:1.1;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero h1 em{color:var(--brand);font-style:normal;}
+.hero-sub{font-size:clamp(14px,1.8vw,17px);color:rgba(255,255,255,0.5);line-height:1.7;max-width:490px;margin:0 auto 34px;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+.hero-btn-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;color:#fff;padding:14px 30px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:all 0.15s;}
+.hero-btn-main:hover{background:var(--brand-dk);transform:translateY(-1px);}
+.hero-btn-ghost{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:15px;color:rgba(255,255,255,0.65);padding:14px 26px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.2);background:none;cursor:pointer;transition:all 0.15s;}
+.hero-btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,0.45);}
+.hero-stats{display:flex;gap:44px;justify-content:center;flex-wrap:wrap;}
+.hstat-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;color:#fff;line-height:1;}
+.hstat-lbl{font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.lp-section{padding:76px 6%;}
+.bg-surface{background:var(--surface);}
+.lp-tag{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.lp-h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(24px,3.5vw,38px);color:var(--text);line-height:1.2;letter-spacing:-0.8px;margin-bottom:12px;}
+.lp-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:540px;}
+.lp-center{text-align:center;}
+.lp-center .lp-sub{margin:0 auto;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px;margin-top:48px;}
+.feat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:22px;transition:all 0.2s;}
+.feat-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 6px 20px rgba(232,68,10,0.08);}
+.feat-ic{width:44px;height:44px;background:var(--brand-lt);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
+.feat-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:7px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.hiw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:50px;position:relative;}
+.hiw-grid::before{content:'';position:absolute;top:27px;left:calc(12.5% + 20px);right:calc(12.5% + 20px);height:1px;background:var(--border);}
+.hiw-step{text-align:center;padding:0 14px;position:relative;z-index:1;}
+.hiw-num{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;margin:0 auto 14px;background:var(--text);}
+.hiw-step:first-child .hiw-num{background:var(--brand);}
+.hiw-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;}
+.hiw-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.cta-band{background:var(--text);padding:64px 6%;text-align:center;}
+.cta-band-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(22px,3.5vw,36px);color:#fff;letter-spacing:-0.5px;margin-bottom:12px;}
+.cta-band-sub{font-size:15px;color:rgba(255,255,255,0.45);margin:0 auto 32px;max-width:460px;line-height:1.7;}
+.cta-band-btn{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#fff;padding:16px 36px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:all 0.15s;}
+.cta-band-btn:hover{background:var(--brand-dk);transform:translateY(-1px);}
+.upi-logos{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:32px;}
+.upi-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:rgba(255,255,255,0.22);}
+.lp-footer{background:var(--text);border-top:1px solid rgba(255,255,255,0.06);padding:36px 6% 20px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:26px;}
+.footer-brand{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:6px;}
+.footer-brand span{color:var(--brand);}
+.footer-tagline{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;}
+.footer-col-title{font-size:10px;font-weight:700;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+.footer-lk{display:block;font-size:12px;color:rgba(255,255,255,0.42);text-decoration:none;margin-bottom:7px;background:none;border:none;cursor:pointer;padding:0;text-align:left;transition:color 0.15s;}
+.footer-lk:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.footer-copy{font-size:11px;color:rgba(255,255,255,0.22);}
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --brand:#E8440A;--brand-dk:#B53308;--brand-lt:#FEF0EB;
-  --surface:#F9F7F4;--card:#fff;--border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.14);
-  --text:#1A1208;--muted:#7A6E65;--faint:#C0B8B0;
-  --green:#1A7A3A;--green-bg:#EAF4EE;--green-text:#0E5A28;
-  --red:#C0392B;--red-bg:#FDECEA;--red-text:#922B21;
-  --blue:#1A5FA8;--blue-bg:#EAF1FB;--blue-text:#154D8C;
-  --amber:#B87A0A;--amber-bg:#FEF6E4;--amber-text:#8A5C07;
-  --radius:14px;--radius-sm:8px;--radius-xs:6px;
-  --nav-h:58px;
+/* ═══ AUTH OVERLAY ═══ */
+#auth-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;background:rgba(26,18,8,0.88);}
+#auth-overlay.show{display:flex;}
+.auth-box{background:var(--card);border-radius:20px;width:100%;max-width:420px;margin:auto;animation:authPop 0.32s cubic-bezier(0.34,1.1,0.64,1);overflow:hidden;position:relative;}
+@keyframes authPop{from{opacity:0;transform:scale(0.92) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.auth-close-btn{position:absolute;top:13px;right:13px;width:30px;height:30px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:1;}
+.auth-close-btn:hover{background:rgba(255,255,255,0.25);}
+.auth-hd{background:var(--text);padding:26px 24px 18px;text-align:center;}
+.auth-hd-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.4px;}
+.auth-hd-logo span{color:var(--brand);}
+.auth-hd-by{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.auth-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-top:14px;}
+.auth-hd-desc{font-size:12px;color:rgba(255,255,255,0.42);margin-top:3px;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.auth-tab{padding:13px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
+.auth-tab.active{color:var(--text);border-bottom-color:var(--brand);background:var(--brand-lt);}
+.auth-body{padding:20px 22px 22px;}
+.auth-panel{display:none;}
+.auth-panel.active{display:block;}
+.af-group{margin-bottom:11px;}
+.af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.af-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
+.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
+.af-input:focus{border-color:var(--brand);background:#fff;}
+.af-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.af-btn:hover{background:var(--brand-dk);}
+.af-btn:disabled{background:#ccc;cursor:not-allowed;}
+.af-ghost{width:100%;background:none;color:var(--text);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:all 0.15s;}
+.af-ghost:hover{border-color:var(--brand);}
+.af-divider{display:flex;align-items:center;gap:10px;margin:11px 0;color:var(--faint);font-size:11px;}
+.af-divider::before,.af-divider::after{content:'';flex:1;border-top:1px solid var(--border);}
+.af-error{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;margin-top:9px;display:none;line-height:1.5;}
+.af-error.show{display:block;}
+.af-success{background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;margin-top:9px;display:none;line-height:1.5;}
+.af-success.show{display:block;}
+.af-hint{font-size:10px;color:var(--muted);margin-top:3px;}
+.af-terms{font-size:10px;color:var(--muted);margin-top:9px;text-align:center;line-height:1.6;}
+
+/* ═══ POS NAV ═══ */
+.pos-nav{height:60px;background:var(--text);display:flex;align-items:stretch;flex-shrink:0;}
+.pos-logo-wrap{display:flex;flex-direction:column;justify-content:center;padding:0 20px;border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;cursor:pointer;}
+.pos-logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:17px;color:#fff;letter-spacing:-0.3px;line-height:1;}
+.pos-logo-main span{color:var(--brand);}
+.pos-logo-sub{font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;}
+.pos-nav-links{display:flex;align-items:stretch;flex:1;padding:0 4px;}
+.pos-nav-link{display:flex;align-items:center;gap:6px;padding:0 13px;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;}
+.pos-nav-link:hover{color:rgba(255,255,255,0.85);}
+.pos-nav-link.active{color:#fff;border-bottom-color:var(--brand);}
+.pos-nav-right{display:flex;align-items:center;gap:8px;padding:0 14px;margin-left:auto;flex-shrink:0;}
+.pos-kiosk-pill{background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;}
+.pos-clock{font-size:12px;color:rgba(255,255,255,0.38);font-variant-numeric:tabular-nums;}
+.pos-user{font-size:11px;color:rgba(255,255,255,0.4);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pos-logout-btn{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.pos-logout-btn:hover{background:rgba(255,255,255,0.16);color:#fff;}
+.pos-hamburger{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;}
+.pos-mob-nav{position:fixed;top:60px;left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-110%);transition:transform 0.28s ease;border-bottom:1px solid rgba(255,255,255,0.08);}
+.pos-mob-nav.open{transform:translateY(0);}
+.pos-mob-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;}
+.pos-mob-item:hover,.pos-mob-item.active{color:#fff;background:rgba(255,255,255,0.1);}
+
+/* ═══ WELCOME BANNER ═══ */
+#welcome-banner{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(26,18,8,0.72);}
+#welcome-banner.show{display:flex;}
+.wb-card{background:var(--card);border-radius:22px;max-width:400px;width:100%;overflow:hidden;animation:authPop 0.4s cubic-bezier(0.34,1.1,0.64,1);}
+.wb-top{background:var(--text);padding:24px 22px 18px;text-align:center;}
+.wb-confetti{font-size:34px;margin-bottom:8px;display:block;}
+.wb-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:4px;}
+.wb-sub{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
+.wb-body{padding:16px 18px 18px;}
+.wb-feats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;}
+.wb-feat{background:var(--surface);border-radius:var(--radius-sm);padding:10px;}
+.wb-feat-ic{font-size:18px;margin-bottom:4px;}
+.wb-feat-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:11px;color:var(--text);}
+.wb-feat-sub{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.wb-go-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:6px;}
+.wb-skip-btn{width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;}
+
+/* responsive */
+@media(max-width:860px){
+  .hiw-grid{grid-template-columns:repeat(2,1fr);}
+  .hiw-grid::before{display:none;}
+  .footer-grid{grid-template-columns:1fr;gap:20px;}
+  .pos-nav-links{display:none;} .pos-hamburger{display:flex;}
 }
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;overflow:hidden;}
+@media(max-width:480px){
+  .hero h1{font-size:30px;letter-spacing:-1px;}
+  .feat-grid{grid-template-columns:1fr;}
+  .hiw-grid{grid-template-columns:1fr;}
+  .auth-box{border-radius:20px 20px 0 0;margin-top:auto;}
+  #auth-overlay{align-items:flex-end;padding:0;}
+}
+
+
+
+
 
 /* ── LOADING ── */
 #loading-screen{position:fixed;inset:0;background:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px;transition:opacity 0.4s;}
@@ -53,88 +210,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
 @keyframes spin{to{transform:rotate(360deg);}}
 .ls-msg{font-size:12px;color:rgba(255,255,255,0.4);}
 
-/* ── AUTH SCREEN ── */
-@keyframes popIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
-#auth-screen{position:fixed;inset:0;background:var(--text);display:none;align-items:flex-start;justify-content:center;z-index:998;padding:20px 16px 40px;overflow-y:auto;}
-#auth-screen.show{display:flex;}
-.auth-wrap{width:100%;max-width:400px;margin:auto;animation:slideUpAnim 0.3s ease;}
-@keyframes slideUpAnim{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.auth-logo-block{text-align:center;padding:20px 0 22px;}
-.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:#fff;letter-spacing:-0.5px;line-height:1;}
-.auth-logo span{color:var(--brand);}
-.auth-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
-.auth-card{background:var(--card);border-radius:20px;overflow:hidden;}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.auth-tab{padding:14px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
-.auth-tab.active{color:var(--text);border-bottom-color:var(--brand);background:var(--brand-lt);}
-.auth-panel{display:none;padding:22px 24px 24px;}
-.auth-panel.active{display:block;}
-.af-group{margin-bottom:12px;}
-.af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.af-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
-.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
-.af-input:focus{border-color:var(--brand);background:#fff;}
-.af-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.af-btn:hover{background:var(--brand-dk);}
-.af-btn:disabled{background:#ccc;cursor:not-allowed;}
-.af-btn.secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border);margin-top:8px;}
-.af-btn.secondary:hover{border-color:var(--brand);}
-.af-error{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;margin-top:10px;display:none;line-height:1.5;}
-.af-error.show{display:block;}
-.af-success{background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;margin-top:10px;display:none;line-height:1.5;}
-.af-success.show{display:block;}
-.af-divider{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--faint);font-size:11px;}
-.af-divider::before,.af-divider::after{content:'';flex:1;border-top:1px solid var(--border);}
-.af-hint{font-size:11px;color:var(--muted);margin-top:4px;}
-.af-panel-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:4px;}
-.af-panel-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
-.af-terms{font-size:10px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.6;}
-/* ── WELCOME BANNER ── */
-#welcome-banner{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(26,18,8,0.75);}
-#welcome-banner.show{display:flex;}
-.wb-card{background:var(--card);border-radius:24px;max-width:420px;width:100%;overflow:hidden;animation:popIn 0.4s cubic-bezier(0.34,1.1,0.64,1);}
-.wb-top{background:var(--text);padding:28px 24px 20px;text-align:center;position:relative;}
-.wb-confetti{font-size:38px;margin-bottom:8px;display:block;}
-.wb-logo{position:absolute;top:14px;right:16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:13px;color:rgba(255,255,255,0.25);}
-.wb-logo span{color:var(--brand);}
-.wb-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px;}
-.wb-sub{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;}
-.wb-body{padding:20px 22px 22px;}
-.wb-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
-.wb-feat{background:var(--surface);border-radius:var(--radius-sm);padding:11px;}
-.wb-feat-icon{font-size:20px;margin-bottom:5px;}
-.wb-feat-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:2px;}
-.wb-feat-sub{font-size:10px;color:var(--muted);line-height:1.4;}
-.wb-start-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:background 0.15s;margin-bottom:8px;}
-.wb-start-btn:hover{background:var(--brand-dk);}
-.wb-skip{width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px;}
+/* auth handled by overlay */
 
-/* ── TOP NAV ── */
-.topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--text);z-index:90;display:flex;align-items:stretch;}
-.nav-logo{display:flex;flex-direction:column;justify-content:center;padding:0 22px;border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;}
-.logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.4px;line-height:1;}
-.logo-main span{color:var(--brand);}
-.logo-sub{font-size:9px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;}
-.nav-links{display:flex;align-items:stretch;flex:1;padding:0 6px;}
-.nav-link{display:flex;align-items:center;gap:7px;padding:0 14px;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;}
-.nav-link:hover{color:rgba(255,255,255,0.85);}
-.nav-link.active{color:#fff;border-bottom-color:var(--brand);}
-.nav-link.staff-only{display:none;}
-.nav-link.staff-only.visible{display:flex;}
-.nav-right{display:flex;align-items:center;gap:8px;padding:0 14px;margin-left:auto;flex-shrink:0;}
-.kiosk-pill{background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;}
-.nav-clock{font-size:12px;color:rgba(255,255,255,0.4);font-variant-numeric:tabular-nums;}
-.nav-user{font-size:11px;color:rgba(255,255,255,0.45);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.nav-logout{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
-.nav-logout:hover{background:rgba(255,255,255,0.18);color:#fff;}
-.nav-login-btn{background:var(--brand);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
-.nav-hamburger{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;}
-.mob-nav{position:fixed;top:var(--nav-h);left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-110%);transition:transform 0.28s ease;border-bottom:1px solid rgba(255,255,255,0.08);}
-.mob-nav.open{transform:translateY(0);}
-.mob-nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;}
-.mob-nav-item:hover,.mob-nav-item.active{color:#fff;background:rgba(255,255,255,0.1);}
-.mob-nav-item.staff-only{display:none;}
-.mob-nav-item.staff-only.visible{display:flex;}
+/* pos nav defined below */
 
 /* ── APP SHELL ── */
 .app{padding-top:var(--nav-h);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
@@ -438,56 +516,163 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   .editor-modal,.checkout-modal,.upi-modal,.order-detail-modal{border-radius:20px 20px 0 0;max-height:95vh;margin-top:auto;}
   .editor-overlay,.overlay{align-items:flex-end;padding:0;}
 }
+
+.pos-content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.pos-page{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.pos-page.active{display:flex;}
+@media(max-width:860px){
+  .order-layout{grid-template-columns:1fr;} .cart-pane{display:none;}
+  .fab-wrap{display:flex !important;}
+  .ot-head,.ot-row{grid-template-columns:70px 1fr 80px 70px;}
+  .ot-head .col-time,.ot-row .col-time,.ot-head .col-refund,.ot-row .col-refund{display:none;}
+  .stat-cards{grid-template-columns:repeat(2,1fr);}
+  .form-row{grid-template-columns:1fr;}
+  .pos-user{display:none;} .sr-input{width:150px;}
+}
+@media(max-width:480px){
+  .editor-modal,.checkout-modal,.upi-modal,.order-detail-modal,.success-share{border-radius:20px 20px 0 0;max-height:95vh;margin-top:auto;}
+  .editor-overlay,.overlay{align-items:flex-end;padding:0;}
+}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loading-screen">
-  <div class="ls-logo">BITE<span>.</span></div>
-  <div class="ls-sub">by Pay4</div>
-  <div class="ls-spinner"></div>
-  <div class="ls-msg" id="ls-msg">Starting up…</div>
+<!-- ═══ LANDING PAGE ═══ -->
+<div id="view-landing">
+  <nav class="lp-nav" id="lp-nav">
+    <a class="lp-logo" href="#">
+      <div class="lp-logo-main">BITE<span>.</span></div>
+      <div class="lp-logo-by">by Pay4</div>
+    </a>
+    <div class="lp-nav-actions">
+      <button class="lp-signin-btn" onclick="openAuth('login')">Sign In</button>
+      <button class="lp-cta-btn" onclick="openAuth('signup')">Get Started Free</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="hero-dot"></span> Now live &mdash; UPI payments built in</div>
+      <h1>The <em>smart POS</em><br>for modern restaurants</h1>
+      <p class="hero-sub">Take orders, accept UPI payments, track revenue and manage your menu &mdash; all from one beautiful kiosk. No hardware required.</p>
+      <div class="hero-btns">
+        <button class="hero-btn-main" onclick="openAuth('signup')">Start free &rarr;</button>
+        <button class="hero-btn-ghost" onclick="openAuth('login')">Sign in to your POS</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hstat-val">&#8377;0</div><div class="hstat-lbl">to get started</div></div>
+        <div><div class="hstat-val">30s</div><div class="hstat-lbl">to first order</div></div>
+        <div><div class="hstat-val">100%</div><div class="hstat-lbl">UPI compatible</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section bg-surface" id="features">
+    <div class="lp-center">
+      <div class="lp-tag">Features</div>
+      <div class="lp-h2">Everything your restaurant needs</div>
+      <p class="lp-sub">Built for Indian restaurants &mdash; from street food stalls to full-service dining. No complicated setup.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-ic">&#x1F6D2;</div><div class="feat-title">Fast Order Taking</div><div class="feat-desc">Add items to cart with one tap. Clean category filters and cart panel make order-taking fast even in rush hour.</div></div>
+      <div class="feat-card"><div class="feat-ic">&#x1F4B3;</div><div class="feat-title">UPI QR Payments</div><div class="feat-desc">Every order generates a dynamic UPI QR with the exact amount. Works with GPay, PhonePe, Paytm &mdash; any UPI app.</div></div>
+      <div class="feat-card"><div class="feat-ic">&#x1F4CB;</div><div class="feat-title">Revenue & Reports</div><div class="feat-desc">Daily, weekly, yearly revenue reports. Issue refunds in one click. Full order history with customer details.</div></div>
+      <div class="feat-card"><div class="feat-ic">&#x1F37D;</div><div class="feat-title">Menu Management</div><div class="feat-desc">Add products, set prices, manage categories. Mark items out of stock instantly &mdash; updates live on the kiosk.</div></div>
+      <div class="feat-card"><div class="feat-ic">&#x1F9FE;</div><div class="feat-title">Digital Receipts</div><div class="feat-desc">Share receipts via WhatsApp or email. Customers scan a QR to view and download their receipt on any phone.</div></div>
+      <div class="feat-card"><div class="feat-ic">&#x1F4F1;</div><div class="feat-title">Works Everywhere</div><div class="feat-desc">Tablet, phone, desktop &mdash; fully responsive. Install as a PWA for a native app experience on iOS and Android.</div></div>
+    </div>
+  </section>
+
+  <section class="lp-section" id="how-it-works">
+    <div class="lp-center" style="margin-bottom:0">
+      <div class="lp-tag">How it works</div>
+      <div class="lp-h2">Up and running in minutes</div>
+      <p class="lp-sub">No installation, no hardware, no IT support needed.</p>
+    </div>
+    <div class="hiw-grid">
+      <div class="hiw-step"><div class="hiw-num">1</div><div class="hiw-title">Sign up free</div><div class="hiw-desc">Create your account in 60 seconds. No credit card required.</div></div>
+      <div class="hiw-step"><div class="hiw-num">2</div><div class="hiw-title">Add your menu</div><div class="hiw-desc">Add categories and products. 5 minutes for a full menu.</div></div>
+      <div class="hiw-step"><div class="hiw-num">3</div><div class="hiw-title">Set your UPI ID</div><div class="hiw-desc">Enter your UPI ID in Settings. QR codes auto-generate per order.</div></div>
+      <div class="hiw-step"><div class="hiw-num">4</div><div class="hiw-title">Start taking orders</div><div class="hiw-desc">Tap items, checkout, show QR &mdash; done.</div></div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="cta-band-title">Ready to transform your restaurant?</div>
+    <p class="cta-band-sub">Get started for free &mdash; no credit card, no setup fees. Takes 60 seconds to create your account.</p>
+    <button class="cta-band-btn" onclick="openAuth('signup')">Get Started Free &rarr;</button>
+    <div class="upi-logos">
+      <span class="upi-logo">GPay</span><span class="upi-logo">PhonePe</span><span class="upi-logo">Paytm</span>
+      <span class="upi-logo">BHIM</span><span class="upi-logo">Amazon Pay</span><span class="upi-logo">WhatsApp Pay</span>
+    </div>
+  </section>
+
+  <footer class="lp-footer">
+    <div class="footer-grid">
+      <div><div class="footer-brand">BITE<span>.</span></div><div class="footer-tagline">The smart POS for modern restaurants.<br>by Pay4 &mdash; bite.pay4.space</div></div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <a class="footer-lk" href="#features">Features</a>
+        <a class="footer-lk" href="#how-it-works">How it works</a>
+        <button class="footer-lk" onclick="openAuth('signup')">Get Started</button>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <a class="footer-lk" href="mailto:admin@pay4.space">Contact Us</a>
+        <button class="footer-lk" onclick="openAuth('login')">Sign In</button>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 Pay4. All rights reserved.</div>
+      <div class="footer-copy">BITE. POS &mdash; by Pay4</div>
+    </div>
+  </footer>
 </div>
 
-<!-- AUTH SCREEN (Login + Signup) -->
-<div id="auth-screen">
-  <div class="auth-wrap">
-    <div class="auth-logo-block">
-      <div class="auth-logo">BITE<span>.</span></div>
-      <div class="auth-by">by Pay4</div>
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <button class="auth-close-btn" onclick="closeAuth()">&#x2715;</button>
+    <div class="auth-hd">
+      <div class="auth-hd-logo">BITE<span>.</span></div>
+      <div class="auth-hd-by">by Pay4</div>
+      <div class="auth-hd-title" id="auth-hd-title">Sign in to your POS</div>
+      <div class="auth-hd-desc" id="auth-hd-desc">Access your kiosk and manage your restaurant.</div>
     </div>
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Sign In</button>
-        <button class="auth-tab" onclick="switchAuthTab('signup',this)">Get Started</button>
-      </div>
-      <!-- LOGIN PANEL -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Get Started</button>
+    </div>
+    <div class="auth-body">
       <div class="auth-panel active" id="panel-login">
-        <div class="af-panel-title">Welcome back</div>
-        <div class="af-panel-sub">Sign in to your BITE. POS account.</div>
-        <div class="af-group"><label class="af-label">Email</label><input class="af-input" id="login-email" type="email" placeholder="you@restaurant.com" autocomplete="email"/></div>
-        <div class="af-group"><label class="af-label">Password</label><input class="af-input" id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <button class="af-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+        <form onsubmit="return false;">
+          <div class="af-group"><label class="af-label">Email</label><input class="af-input" id="login-email" type="email" placeholder="you@restaurant.com" autocomplete="email"/></div>
+          <div class="af-group"><label class="af-label">Password</label><input class="af-input" id="login-password" type="password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+          <button class="af-btn" id="login-btn" onclick="doLogin()">Sign In to POS</button>
+        </form>
         <div class="af-error" id="login-error"></div>
         <div class="af-divider">or</div>
-        <button class="af-btn secondary" onclick="switchAuthTab('signup',document.querySelectorAll('.auth-tab')[1])">Create a new account →</button>
+        <button class="af-ghost" onclick="switchTab('signup')">Create a new account &rarr;</button>
       </div>
-      <!-- SIGNUP PANEL -->
       <div class="auth-panel" id="panel-signup">
-        <div class="af-panel-title">Start your free trial</div>
-        <div class="af-panel-sub">Set up your restaurant POS in minutes. No credit card required.</div>
-        <div class="af-row">
-          <div class="af-group"><label class="af-label">Your Name</label><input class="af-input" id="su-owner-name" placeholder="John Smith"/></div>
-          <div class="af-group"><label class="af-label">Restaurant Name</label><input class="af-input" id="su-biz-name" placeholder="My Restaurant"/></div>
-        </div>
-        <div class="af-group"><label class="af-label">Work Email</label><input class="af-input" id="su-email" type="email" placeholder="john@myrestaurant.com"/></div>
-        <div class="af-group"><label class="af-label">Password</label><input class="af-input" id="su-password" type="password" placeholder="Min 8 characters" onkeydown="if(event.key==='Enter')doSignup()"/><div class="af-hint">At least 8 characters.</div></div>
-        <div class="af-row">
-          <div class="af-group"><label class="af-label">Phone (optional)</label><input class="af-input" id="su-phone" type="tel" placeholder="+91 98765 43210"/></div>
-          <div class="af-group"><label class="af-label">City (optional)</label><input class="af-input" id="su-city" placeholder="Mumbai"/></div>
-        </div>
-        <button class="af-btn" id="signup-btn" onclick="doSignup()">Create Account</button>
+        <form onsubmit="return false;">
+          <div class="af-row">
+            <div class="af-group"><label class="af-label">Your Name</label><input class="af-input" id="su-owner-name" placeholder="John Smith" autocomplete="name"/></div>
+            <div class="af-group"><label class="af-label">Restaurant Name</label><input class="af-input" id="su-biz-name" placeholder="My Restaurant"/></div>
+          </div>
+          <div class="af-group"><label class="af-label">Work Email</label><input class="af-input" id="su-email" type="email" placeholder="john@myrestaurant.com" autocomplete="email"/></div>
+          <div class="af-group">
+            <label class="af-label">Password</label>
+            <input class="af-input" id="su-password" type="password" placeholder="Min 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"/>
+            <div class="af-hint">At least 8 characters.</div>
+          </div>
+          <div class="af-row">
+            <div class="af-group"><label class="af-label">Phone (optional)</label><input class="af-input" id="su-phone" type="tel" placeholder="+91 98765 43210" autocomplete="tel"/></div>
+            <div class="af-group"><label class="af-label">City (optional)</label><input class="af-input" id="su-city" placeholder="Mumbai"/></div>
+          </div>
+          <button class="af-btn" id="signup-btn" onclick="doSignup()">Create Account Free</button>
+        </form>
         <div class="af-error" id="signup-error"></div>
         <div class="af-success" id="signup-success"></div>
         <div class="af-terms">By signing up you agree to Pay4 Terms of Service.</div>
@@ -496,61 +681,39 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   </div>
 </div>
 
-<!-- WELCOME BANNER -->
-<div id="welcome-banner">
-  <div class="wb-card">
-    <div class="wb-top">
-      <div class="wb-logo">BITE<span>.</span></div>
-      <span class="wb-confetti">🎉</span>
-      <div class="wb-title" id="wb-title">Welcome aboard!</div>
-      <div class="wb-sub" id="wb-sub">Your POS is ready. Here is what you can do.</div>
+<!-- ═══ POS APP ═══ -->
+<div id="view-pos">
+  <nav class="pos-nav">
+    <div class="pos-logo-wrap" onclick="confirmLogout()">
+      <div class="pos-logo-main">BITE<span>.</span></div>
+      <div class="pos-logo-sub">by Pay4</div>
     </div>
-    <div class="wb-body">
-      <div class="wb-features">
-        <div class="wb-feat"><div class="wb-feat-icon">🛒</div><div class="wb-feat-title">Take Orders</div><div class="wb-feat-sub">Add items and place orders instantly</div></div>
-        <div class="wb-feat"><div class="wb-feat-icon">💳</div><div class="wb-feat-title">UPI Payments</div><div class="wb-feat-sub">Generate QR codes per order</div></div>
-        <div class="wb-feat"><div class="wb-feat-icon">📋</div><div class="wb-feat-title">Order History</div><div class="wb-feat-sub">Track revenue, manage refunds</div></div>
-        <div class="wb-feat"><div class="wb-feat-icon">🍽️</div><div class="wb-feat-title">Manage Menu</div><div class="wb-feat-sub">Add products and categories</div></div>
-      </div>
-      <button class="wb-start-btn" onclick="closeWelcomeBanner()">Let's go →</button>
-      <button class="wb-skip" onclick="closeWelcomeBanner()">Skip for now</button>
+    <div class="pos-nav-links" id="pos-nav-links">
+      <button class="pos-nav-link active" onclick="posNavTo('order',this)">&#x1F6D2; Order</button>
+      <button class="pos-nav-link" onclick="posNavTo('history',this)">&#x1F4CB; History</button>
+      <button class="pos-nav-link" onclick="posNavTo('products',this)">&#x1F37D; Products</button>
+      <button class="pos-nav-link" onclick="posNavTo('categories',this)">&#x1F3F7; Categories</button>
+      <button class="pos-nav-link" onclick="posNavTo('settings',this)">&#x2699;&#xFE0F; Settings</button>
     </div>
+    <div class="pos-nav-right">
+      <span class="pos-kiosk-pill" id="kiosk-pill-label">KIOSK #1</span>
+      <span class="pos-clock" id="pos-clock">--:--</span>
+      <span class="pos-user" id="pos-user"></span>
+      <button class="pos-logout-btn" onclick="confirmLogout()">Sign out</button>
+      <button class="pos-hamburger" onclick="togglePosMobNav()">&#x2630;</button>
+    </div>
+  </nav>
+  <div class="pos-mob-nav" id="pos-mob-nav">
+    <button class="pos-mob-item active" onclick="posNavTo('order',this);closePosMobNav()">&#x1F6D2; Order</button>
+    <button class="pos-mob-item" onclick="posNavTo('history',this);closePosMobNav()">&#x1F4CB; History</button>
+    <button class="pos-mob-item" onclick="posNavTo('products',this);closePosMobNav()">&#x1F37D; Products</button>
+    <button class="pos-mob-item" onclick="posNavTo('categories',this);closePosMobNav()">&#x1F3F7; Categories</button>
+    <button class="pos-mob-item" onclick="posNavTo('settings',this);closePosMobNav()">&#x2699; Settings</button>
+    <button class="pos-mob-item" style="color:rgba(255,255,255,0.4)" onclick="confirmLogout()">Sign out</button>
   </div>
-</div>
-
-<!-- TOP NAV -->
-<nav class="topnav">
-  <div class="nav-logo">
-    <div class="logo-main">BITE<span>.</span></div>
-    <div class="logo-sub">by Pay4</div>
-  </div>
-  <div class="nav-links" id="nav-links">
-    <button class="nav-link active" onclick="navTo('order',this)">🛒 Order</button>
-    <button class="nav-link staff-only" onclick="navTo('history',this)">📋 History</button>
-    <button class="nav-link staff-only" onclick="navTo('products',this)">🍽️ Products</button>
-    <button class="nav-link staff-only" onclick="navTo('categories',this)">🏷️ Categories</button>
-    <button class="nav-link staff-only" onclick="navTo('settings',this)">⚙️ Settings</button>
-  </div>
-  <div class="nav-right">
-    <span class="kiosk-pill" id="kiosk-pill-label">KIOSK #1</span>
-    <span class="nav-clock" id="nav-clock">--:--</span>
-    <span class="nav-user" id="nav-user"></span>
-    <button class="nav-logout" id="nav-logout" style="display:none" onclick="doLogout()">Sign out</button>
-    <button class="nav-login-btn" id="nav-login-btn" onclick="showLoginScreen(true)">Staff Login</button>
-    <button class="nav-hamburger" onclick="toggleMobNav()">☰</button>
-  </div>
-</nav>
-<div class="mob-nav" id="mob-nav">
-  <button class="mob-nav-item active" onclick="navTo('order',this);closeMobNav()">🛒 Order</button>
-  <button class="mob-nav-item staff-only" onclick="navTo('history',this);closeMobNav()">📋 Order History</button>
-  <button class="mob-nav-item staff-only" onclick="navTo('products',this);closeMobNav()">🍽️ Products</button>
-  <button class="mob-nav-item staff-only" onclick="navTo('categories',this);closeMobNav()">🏷️ Categories</button>
-  <button class="mob-nav-item staff-only" onclick="navTo('settings',this);closeMobNav()">⚙️ Settings</button>
-</div>
-
-<div class="app">
+<div class="pos-content">
   <!-- ORDER PAGE -->
-  <div class="page active" id="page-order">
+  <div class="pos-page active" id="pos-page-order">
     <div class="order-layout">
       <div class="menu-pane">
         <div class="cat-strip" id="cat-strip-order"></div>
@@ -580,7 +743,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   </div>
 
   <!-- HISTORY PAGE -->
-  <div class="page" id="page-history">
+  <div class="pos-page" id="pos-page-history">
     <div class="hist-wrap">
       <div class="hist-filters">
         <button class="filter-btn active" onclick="setFilter('today',this)">Today</button>
@@ -600,7 +763,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   </div>
 
   <!-- PRODUCTS PAGE -->
-  <div class="page" id="page-products">
+  <div class="pos-page" id="pos-page-products">
     <div class="mgmt-wrap">
       <div class="section-hd"><h2>Products</h2><button class="add-new-btn" onclick="newProduct()">+ Add Product</button></div>
       <div class="prod-list" id="prod-list"></div>
@@ -608,7 +771,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   </div>
 
   <!-- CATEGORIES PAGE -->
-  <div class="page" id="page-categories">
+  <div class="pos-page" id="pos-page-categories">
     <div class="mgmt-wrap">
       <div class="section-hd"><h2>Categories</h2><button class="add-new-btn" onclick="newCategory()">+ Add Category</button></div>
       <div class="cat-list" id="cat-list-mgr"></div>
@@ -616,7 +779,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   </div>
 
   <!-- SETTINGS PAGE -->
-  <div class="page" id="page-settings">
+  <div class="pos-page" id="pos-page-settings">
     <div class="mgmt-wrap">
       <div class="settings-wrap">
         <div class="settings-section">
@@ -653,7 +816,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   </div>
 </div>
 
-<!-- MOBILE CART DRAWER -->
+</div>
+</div><!-- /view-pos --> DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeCartDrawer()"></div>
 <div class="cart-drawer" id="cart-drawer">
   <div class="drawer-handle"></div>
@@ -772,13 +936,32 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
 
 <div class="toast" id="toast"></div>
 
+
+<!-- WELCOME BANNER -->
+<div id="welcome-banner">
+  <div class="wb-card">
+    <div class="wb-top">
+      <span class="wb-confetti">&#x1F389;</span>
+      <div class="wb-title" id="wb-title">Welcome aboard!</div>
+      <div class="wb-sub" id="wb-sub">Your POS is ready to use.</div>
+    </div>
+    <div class="wb-body">
+      <div class="wb-feats">
+        <div class="wb-feat"><div class="wb-feat-ic">&#x1F6D2;</div><div class="wb-feat-title">Take Orders</div><div class="wb-feat-sub">Add items instantly</div></div>
+        <div class="wb-feat"><div class="wb-feat-ic">&#x1F4B3;</div><div class="wb-feat-title">UPI Payments</div><div class="wb-feat-sub">Auto QR per order</div></div>
+        <div class="wb-feat"><div class="wb-feat-ic">&#x1F4CB;</div><div class="wb-feat-title">Track Revenue</div><div class="wb-feat-sub">Reports and refunds</div></div>
+        <div class="wb-feat"><div class="wb-feat-ic">&#x2699;&#xFE0F;</div><div class="wb-feat-title">Settings first</div><div class="wb-feat-sub">Add your UPI ID</div></div>
+      </div>
+      <button class="wb-go-btn" onclick="closeWelcomeBanner()">Let's go &rarr;</button>
+      <button class="wb-skip-btn" onclick="closeWelcomeBanner()">Skip for now</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 <script>
-// ══ SUPABASE ══
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-// ══ ICONS ══
-const FOOD_ICONS=['🍔','🍗','🌯','🍟','🥗','🍕','🌮','🥩','🌭','🥪','🍜','🍝','🍛','🥘','🍲','🧆','🥙','🫔','🧅','🧀','🍳','🥚','🥓','🍖','🐟','🍤','🦐','🦞','🦑','🥑','🍅','🥬','🌽','🥕','🧄','🥦','🥒','🫑','🍋','🍊','🍎','🍓','🍒','🥛','🧃','☕','🧋','🥤','🍵','🍺','🍷','🍹','🍰','🧁','🍦','🍩','🍪','🎂','🍫','🍬','🍭'];
+const FOOD_ICONS = ["🍔","🍗","🌯","🍟","🥗","🍕","🌮","🥩","🌭","🥪","🍜","🍝","🍛","🥘","🍲","🧆","🥙","🫔","🧅","🧀","🍳","🥚","🥓","🍖","🐟","🍤","🦐","🦞","🦑","🥑","🍅","🥬","🌽","🥕","🧄","🥦","🥒","🫑","🍋","🍊","🍎","🍓","🍒","🥛","🧃","☕","🧋","🥤","🍵","🍺","🍷","🍹","🍰","🧁","🍦","🍩","🍪","🎂","🍫","🍬","🍭"];
 
 // ══ STATE ══
 let categories=[], products=[], cart={}, currentUser=null;
@@ -786,79 +969,34 @@ let activeOrderCat='All', historyFilter='today', pendingRefundId=null;
 let editingProductId=null, editingCatId=null, editingIngredients=[], editingIcon='🍔', editingCatIcon='🍔';
 let currentOrderDetail=null;
 
-// ══ SETTINGS (localStorage) ══
-function loadSettings(){
-  return {
-    upiId:    localStorage.getItem('bite_upi')       || '',
-    bizName:  localStorage.getItem('bite_biz_name')  || 'BITE.',
-    kioskId:  localStorage.getItem('bite_kiosk_id')  || 'Kiosk #1',
-    taxRate:  parseFloat(localStorage.getItem('bite_tax_rate') || '8'),
-  };
+// ══ NAV SCROLL ══
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('ln');
+  if(nav) nav.classList.toggle('solid', window.scrollY>30);
+});
+
+// ══ AUTH OVERLAY ══
+function openAuth(tab){
+  document.getElementById('auth-overlay').classList.add('show');
+  switchTab(tab);
+  setTimeout(()=>{
+    const el = tab==='login'?document.getElementById('login-email'):document.getElementById('su-owner-name');
+    if(el) el.focus();
+  },200);
 }
-function saveSettings(){
-  const upi    = document.getElementById('set-upi').value.trim();
-  const biz    = document.getElementById('set-biz-name').value.trim();
-  const kiosk  = document.getElementById('set-kiosk-id').value.trim();
-  const tax    = parseFloat(document.getElementById('set-tax').value) || 8;
-  localStorage.setItem('bite_upi',       upi);
-  localStorage.setItem('bite_biz_name',  biz || 'BITE.');
-  localStorage.setItem('bite_kiosk_id',  kiosk || 'Kiosk #1');
-  localStorage.setItem('bite_tax_rate',  tax);
-  document.getElementById('kiosk-pill-label').textContent = kiosk || 'Kiosk #1';
-  showToast('Settings saved ✓');
-  updateCart(); // re-calculate tax
-}
-function populateSettingsForm(){
-  const s = loadSettings();
-  document.getElementById('set-upi').value       = s.upiId;
-  document.getElementById('set-biz-name').value  = s.bizName;
-  document.getElementById('set-kiosk-id').value  = s.kioskId;
-  document.getElementById('set-tax').value       = s.taxRate;
-  updateUpiPreview();
-}
-function updateUpiPreview(){
-  const val = document.getElementById('set-upi').value.trim();
-  const prev = document.getElementById('upi-preview');
-  const pvVal = document.getElementById('upi-preview-val');
-  if(val){ prev.style.display='block'; pvVal.textContent=`upi://pay?pa=${val}&am=XX.XX&tn=Order%23XXX&cu=INR`; }
-  else { prev.style.display='none'; }
+function closeAuth(){ document.getElementById('auth-overlay').classList.remove('show'); }
+document.getElementById('auth-overlay').addEventListener('click',function(e){ if(e.target===this) closeAuth(); });
+function switchTab(tab){
+  ['login','signup'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active',t===tab);
+  });
+  const titles={login:['Sign in to your POS','Enter your credentials to access your kiosk.'],signup:['Start your free trial','Set up your restaurant POS in minutes.']};
+  document.getElementById('auth-top-title').textContent=titles[tab][0];
+  document.getElementById('auth-top-desc').textContent=titles[tab][1];
 }
 
-// ══ INIT ══
-async function init(){
-  setLoadMsg('Connecting…');
-  const { data:{ session } } = await sb.auth.getSession();
-  if(session) currentUser = session.user;
-  sb.auth.onAuthStateChange((_,sess)=>{ currentUser=sess?.user||null; updateAuthUI(); });
-  setLoadMsg('Loading menu…');
-  await Promise.all([loadCategories(), loadProducts()]);
-  hideLoadingScreen();
-  buildOrderMenu();
-  updateAuthUI();
-  populateSettingsForm();
-  if(!localStorage.getItem('bite_welcome_shown')&&currentUser){
-    const n=currentUser?.user_metadata?.full_name||'';
-    const b=currentUser?.user_metadata?.biz_name||'';
-    setTimeout(()=>showWelcomeBanner(n,b),1000);
-  }
-  const s = loadSettings();
-  document.getElementById('kiosk-pill-label').textContent = s.kioskId || 'Kiosk #1';
-  tick();
-  setInterval(tick, 15000);
-}
-function setLoadMsg(m){ document.getElementById('ls-msg').textContent=m; }
-function hideLoadingScreen(){ const l=document.getElementById('loading-screen'); l.classList.add('hidden'); setTimeout(()=>l.style.display='none',450); }
-
-// ══ AUTH ══
-function updateAuthUI(){
-  const isStaff=!!currentUser;
-  document.querySelectorAll('.staff-only').forEach(el=>el.classList.toggle('visible',isStaff));
-  document.getElementById('nav-logout').style.display=isStaff?'block':'none';
-  document.getElementById('nav-login-btn').style.display='none';
-  document.getElementById('nav-user').textContent=isStaff?currentUser.email:'';
-}
-function showAuthScreen(show){ document.getElementById('auth-screen').classList.toggle('show',show); if(show) setTimeout(()=>document.getElementById('login-email').focus(),100); }
-function switchAuthTab(tab,btn){ document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active')); btn.classList.add('active'); document.getElementById('panel-'+tab).classList.add('active'); }
+// ══ LOGIN ══
 async function doLogin(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-password').value;
@@ -867,10 +1005,12 @@ async function doLogin(){
   errEl.classList.remove('show');
   if(!email||!pass){ errEl.textContent='Please enter email and password.'; errEl.classList.add('show'); return; }
   btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Signing in…';
-  const { error }=await sb.auth.signInWithPassword({email,password:pass});
-  btn.disabled=false; btn.innerHTML='Sign In';
+  const { data, error }=await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false; btn.innerHTML='Sign In to POS';
   if(error){ errEl.textContent=error.message==='Invalid login credentials'?'Incorrect email or password.':error.message; errEl.classList.add('show'); return; }
-  showLoginScreen(false); document.getElementById('login-password').value=''; showToast('Welcome back! ✓');
+  currentUser=data.user;
+  closeAuth();
+  await launchPOS();
 }
 
 // ══ SIGNUP ══
@@ -883,50 +1023,87 @@ async function doSignup(){
   const city=document.getElementById('su-city').value.trim();
   const btn=document.getElementById('signup-btn');
   const errEl=document.getElementById('signup-error');
-  const okEl=document.getElementById('signup-success');
+  const okEl=document.getElementById('signup-ok');
   errEl.classList.remove('show'); okEl.classList.remove('show');
   if(!ownerName||!bizName||!email||!pass){ errEl.textContent='Please fill in all required fields.'; errEl.classList.add('show'); return; }
   if(pass.length<8){ errEl.textContent='Password must be at least 8 characters.'; errEl.classList.add('show'); return; }
-  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Creating account…';
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Creating…';
   const { data:authData, error:authErr }=await sb.auth.signUp({ email, password:pass, options:{ data:{ full_name:ownerName, biz_name:bizName } } });
-  if(authErr){ errEl.textContent=authErr.message; errEl.classList.add('show'); btn.disabled=false; btn.innerHTML='Create Account'; return; }
+  if(authErr){ errEl.textContent=authErr.message; errEl.classList.add('show'); btn.disabled=false; btn.innerHTML='Create Account Free'; return; }
   const slug=bizName.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
-  const { data:tenant }=await sb.from('tenants').insert({ slug:slug+'-'+(Date.now()%10000), name:bizName, owner_email:email, owner_name:ownerName, phone:phone||null, city:city||null, biz_name:bizName, plan:'starter', active:true }).select('id').single();
-  if(authData?.user && tenant){ await sb.from('profiles').insert({ id:authData.user.id, tenant_id:tenant.id, role:'owner', full_name:ownerName }); }
+  const { data:tenant }=await sb.from('tenants').insert({
+    slug:slug+'-'+(Date.now()%10000), name:bizName, owner_email:email,
+    owner_name:ownerName, phone:phone||null, city:city||null,
+    biz_name:bizName, plan:'starter', active:true
+  }).select('id').single();
+  if(authData?.user && tenant){
+    await sb.from('profiles').insert({ id:authData.user.id, tenant_id:tenant.id, role:'owner', full_name:ownerName });
+  }
   await sendWelcomeEmail(email, ownerName, bizName);
-  btn.disabled=false; btn.innerHTML='Create Account';
+  btn.disabled=false; btn.innerHTML='Create Account Free';
   okEl.textContent='Account created! Check your email to verify, then sign in.';
   okEl.classList.add('show');
-  setTimeout(()=>{ document.getElementById('login-email').value=email; switchAuthTab('login',document.querySelectorAll('.auth-tab')[0]); },2000);
+  setTimeout(()=>{ document.getElementById('login-email').value=email; switchTab('login'); },2500);
 }
 
 // ══ WELCOME EMAIL ══
 async function sendWelcomeEmail(email, name, bizName){
-  if(!BREVO_API_KEY||BREVO_API_KEY==='YOUR_BREVO_API_KEY') return;
-  const loginUrl='https://bite.pay4.space';
-  const html=`<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9F7F4;font-family:'Helvetica Neue',Arial,sans-serif;"><div style="max-width:520px;margin:32px auto;background:#fff;border-radius:20px;overflow:hidden;border:1px solid rgba(0,0,0,0.07);"><div style="background:#1A1208;padding:40px 32px 32px;text-align:center;"><div style="font-size:26px;font-weight:800;color:#fff;margin-bottom:4px;">BITE<span style="color:#E8440A;">.</span></div><div style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:24px;">by Pay4</div><div style="font-size:44px;margin-bottom:12px;">🎉</div><div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px;">Welcome to BITE. POS!</div><div style="font-size:13px;color:rgba(255,255,255,0.55);">Your POS for <strong style="color:#fff;">${bizName}</strong> is ready.</div></div><div style="padding:28px 28px 24px;"><p style="font-size:15px;color:#1A1208;font-weight:600;margin-bottom:6px;">Hi ${name},</p><p style="font-size:13px;color:#7A6E65;line-height:1.7;margin-bottom:24px;">You are all set! Your BITE. POS account has been created. Here is what to do first:</p><div style="background:#EAF4EE;border-radius:12px;padding:16px 18px;margin-bottom:24px;"><div style="font-size:11px;font-weight:700;color:#0E5A28;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Your first 3 steps</div><div style="font-size:13px;color:#1A7A3A;line-height:1.8;"><div>1. Go to Settings and add your UPI ID</div><div>2. Go to Products and add your menu</div><div>3. Go to Order and take your first order!</div></div></div><div style="text-align:center;margin-bottom:24px;"><a href="${loginUrl}" style="display:inline-block;background:#E8440A;color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:14px;">Open My POS &rarr;</a></div><p style="font-size:12px;color:#7A6E65;line-height:1.6;">Questions? Reply to this email anytime.</p></div><div style="background:#F9F7F4;padding:18px 28px;text-align:center;border-top:1px solid rgba(0,0,0,0.06);"><div style="font-size:13px;font-weight:700;color:#1A1208;margin-bottom:3px;">BITE. by Pay4</div><div style="font-size:11px;color:#C0B8B0;"><a href="${loginUrl}" style="color:#E8440A;text-decoration:none;">bite.pay4.space</a></div></div></div></body></html>`;
+  if(!BREVO_API_KEY) return;
+  const html=`<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9F7F4;font-family:'Helvetica Neue',Arial,sans-serif;"><div style="max-width:500px;margin:28px auto;background:#fff;border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,0.07);"><div style="background:#1A1208;padding:32px 24px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#fff;">BITE<span style="color:#E8440A;">.</span></div><div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px;margin-bottom:20px;">by Pay4</div><div style="font-size:38px;margin-bottom:10px;">🎉</div><div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;">Welcome to BITE. POS!</div><div style="font-size:13px;color:rgba(255,255,255,0.5);">Your POS for <strong style="color:#fff;">${bizName}</strong> is ready.</div></div><div style="padding:24px;"><p style="font-size:14px;color:#1A1208;font-weight:600;margin-bottom:5px;">Hi ${name},</p><p style="font-size:13px;color:#7A6E65;line-height:1.7;margin-bottom:20px;">Your BITE. POS account has been created. Here are your first steps:</p><div style="background:#EAF4EE;border-radius:12px;padding:14px 16px;margin-bottom:20px;"><div style="font-size:11px;font-weight:700;color:#0E5A28;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">First 3 steps</div><div style="font-size:13px;color:#1A7A3A;line-height:1.8;"><div>1. Go to Settings — add your UPI ID</div><div>2. Go to Products — add your menu</div><div>3. Go to Order — take your first order!</div></div></div><div style="text-align:center;margin-bottom:20px;"><a href="https://bite.pay4.space" style="display:inline-block;background:#E8440A;color:#fff;text-decoration:none;padding:13px 28px;border-radius:10px;font-weight:700;font-size:14px;">Open My POS &rarr;</a></div><p style="font-size:12px;color:#7A6E65;">Questions? <a href="mailto:${ADMIN_EMAIL}" style="color:#E8440A;">${ADMIN_EMAIL}</a></p></div><div style="background:#F9F7F4;padding:14px 24px;text-align:center;border-top:1px solid rgba(0,0,0,0.06);"><div style="font-size:12px;font-weight:700;color:#1A1208;">BITE. by Pay4</div></div></div></body></html>`;
   try{
-    await fetch('https://api.brevo.com/v3/smtp/email',{ method:'POST', headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY}, body:JSON.stringify({ sender:{name:'BITE. by Pay4',email:SENDER_EMAIL}, to:[{email,name}], subject:`Welcome to BITE. POS — ${bizName} is all set!`, htmlContent:html }) });
+    await fetch('https://api.brevo.com/v3/smtp/email',{
+      method:'POST', headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY},
+      body:JSON.stringify({ sender:{name:'BITE. by Pay4',email:SENDER_EMAIL}, to:[{email,name}], subject:`Welcome to BITE. POS — ${bizName} is all set!`, htmlContent:html })
+    });
   }catch(e){ console.error('Welcome email:',e); }
 }
 
-// ══ WELCOME BANNER ══
-function showWelcomeBanner(name, bizName){
-  if(localStorage.getItem('bite_welcome_shown')) return;
-  document.getElementById('wb-title').textContent='Welcome, '+name+'!';
-  document.getElementById('wb-sub').textContent=bizName+" is ready. Here's what you can do.";
-  document.getElementById('welcome-banner').classList.add('show');
+// ══ LAUNCH POS ══
+async function launchPOS(){
+  document.getElementById('view-landing').style.display='none';
+  const posEl=document.getElementById('view-pos');
+  posEl.classList.add('active');
+  document.body.className='pos-active';
+  document.getElementById('pos-user-label').textContent=currentUser.email;
+  document.getElementById('kiosk-pill-label').textContent=loadSettings().kioskId||'Kiosk #1';
+  await Promise.all([loadCategories(),loadProducts()]);
+  buildOrderMenu();
+  populateSettingsForm();
+  tick(); setInterval(tick,15000);
+  if(!localStorage.getItem('bite_welcome_shown')){
+    const n=currentUser?.user_metadata?.full_name||'';
+    const b=currentUser?.user_metadata?.biz_name||'';
+    setTimeout(()=>{
+      document.getElementById('wb-title').textContent='Welcome'+(n?', '+n:'')+'!';
+      document.getElementById('wb-sub').textContent=(b||'Your restaurant')+' POS is ready.';
+      document.getElementById('welcome-banner').classList.add('show');
+    },700);
+  }
 }
 function closeWelcomeBanner(){ document.getElementById('welcome-banner').classList.remove('show'); localStorage.setItem('bite_welcome_shown','1'); }
 
-async function doLogout(){ await sb.auth.signOut(); currentUser=null; cart={}; categories=[]; products=[]; updateAuthUI(); showAuthScreen(true); showToast('Signed out'); }
+// ══ LOGOUT ══
+function confirmLogout(){ if(confirm('Sign out of BITE. POS?')) doLogout(); }
+async function doLogout(){
+  await sb.auth.signOut(); currentUser=null; cart={}; categories=[]; products=[];
+  document.getElementById('view-pos').classList.remove('active');
+  document.getElementById('view-landing').style.display='block';
+  document.body.className='landing';
+  showToast('Signed out');
+}
 
-// ══ NAV ══
-function navTo(page,btn){
-  if(['history','products','categories','settings'].includes(page)&&!currentUser){ showLoginScreen(true); return; }
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-link,.mob-nav-item').forEach(n=>n.classList.remove('active'));
+// ══ INIT ══
+async function init(){
+  const { data:{ session } }=await sb.auth.getSession();
+  if(session){ currentUser=session.user; await launchPOS(); return; }
+  sb.auth.onAuthStateChange((_,sess)=>{ if(!sess&&currentUser) doLogout(); });
+}
+
+// ══ POS NAV ══
+function posNavTo(page,btn){
+  document.querySelectorAll('.pos-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pos-page-'+page).classList.add('active');
+  document.querySelectorAll('.pos-nav-link,.pos-mob-item').forEach(n=>n.classList.remove('active'));
   if(btn) btn.classList.add('active');
   if(page==='order')      buildOrderMenu();
   if(page==='history')    renderHistory();
@@ -934,44 +1111,68 @@ function navTo(page,btn){
   if(page==='categories') renderCatList();
   if(page==='settings')   populateSettingsForm();
 }
-function toggleMobNav(){ document.getElementById('mob-nav').classList.toggle('open'); }
-function closeMobNav(){ document.getElementById('mob-nav').classList.remove('open'); }
+function togglePosMobNav(){ document.getElementById('pos-mob-nav').classList.toggle('open'); }
+function closePosMobNav(){ document.getElementById('pos-mob-nav').classList.remove('open'); }
+
+// ══ SETTINGS ══
+function loadSettings(){
+  return { upiId:localStorage.getItem('bite_upi')||'', bizName:localStorage.getItem('bite_biz_name')||'BITE.', kioskId:localStorage.getItem('bite_kiosk_id')||'Kiosk #1', taxRate:parseFloat(localStorage.getItem('bite_tax_rate')||'8') };
+}
+function saveSettings(){
+  const upi=document.getElementById('set-upi').value.trim();
+  const biz=document.getElementById('set-biz-name').value.trim();
+  const kiosk=document.getElementById('set-kiosk-id').value.trim();
+  const tax=parseFloat(document.getElementById('set-tax').value)||8;
+  localStorage.setItem('bite_upi',upi); localStorage.setItem('bite_biz_name',biz||'BITE.');
+  localStorage.setItem('bite_kiosk_id',kiosk||'Kiosk #1'); localStorage.setItem('bite_tax_rate',tax);
+  document.getElementById('kiosk-pill-label').textContent=kiosk||'Kiosk #1';
+  showToast('Settings saved ✓'); updateCart();
+}
+function populateSettingsForm(){
+  const s=loadSettings();
+  document.getElementById('set-upi').value=s.upiId;
+  document.getElementById('set-biz-name').value=s.bizName;
+  document.getElementById('set-kiosk-id').value=s.kioskId;
+  document.getElementById('set-tax').value=s.taxRate;
+  updateUpiPreview();
+}
+function updateUpiPreview(){
+  const val=document.getElementById('set-upi').value.trim();
+  const prev=document.getElementById('upi-preview');
+  document.getElementById('upi-preview-val').textContent=val?`upi://pay?pa=${val}&am=XX.XX&tn=Order%23XXX&cu=INR`:'';
+  prev.style.display=val?'block':'none';
+}
 
 // ══ DATA ══
 async function loadCategories(){
-  const { data,error }=await sb.from('categories').select('*').order('sort_order');
-  if(!error) categories=data;
+  const {data,error}=await sb.from('categories').select('*').order('sort_order',{ascending:true});
+  if(!error&&data) categories=data;
 }
 async function loadProducts(){
-  const { data,error }=await sb.from('products').select('*, categories(name,icon)').order('sort_order');
-  if(!error) products=data.map(p=>({...p,catId:p.category_id,catName:p.categories?.name||'',catIcon:p.categories?.icon||'',outOfStock:p.out_of_stock}));
+  const {data,error}=await sb.from('products').select('*, categories(name,icon)').order('sort_order',{ascending:true});
+  if(!error&&data) products=data.map(p=>({...p,catId:p.category_id,catName:p.categories?.name||'',catIcon:p.categories?.icon||'',outOfStock:p.out_of_stock}));
 }
 
-// ══ ORDER PAGE ══
+// ══ ORDER ══
 function buildOrderMenu(){
   const strip=document.getElementById('cat-strip-order');
   const secs=document.getElementById('menu-sections-order');
+  if(!strip||!secs) return;
   strip.innerHTML=['All',...categories.map(c=>c.name)].map(c=>
-    `<button class="cat-btn${c===activeOrderCat?' active':''}" onclick="filterOrderCat('${c.replace(/'/g,"\\'")}')">
-      ${c==='All'?'All':(categories.find(x=>x.name===c)?.icon||'')+' '+c}</button>`
-  ).join('');
+    `<button class="cat-btn${c===activeOrderCat?' active':''}" onclick="filterOrderCat('${c.replace(/'/g,"\\'")}')">${c==='All'?'All':(categories.find(x=>x.name===c)?.icon||'')+' '+c}</button>`).join('');
   secs.innerHTML=categories.filter(c=>activeOrderCat==='All'||c.name===activeOrderCat).map(cat=>{
     const prods=products.filter(p=>p.category_id===cat.id);
     if(!prods.length) return '';
     return `<div class="sec-label">${cat.icon} ${cat.name}</div><div class="items-grid">${prods.map(p=>{
-      const qty=cart[p.id]?.qty||0, oos=p.out_of_stock;
-      const clickHandler = oos ? '' : `addToCart('${p.id}')`;
-      return `<div class="item-card${qty>0?' in-cart':''}${oos?' out-of-stock':''}" onclick="${clickHandler}">
-        ${qty>0?`<div class="cart-dot">${qty}</div>`:''}
-        ${oos?'<div class="oos-dot">Out</div>':''}
-        <div class="ic">${p.icon}</div>
-        <div class="iname">${p.name}</div>
+      const qty=cart[p.id]?.qty||0,oos=p.out_of_stock;
+      const ch=oos?'':(`addToCart('${p.id}')`);
+      return `<div class="item-card${qty>0?' in-cart':''}${oos?' out-of-stock':''}" onclick="${ch}">
+        ${qty>0?`<div class="cart-dot">${qty}</div>`:''}${oos?'<div class="oos-dot">Out</div>':''}
+        <div class="ic">${p.icon}</div><div class="iname">${p.name}</div>
         <div class="idesc">${(p.ingredients||[]).slice(0,2).join(', ')}</div>
-        <div class="ifooter">
-          <div class="iprice">₹${Number(p.price).toFixed(2)}</div>
-          ${oos?'<span style="font-size:10px;color:var(--faint)">Unavailable</span>':`<button class="add-btn" onclick="addToCart('${p.id}');event.stopPropagation()">+</button>`}
-        </div>
-      </div>`;
+        <div class="ifooter"><div class="iprice">₹${Number(p.price).toFixed(2)}</div>
+        ${oos?'<span style="font-size:10px;color:var(--faint)">Unavailable</span>':`<button class="add-btn" onclick="addToCart('${p.id}');event.stopPropagation()">+</button>`}
+        </div></div>`;
     }).join('')}</div>`;
   }).join('');
 }
@@ -982,8 +1183,7 @@ function addToCart(id){
   cart[id].qty++; updateCart(); buildOrderMenu(); showToast(p.name+' added');
 }
 function changeCartQty(id,d){
-  if(!cart[id]) return;
-  cart[id].qty+=d;
+  if(!cart[id]) return; cart[id].qty+=d;
   if(cart[id].qty<=0) delete cart[id];
   updateCart(); buildOrderMenu();
 }
@@ -993,98 +1193,80 @@ function cartRowsHTML(){
   if(!entries.length) return '<div class="cart-empty"><span style="font-size:26px">🛒</span>Tap items to add</div>';
   return entries.map(i=>`<div class="cart-row">
     <div class="cr-info"><div class="cr-name">${i.name}</div><div class="cr-price">₹${Number(i.price).toFixed(2)} each</div></div>
-    <div class="qty-ctrl">
-      <button class="qb" onclick="changeCartQty('${i.id}',-1)">−</button>
-      <span class="qn">${i.qty}</span>
-      <button class="qb" onclick="changeCartQty('${i.id}',1)">+</button>
-    </div>
-    <div class="cr-total">₹${(i.price*i.qty).toFixed(2)}</div>
-  </div>`).join('');
+    <div class="qty-ctrl"><button class="qb" onclick="changeCartQty('${i.id}',-1)">−</button><span class="qn">${i.qty}</span><button class="qb" onclick="changeCartQty('${i.id}',1)">+</button></div>
+    <div class="cr-total">₹${(i.price*i.qty).toFixed(2)}</div></div>`).join('');
 }
 function updateCart(){
   const entries=Object.values(cart);
   const count=entries.reduce((s,i)=>s+i.qty,0);
   const sub=entries.reduce((s,i)=>s+i.price*i.qty,0);
-  const taxRate=getTax();
-  const tax=sub*taxRate;
-  const total=sub+tax;
+  const tax=sub*getTax(); const total=sub+tax;
   const html=cartRowsHTML();
-  document.getElementById('cart-items-desk').innerHTML=html;
-  document.getElementById('cart-items-mob').innerHTML=html;
+  const d1=document.getElementById('cart-items-desk'); if(d1) d1.innerHTML=html;
+  const d2=document.getElementById('cart-items-mob'); if(d2) d2.innerHTML=html;
   ['d','m'].forEach(s=>{
-    document.getElementById('subtotal-'+s).textContent='₹'+sub.toFixed(2);
-    document.getElementById('tax-'+s).textContent='₹'+tax.toFixed(2);
-    document.getElementById('total-'+s).textContent='₹'+total.toFixed(2);
-    document.getElementById('pay-btn-'+s).disabled=count===0;
+    const sub_el=document.getElementById('subtotal-'+s); if(sub_el) sub_el.textContent='₹'+sub.toFixed(2);
+    const tax_el=document.getElementById('tax-'+s); if(tax_el) tax_el.textContent='₹'+tax.toFixed(2);
+    const tot_el=document.getElementById('total-'+s); if(tot_el) tot_el.textContent='₹'+total.toFixed(2);
+    const btn=document.getElementById('pay-btn-'+s); if(btn) btn.disabled=count===0;
   });
-  document.getElementById('cart-count-desk').textContent=count;
-  document.getElementById('cart-count-mob').textContent=count;
-  document.getElementById('fab-badge').textContent=count;
-  document.getElementById('fab-total').textContent='₹'+total.toFixed(2);
-  const fab=document.getElementById('fab-wrap');
-  if(window.innerWidth<=860) fab.style.display=count>0?'flex':'none';
+  ['cart-count-desk','cart-count-mob','fab-badge'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=count; });
+  const fab_tot=document.getElementById('fab-total'); if(fab_tot) fab_tot.textContent='₹'+total.toFixed(2);
+  const fab=document.getElementById('fab-wrap'); if(fab&&window.innerWidth<=860) fab.style.display=count>0?'flex':'none';
 }
 function clearCart(){ cart={}; updateCart(); buildOrderMenu(); }
 
-// ══ CHECKOUT MODAL ══
+// ══ CHECKOUT ══
 function openCheckout(){
   const entries=Object.values(cart);
   const sub=entries.reduce((s,i)=>s+i.price*i.qty,0);
-  const tax=sub*getTax();
-  const total=sub+tax;
+  const tax=sub*getTax(); const total=sub+tax;
   document.getElementById('co-summary').innerHTML=`
     ${entries.map(i=>`<div class="co-summary-row"><span>${i.qty}× ${i.name}</span><span>₹${(i.price*i.qty).toFixed(2)}</span></div>`).join('')}
     <div class="co-summary-row"><span>Tax (${loadSettings().taxRate}%)</span><span>₹${tax.toFixed(2)}</span></div>
     <div class="co-summary-row total"><span>Total</span><span>₹${total.toFixed(2)}</span></div>`;
-  document.getElementById('co-name').value='';
-  document.getElementById('co-email').value='';
-  document.getElementById('co-phone').value='';
+  ['co-name','co-email','co-phone'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('checkout-overlay').classList.add('show');
 }
 function closeCheckout(){ document.getElementById('checkout-overlay').classList.remove('show'); }
 
-// ══ PLACE ORDER → Supabase ══
+// ══ PLACE ORDER ══
 async function placeOrder(){
-  const entries=Object.values(cart);
-  if(!entries.length) return;
+  const entries=Object.values(cart); if(!entries.length) return;
   const btn=document.getElementById('co-place-btn');
   btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
   const sub=entries.reduce((s,i)=>s+i.price*i.qty,0);
   const tax=sub*getTax(); const total=sub+tax;
-  const custName=document.getElementById('co-name').value.trim();
-  const custEmail=document.getElementById('co-email').value.trim();
-  const custPhone=document.getElementById('co-phone').value.trim();
+  const custName=document.getElementById('co-name')?.value.trim();
+  const custEmail=document.getElementById('co-email')?.value.trim();
+  const custPhone=document.getElementById('co-phone')?.value.trim();
   const { data:orderData, error:orderErr }=await sb.from('orders')
-    .insert({ subtotal:sub.toFixed(2), tax:tax.toFixed(2), total:total.toFixed(2), status:'paid',
-              customer_name:custName||null, customer_email:custEmail||null, customer_phone:custPhone||null,
-              kiosk_id: loadSettings().kioskId })
+    .insert({ subtotal:sub.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),status:'paid',
+              customer_name:custName||null,customer_email:custEmail||null,customer_phone:custPhone||null,
+              kiosk_id:loadSettings().kioskId })
     .select('id,order_number').single();
-  if(orderErr){ showToast('Error saving order'); btn.disabled=false; btn.textContent='Place Order & Pay →'; return; }
+  if(orderErr){ showToast('Error: '+orderErr.message); btn.disabled=false; btn.textContent='Place Order & Pay →'; return; }
   await sb.from('order_items').insert(entries.map(i=>({
-    order_id:orderData.id, product_id:i.id, product_name:i.name, product_icon:i.icon,
-    unit_price:Number(i.price).toFixed(2), qty:i.qty
+    order_id:orderData.id,product_id:i.id,product_name:i.name,product_icon:i.icon,
+    unit_price:Number(i.price).toFixed(2),qty:i.qty
   })));
   btn.disabled=false; btn.textContent='Place Order & Pay →';
   closeCheckout();
-  const fullOrder={ id:orderData.id, order_number:orderData.order_number, total, subtotal:sub, tax,
-    customer_name:custName, customer_email:custEmail, customer_phone:custPhone, items:entries };
-  clearCart();
-  showUpiModal(fullOrder);
+  const fullOrder={id:orderData.id,order_number:orderData.order_number,total,subtotal:sub,tax,
+    customer_name:custName,customer_email:custEmail,customer_phone:custPhone,items:entries};
+  clearCart(); showUpiModal(fullOrder);
 }
 
-// ══ UPI QR MODAL ══
+// ══ UPI ══
 function showUpiModal(order){
-  const { upiId, bizName }=loadSettings();
+  const {upiId,bizName}=loadSettings();
   const body=document.getElementById('upi-body');
   document.getElementById('upi-overlay').classList.add('show');
-  if(!upiId){
-    body.innerHTML=`<div class="no-upi-msg"><div style="font-size:36px;margin-bottom:10px">⚙️</div>
-      <strong>UPI ID not configured</strong><br><br>Order #${order.order_number} placed!<br>
-      Go to <strong>Settings → UPI</strong> to add your UPI ID.<br><br>
-      <button class="upi-done-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">Next →</button></div>`;
-    window._pendingOrder=order; return;
-  }
   window._pendingOrder=order;
+  if(!upiId){
+    body.innerHTML=`<div class="no-upi-msg"><div style="font-size:32px;margin-bottom:10px">⚙️</div><strong>UPI ID not configured</strong><br><br>Order #${order.order_number} placed!<br>Go to Settings to add your UPI ID.<br><br><button class="upi-done-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">Next →</button></div>`;
+    return;
+  }
   const upiStr=`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(bizName)}&am=${order.total.toFixed(2)}&tn=${encodeURIComponent('Order #'+order.order_number)}&cu=INR`;
   body.innerHTML=`
     <div class="upi-amount">₹${order.total.toFixed(2)}</div>
@@ -1092,50 +1274,43 @@ function showUpiModal(order){
     <div class="upi-qr-wrap"><div id="qr-canvas"></div></div>
     <div class="upi-id-label">Scan with any UPI app</div>
     <div class="upi-id-val">${upiId}</div>
-    <div class="upi-instructions">1. Open GPay, PhonePe, Paytm or any UPI app<br>2. Tap "Scan QR" and point at the code above<br>3. Confirm the amount and pay<br>4. Show payment confirmation to staff</div>
+    <div class="upi-instructions">1. Open GPay, PhonePe, Paytm or any UPI app<br>2. Tap Scan QR and point at the code<br>3. Confirm the amount and pay</div>
     <button class="upi-done-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">✓ Payment Done — Next</button>
     <button class="upi-nopay-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">Pay Later / Cash</button>`;
   setTimeout(()=>{ const el=document.getElementById('qr-canvas'); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:upiStr,width:192,height:192,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); },100);
 }
 function closeUpiModal(){ document.getElementById('upi-overlay').classList.remove('show'); }
 
-// ══ SUCCESS + SHARE MODAL ══
-function getReceiptURL(orderId, bizName){
-  return `${RECEIPT_BASE}?id=${orderId}&biz=${encodeURIComponent(bizName||'BITE.')}`;
-}
+// ══ SUCCESS ══
+function getReceiptURL(orderId,bizName){ return `${RECEIPT_BASE}?id=${orderId}&biz=${encodeURIComponent(bizName||'BITE.')}`; }
 function showSuccessModal(order){
   if(!order) return;
-  const { bizName }=loadSettings();
-  const receiptURL=getReceiptURL(order.id, bizName);
-  const hasEmail=!!(order.customer_email);
-  const hasPhone=!!(order.customer_phone);
+  const {bizName}=loadSettings();
+  const receiptURL=getReceiptURL(order.id,bizName);
   document.getElementById('ss-body').innerHTML=`
     <div class="ss-icon">✅</div>
     <div class="ss-title">Order Placed!</div>
     <div class="ss-sub">Confirmed and saved.</div>
     <div class="ss-center"><div class="ss-order-badge">#${order.order_number}</div></div>
-    <div class="ss-center" style="margin-bottom:14px">
+    <div class="ss-center" style="margin-bottom:12px">
       <div class="ss-qr-wrap"><div id="ss-qr-canvas"></div></div>
       <div class="ss-receipt-url">${receiptURL}</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Customer scans QR to open receipt</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Customer scans to open receipt</div>
     </div>
     <div class="ss-share-btns">
-      <button class="ss-share-btn wa" onclick="shareReceiptWhatsApp('${receiptURL}',${order.order_number},'${order.total.toFixed(2)}','${(order.customer_phone||'').replace(/'/g,'')}')">
-        💬 WhatsApp${hasPhone?' (Direct)':''}</button>
-      <button class="ss-share-btn mail" id="ss-mail-btn" ${!hasEmail?'disabled':''} title="${!hasEmail?'No email collected':'Send receipt email'}"
-        onclick="sendReceiptEmail('${order.id}',${order.order_number},'${order.total.toFixed(2)}','${(order.customer_email||'').replace(/'/g,'')}','${(order.customer_name||'').replace(/'/g,'')}','${receiptURL}','${bizName}')">
-        ✉️ ${hasEmail?'Email Receipt':'No Email'}</button>
+      <button class="ss-share-btn wa" onclick="shareReceiptWhatsApp('${receiptURL}',${order.order_number},'${order.total.toFixed(2)}','${(order.customer_phone||'')}')">💬 WhatsApp</button>
+      <button class="ss-share-btn mail" id="ss-mail-btn" ${!order.customer_email?'disabled':''}
+        onclick="sendReceiptEmail('${order.id}',${order.order_number},'${order.total.toFixed(2)}','${(order.customer_email||'')}','${(order.customer_name||'')}','${receiptURL}','${bizName}')">
+        ✉️ ${order.customer_email?'Email':'No Email'}</button>
     </div>
-    <button class="ss-share-btn copy" style="width:100%;margin-bottom:14px" onclick="copyReceiptLink('${receiptURL}')">🔗 Copy Receipt Link</button>
+    <button class="ss-share-btn copy" style="width:100%;margin-bottom:12px" onclick="copyReceiptLink('${receiptURL}')">🔗 Copy Link</button>
     <button class="ss-new-btn" onclick="closeSuccessModal()">Start New Order</button>`;
   document.getElementById('success-overlay').classList.add('show');
-  setTimeout(()=>{ const el=document.getElementById('ss-qr-canvas'); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:receiptURL,width:148,height:148,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); },150);
+  setTimeout(()=>{ const el=document.getElementById('ss-qr-canvas'); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:receiptURL,width:140,height:140,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); },150);
 }
 function closeSuccessModal(){ document.getElementById('success-overlay').classList.remove('show'); }
-
-// ══ SHARING ══
-function shareReceiptWhatsApp(url, orderNum, total, phone){
-  const msg=encodeURIComponent(`Hi! Your order #${orderNum} for ₹${total} is confirmed.\n\nView & download your receipt:\n${url}`);
+function shareReceiptWhatsApp(url,orderNum,total,phone){
+  const msg=encodeURIComponent(`Hi! Your order #${orderNum} for ₹${total} is confirmed.\n\nView your receipt:\n${url}`);
   window.open(phone?`https://wa.me/${phone.replace(/\D/g,'')}?text=${msg}`:`https://wa.me/?text=${msg}`,'_blank');
 }
 function copyReceiptLink(url){
@@ -1144,19 +1319,15 @@ function copyReceiptLink(url){
 }
 async function sendReceiptEmail(orderId,orderNum,total,email,name,receiptURL,bizName){
   if(!email){ showToast('No email collected'); return; }
-  if(!BREVO_API_KEY||BREVO_API_KEY==='YOUR_BREVO_API_KEY'){ showToast('Add Brevo API key in Settings'); return; }
+  if(!BREVO_API_KEY){ showToast('Brevo API key not set'); return; }
   const btn=document.getElementById('ss-mail-btn')||document.getElementById('od-mail-btn');
-  if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner" style="border-top-color:#fff;width:14px;height:14px"></div>'; }
-  const emailHTML=`<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9F7F4;font-family:'Helvetica Neue',Arial,sans-serif;"><div style="max-width:480px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(0,0,0,0.08);"><div style="background:#1A1208;padding:28px 24px;text-align:center;"><div style="font-size:24px;font-weight:800;color:#fff;">BITE<span style="color:#E8440A;">.</span></div><div style="font-size:9px;color:rgba(255,255,255,0.38);letter-spacing:1px;text-transform:uppercase;margin-top:3px;">by Pay4</div><div style="font-size:36px;font-weight:800;color:#fff;margin:16px 0 4px;">#${orderNum}</div><div style="display:inline-block;background:#EAF4EE;color:#0E5A28;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">✓ Confirmed</div></div><div style="padding:24px;"><p style="font-size:14px;color:#1A1208;margin-bottom:20px;">Hi ${name||'there'}! Your order has been confirmed. Total: <strong style="color:#E8440A;">₹${total}</strong></p><a href="${receiptURL}" style="display:block;background:#E8440A;color:#fff;text-align:center;padding:14px 20px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:14px;">View Full Receipt →</a><p style="font-size:11px;color:#7A6E65;text-align:center;">Link: <a href="${receiptURL}" style="color:#E8440A;">${receiptURL}</a></p></div><div style="background:#F9F7F4;padding:16px 24px;text-align:center;border-top:1px solid rgba(0,0,0,0.08);"><div style="font-size:13px;font-weight:700;color:#1A1208;">${bizName||'BITE.'}</div><div style="font-size:10px;color:#C0B8B0;">Powered by Pay4</div></div></div></body></html>`;
+  if(btn){ btn.disabled=true; btn.innerHTML='<div class="spinner" style="width:14px;height:14px"></div>'; }
+  const html=`<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9F7F4;font-family:'Helvetica Neue',Arial,sans-serif;"><div style="max-width:460px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(0,0,0,0.08);"><div style="background:#1A1208;padding:24px;text-align:center;"><div style="font-size:20px;font-weight:800;color:#fff;">BITE<span style="color:#E8440A;">.</span></div><div style="font-size:32px;font-weight:800;color:#fff;margin:12px 0 4px;">#${orderNum}</div><div style="display:inline-block;background:#EAF4EE;color:#0E5A28;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">✓ Confirmed</div></div><div style="padding:20px 22px;"><p style="font-size:14px;color:#1A1208;margin-bottom:16px;">Hi ${name||'there'}! Total: <strong style="color:#E8440A;">₹${total}</strong></p><a href="${receiptURL}" style="display:block;background:#E8440A;color:#fff;text-align:center;padding:13px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;margin-bottom:12px;">View Receipt &rarr;</a></div><div style="background:#F9F7F4;padding:12px;text-align:center;border-top:1px solid rgba(0,0,0,0.06);"><div style="font-size:12px;font-weight:700;color:#1A1208;">${bizName||'BITE.'}</div></div></div></body></html>`;
   try{
-    const res=await fetch('https://api.brevo.com/v3/smtp/email',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY},
-      body:JSON.stringify({ sender:{name:bizName||'BITE.',email:'noreply@pay4.space'}, to:[{email,name:name||'Customer'}], subject:`Your receipt — Order #${orderNum}`, htmlContent:emailHTML })
-    });
-    if(res.ok){ showToast(`Receipt sent to ${email} ✓`); if(btn){ btn.disabled=false; btn.innerHTML='✉️ Sent ✓'; } }
-    else{ const e=await res.json(); showToast('Email failed: '+(e.message||'error')); if(btn){ btn.disabled=false; btn.innerHTML='✉️ Email Receipt'; } }
-  }catch(e){ showToast('Email error'); if(btn){ btn.disabled=false; btn.innerHTML='✉️ Email Receipt'; } console.error(e); }
+    const res=await fetch('https://api.brevo.com/v3/smtp/email',{method:'POST',headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY},body:JSON.stringify({sender:{name:bizName||'BITE.',email:SENDER_EMAIL},to:[{email,name:name||'Customer'}],subject:`Receipt — Order #${orderNum}`,htmlContent:html})});
+    if(res.ok){ showToast(`Sent to ${email} ✓`); if(btn){ btn.disabled=false; btn.innerHTML='✉️ Sent ✓'; } }
+    else{ showToast('Email failed'); if(btn){ btn.disabled=false; btn.innerHTML='✉️ Email'; } }
+  }catch(e){ showToast('Email error'); if(btn){ btn.disabled=false; btn.innerHTML='✉️ Email'; } }
 }
 
 // ══ HISTORY ══
@@ -1168,25 +1339,24 @@ function setFilter(f,btn){
   if(f!=='custom') renderHistory();
 }
 async function renderHistory(){
-  document.getElementById('stat-cards').innerHTML='<div class="empty-state"><div class="ls-spinner" style="border-top-color:var(--brand);margin:0 auto"></div></div>';
+  document.getElementById('stat-cards').innerHTML='<div class="empty-state"><div class="ls-spinner"></div></div>';
   document.getElementById('orders-table').innerHTML='';
-  const now=new Date(); let fromISO, toISO;
+  const now=new Date(); let fromISO,toISO;
   if(historyFilter==='today'){ fromISO=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString(); toISO=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1).toISOString(); }
   else if(historyFilter==='week'){ const w=new Date(now); w.setDate(now.getDate()-7); fromISO=w.toISOString(); toISO=new Date(now.getTime()+86400000).toISOString(); }
   else if(historyFilter==='year'){ fromISO=new Date(now.getFullYear(),0,1).toISOString(); toISO=new Date(now.getFullYear()+1,0,1).toISOString(); }
   else if(historyFilter==='custom'){
-    const f=document.getElementById('date-from').value, t=document.getElementById('date-to').value;
+    const f=document.getElementById('date-from').value,t=document.getElementById('date-to').value;
     if(!f||!t){ showToast('Select both dates'); return; }
     fromISO=new Date(f).toISOString(); toISO=new Date(t+'T23:59:59').toISOString();
   }
   let q=sb.from('orders').select('*, order_items(product_name,product_icon,qty,unit_price,line_total)').order('created_at',{ascending:false});
   if(fromISO) q=q.gte('created_at',fromISO);
   if(toISO)   q=q.lt('created_at',toISO);
-  const { data:orders, error }=await q;
+  const {data:orders,error}=await q;
   if(error){ showToast('Error loading history'); return; }
-  const paid=orders.filter(o=>o.status==='paid'), refunded=orders.filter(o=>o.status==='refunded');
-  const revenue=paid.reduce((s,o)=>s+Number(o.total),0);
-  const refundAmt=refunded.reduce((s,o)=>s+Number(o.total),0);
+  const paid=orders.filter(o=>o.status==='paid'),refunded=orders.filter(o=>o.status==='refunded');
+  const revenue=paid.reduce((s,o)=>s+Number(o.total),0),refundAmt=refunded.reduce((s,o)=>s+Number(o.total),0);
   document.getElementById('stat-cards').innerHTML=`
     <div class="stat-card green"><div class="stat-label">Revenue</div><div class="stat-val">₹${revenue.toFixed(2)}</div><div class="stat-sub">${paid.length} paid orders</div></div>
     <div class="stat-card red"><div class="stat-label">Refunds</div><div class="stat-val">₹${refundAmt.toFixed(2)}</div><div class="stat-sub">${refunded.length} refunded</div></div>
@@ -1196,37 +1366,31 @@ async function renderHistory(){
   document.getElementById('orders-table').innerHTML=`
     <div class="ot-head"><div>Order</div><div>Items</div><div class="col-time">Time</div><div>Total</div><div>Status</div><div class="col-refund">Action</div></div>
     ${orders.map(o=>{
-      const itemList=(o.order_items||[]).map(i=>i.qty>1?i.qty+'× '+i.product_name:i.product_name).join(', ');
+      const items=(o.order_items||[]).map(i=>i.qty>1?i.qty+'× '+i.product_name:i.product_name).join(', ');
       return `<div class="ot-row" onclick="openOrderDetail('${o.id}')">
-        <div class="ot-id">#${o.order_number}</div>
-        <div class="ot-items">${itemList}</div>
+        <div class="ot-id">#${o.order_number}</div><div class="ot-items">${items}</div>
         <div class="ot-time col-time">${fmtTime(o.created_at)}</div>
         <div class="ot-total">₹${Number(o.total).toFixed(2)}</div>
         <div><span class="badge ${o.status}">${o.status}</span></div>
         <div class="col-refund" onclick="event.stopPropagation()">
           <button class="refund-btn" ${o.status==='refunded'?'disabled':''} onclick="openRefundModal('${o.id}','${o.order_number}','${o.total}')">Refund</button>
-        </div>
-      </div>`;
+        </div></div>`;
     }).join('')}`;
 }
 function fmtTime(iso){ const d=new Date(iso),now=new Date(); return d.toDateString()===now.toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'}); }
 
-// ══ ORDER DETAIL MODAL ══
+// ══ ORDER DETAIL ══
 async function openOrderDetail(orderId){
   document.getElementById('order-detail-overlay').classList.add('show');
-  document.getElementById('od-body').innerHTML='<div style="padding:30px;text-align:center"><div class="ls-spinner" style="border-top-color:var(--brand);margin:0 auto"></div></div>';
-  const { data:o,error }=await sb.from('orders')
-    .select('*, order_items(product_name,product_icon,qty,unit_price,line_total)')
-    .eq('id',orderId).single();
+  document.getElementById('od-body').innerHTML='<div style="padding:28px;text-align:center"><div class="ls-spinner"></div></div>';
+  const {data:o,error}=await sb.from('orders').select('*, order_items(product_name,product_icon,qty,unit_price,line_total)').eq('id',orderId).single();
   if(error||!o){ document.getElementById('od-body').innerHTML='<div class="empty-state"><p>Could not load order.</p></div>'; return; }
   currentOrderDetail=o;
   document.getElementById('od-num').textContent='#'+o.order_number;
-  const refundBtn=document.getElementById('od-refund-btn');
-  refundBtn.disabled=o.status==='refunded';
-  refundBtn.textContent=o.status==='refunded'?'Already Refunded':'Issue Refund';
+  const rb=document.getElementById('od-refund-btn');
+  rb.disabled=o.status==='refunded'; rb.textContent=o.status==='refunded'?'Already Refunded':'Issue Refund';
   const hasCustomer=o.customer_name||o.customer_email||o.customer_phone;
-  const { bizName }=loadSettings();
-  const receiptURL=getReceiptURL(o.id, bizName);
+  const {bizName}=loadSettings(); const receiptURL=getReceiptURL(o.id,bizName);
   document.getElementById('od-body').innerHTML=`
     <div class="od-meta">
       <div class="od-meta-chip">${fmtTime(o.created_at)}</div>
@@ -1235,58 +1399,38 @@ async function openOrderDetail(orderId){
       <span class="badge ${o.status}" style="align-self:center">${o.status}</span>
     </div>
     <div class="od-section-label">Items</div>
-    ${(o.order_items||[]).map(i=>`
-      <div class="od-item-row">
-        <div class="od-item-icon">${i.product_icon||'🍽️'}</div>
-        <div class="od-item-name">${i.product_name}</div>
-        <div class="od-item-qty">${i.qty}×</div>
-        <div class="od-item-price">₹${Number(i.line_total).toFixed(2)}</div>
-      </div>`).join('')}
+    ${(o.order_items||[]).map(i=>`<div class="od-item-row"><div class="od-item-icon">${i.product_icon||'🍽️'}</div><div class="od-item-name">${i.product_name}</div><div class="od-item-qty">${i.qty}×</div><div class="od-item-price">₹${Number(i.line_total).toFixed(2)}</div></div>`).join('')}
     <div class="od-totals">
       <div class="od-tot-row"><span>Subtotal</span><span>₹${Number(o.subtotal).toFixed(2)}</span></div>
       <div class="od-tot-row"><span>Tax</span><span>₹${Number(o.tax).toFixed(2)}</span></div>
       <div class="od-tot-row grand"><span>Total</span><span>₹${Number(o.total).toFixed(2)}</span></div>
     </div>
-    ${hasCustomer?`<div class="od-customer">
-      <div class="od-customer-title">Customer</div>
+    ${hasCustomer?`<div class="od-customer"><div class="od-customer-title">Customer</div>
       ${o.customer_name?`<div class="od-customer-row">👤 ${o.customer_name}</div>`:''}
       ${o.customer_email?`<div class="od-customer-row">✉️ ${o.customer_email}</div>`:''}
       ${o.customer_phone?`<div class="od-customer-row">📱 ${o.customer_phone}</div>`:''}
     </div>`:''}
     <div class="share-panel">
       <div class="share-panel-title">Share Receipt</div>
-      <div class="share-qr-row">
-        <div class="share-qr-box"><div id="od-qr-canvas"></div></div>
-        <div class="share-qr-hint"><strong>Scan to open receipt</strong>Works on any phone — no app needed. Customer can view, download or print.</div>
-      </div>
+      <div class="share-qr-row"><div class="share-qr-box"><div id="od-qr-canvas"></div></div>
+      <div class="share-qr-hint"><strong>Scan to open receipt</strong>Customer can view, download or print.</div></div>
       <div class="share-btns">
-        <button class="share-btn wa" onclick="shareReceiptWhatsApp('${receiptURL}',${o.order_number},'${Number(o.total).toFixed(2)}','${(o.customer_phone||'')}')">
-          <span class="sb-icon">💬</span>WhatsApp</button>
+        <button class="share-btn wa" onclick="shareReceiptWhatsApp('${receiptURL}',${o.order_number},'${Number(o.total).toFixed(2)}','${(o.customer_phone||'')}')"><span class="sb-icon">💬</span>WhatsApp</button>
         <button class="share-btn mail" id="od-mail-btn" ${!o.customer_email?'disabled':''}
           onclick="sendReceiptEmail('${o.id}',${o.order_number},'${Number(o.total).toFixed(2)}','${o.customer_email||''}','${(o.customer_name||'').replace(/'/g,'')}','${receiptURL}','${bizName}')">
           <span class="sb-icon">✉️</span>${o.customer_email?'Email':'No Email'}</button>
-        <button class="share-btn" onclick="copyReceiptLink('${receiptURL}')">
-          <span class="sb-icon">🔗</span>Copy Link</button>
+        <button class="share-btn" onclick="copyReceiptLink('${receiptURL}')"><span class="sb-icon">🔗</span>Copy</button>
       </div>
     </div>`;
-  setTimeout(()=>{
-    const el=document.getElementById('od-qr-canvas');
-    if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:receiptURL,width:72,height:72,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
-  },150);
+  setTimeout(()=>{ const el=document.getElementById('od-qr-canvas'); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:receiptURL,width:68,height:68,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); },150);
 }
 function closeOrderDetail(){ document.getElementById('order-detail-overlay').classList.remove('show'); currentOrderDetail=null; }
-function refundFromDetail(){
-  if(!currentOrderDetail) return;
-  closeOrderDetail();
-  openRefundModal(currentOrderDetail.id, currentOrderDetail.order_number, currentOrderDetail.total);
-}
-
-// ══ REFUND ══
+function refundFromDetail(){ if(!currentOrderDetail) return; closeOrderDetail(); openRefundModal(currentOrderDetail.id,currentOrderDetail.order_number,currentOrderDetail.total); }
 function openRefundModal(id,num,total){ pendingRefundId=id; document.getElementById('refund-modal-sub').textContent=`Refund order #${num} for ₹${Number(total).toFixed(2)}?`; document.getElementById('refund-modal').classList.add('show'); }
 function closeRefundModal(){ document.getElementById('refund-modal').classList.remove('show'); pendingRefundId=null; }
 async function confirmRefund(){
   if(!pendingRefundId) return;
-  const { error }=await sb.from('orders').update({status:'refunded'}).eq('id',pendingRefundId);
+  const {error}=await sb.from('orders').update({status:'refunded'}).eq('id',pendingRefundId);
   if(error){ showToast('Refund failed'); return; }
   closeRefundModal(); renderHistory(); showToast('Refund issued ✓');
 }
@@ -1312,7 +1456,7 @@ function renderProdModalBody(p){
       <div class="form-group" style="margin-bottom:0"><label class="form-label">Name</label><input class="form-input" id="pe-name" placeholder="Classic Smash" value="${p?p.name:''}"/></div>
       <div class="form-group" style="margin-bottom:0"><label class="form-label">Price (₹)</label><input class="form-input" id="pe-price" type="number" min="0" step="0.5" placeholder="0.00" value="${p?p.price:''}"/></div>
     </div>
-    <div class="form-group" style="margin-top:15px"><label class="form-label">Category</label>
+    <div class="form-group" style="margin-top:14px"><label class="form-label">Category</label>
       <select class="form-input" id="pe-cat">${categories.map(c=>`<option value="${c.id}"${p&&p.category_id===c.id?' selected':''}>${c.icon} ${c.name}</option>`).join('')}</select>
     </div>
     <div class="form-group"><label class="form-label">Icon</label>
@@ -1329,11 +1473,10 @@ function removeIng(i){ editingIngredients.splice(i,1); const el=document.getElem
 function addIngredient(){ const inp=document.getElementById('ing-input'); if(!inp||!inp.value.trim()) return; editingIngredients.push(inp.value.trim()); inp.value=''; const el=document.getElementById('ing-list'); if(el) el.innerHTML=renderIngTags(); }
 function selectProdIcon(ic){ editingIcon=ic; document.querySelectorAll('#prod-icon-picker .ip-opt').forEach(el=>el.classList.toggle('selected',el.textContent===ic)); }
 async function saveProduct(){
-  const name=document.getElementById('pe-name')?.value.trim(), price=parseFloat(document.getElementById('pe-price')?.value), catId=document.getElementById('pe-cat')?.value, oos=document.getElementById('oos-toggle')?.classList.contains('on');
+  const name=document.getElementById('pe-name')?.value.trim(),price=parseFloat(document.getElementById('pe-price')?.value),catId=document.getElementById('pe-cat')?.value,oos=document.getElementById('oos-toggle')?.classList.contains('on');
   if(!name||isNaN(price)){ showToast('Please fill name and price'); return; }
   const btn=document.getElementById('prod-save-btn'); btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
-  const payload={name,price,category_id:catId,icon:editingIcon,ingredients:editingIngredients,out_of_stock:oos};
-  const { error }=editingProductId ? await sb.from('products').update(payload).eq('id',editingProductId) : await sb.from('products').insert(payload);
+  const {error}=editingProductId?await sb.from('products').update({name,price,category_id:catId,icon:editingIcon,ingredients:editingIngredients,out_of_stock:oos}).eq('id',editingProductId):await sb.from('products').insert({name,price,category_id:catId,icon:editingIcon,ingredients:editingIngredients,out_of_stock:oos});
   btn.disabled=false; btn.textContent='Save Product';
   if(error){ showToast('Save failed: '+error.message); return; }
   closeProdEditor(); await loadProducts(); renderProductList(); buildOrderMenu();
@@ -1354,13 +1497,14 @@ async function renderCatList(){
 function newCategory(){ editingCatId=null; editingCatIcon='🏷️'; document.getElementById('cat-modal-title').textContent='Add Category'; renderCatModalBody(null); document.getElementById('cat-editor-overlay').classList.add('show'); }
 function editCat(id){ const c=categories.find(x=>x.id===id); if(!c) return; editingCatId=id; editingCatIcon=c.icon; document.getElementById('cat-modal-title').textContent='Edit Category'; renderCatModalBody(c); document.getElementById('cat-editor-overlay').classList.add('show'); }
 function closeCatEditor(){ document.getElementById('cat-editor-overlay').classList.remove('show'); editingCatId=null; }
-function renderCatModalBody(c){ document.getElementById('cat-modal-body').innerHTML=`<div class="form-group"><label class="form-label">Name</label><input class="form-input" id="ce-name" placeholder="e.g. Burgers" value="${c?c.name:''}"/></div><div class="form-group"><label class="form-label">Icon</label><div class="icon-picker" id="cat-icon-picker">${FOOD_ICONS.map(ic=>`<div class="ip-opt${ic===editingCatIcon?' selected':''}" onclick="selectCatIcon('${ic}')">${ic}</div>`).join('')}</div></div>`; }
+function renderCatModalBody(c){ document.getElementById('cat-modal-body').innerHTML=`
+  <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="ce-name" placeholder="e.g. Burgers" value="${c?c.name:''}"/></div>
+  <div class="form-group"><label class="form-label">Icon</label><div class="icon-picker" id="cat-icon-picker">${FOOD_ICONS.map(ic=>`<div class="ip-opt${ic===editingCatIcon?' selected':''}" onclick="selectCatIcon('${ic}')">${ic}</div>`).join('')}</div></div>`; }
 function selectCatIcon(ic){ editingCatIcon=ic; document.querySelectorAll('#cat-icon-picker .ip-opt').forEach(el=>el.classList.toggle('selected',el.textContent===ic)); }
 async function saveCat(){
   const name=document.getElementById('ce-name')?.value.trim(); if(!name){ showToast('Please enter a name'); return; }
   const btn=document.getElementById('cat-save-btn'); btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
-  const payload={name,icon:editingCatIcon};
-  const { error }=editingCatId ? await sb.from('categories').update(payload).eq('id',editingCatId) : await sb.from('categories').insert(payload);
+  const {error}=editingCatId?await sb.from('categories').update({name,icon:editingCatIcon}).eq('id',editingCatId):await sb.from('categories').insert({name,icon:editingCatIcon});
   btn.disabled=false; btn.textContent='Save Category';
   if(error){ showToast('Save failed'); return; }
   closeCatEditor(); await loadCategories(); await loadProducts(); renderCatList(); buildOrderMenu();
@@ -1374,15 +1518,11 @@ function closeCartDrawer(){ document.getElementById('cart-drawer').classList.rem
 
 // ══ UTILS ══
 let toastTimer;
-function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2000); }
-function tick(){ const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'); document.getElementById('nav-clock').textContent=h+':'+m; }
-window.addEventListener('resize',()=>{ const fab=document.getElementById('fab-wrap'),count=Object.values(cart).reduce((s,i)=>s+i.qty,0); if(window.innerWidth<=860) fab.style.display=count>0?'flex':'none'; else{fab.style.display='none';closeCartDrawer();} });
-document.addEventListener('click',e=>{ const nav=document.getElementById('mob-nav'); if(nav.classList.contains('open')&&!nav.contains(e.target)&&!e.target.closest('.nav-hamburger')) closeMobNav(); });
-
-// ══ PWA SERVICE WORKER ══
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(()=>{});
-}
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2200); }
+function tick(){ const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'); const el=document.getElementById('pos-clock'); if(el) el.textContent=h+':'+m; }
+window.addEventListener('resize',()=>{ const fab=document.getElementById('fab-wrap'),count=Object.values(cart).reduce((s,i)=>s+i.qty,0); if(window.innerWidth<=860) fab.style.display=count>0?'flex':'none'; else{ fab.style.display='none'; closeCartDrawer(); } });
+document.addEventListener('click',e=>{ const nav=document.getElementById('pos-mob-nav'); if(nav&&nav.classList.contains('open')&&!nav.contains(e.target)&&!e.target.closest('.pos-hamburger')) closePosMobNav(); });
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
 
 init();
 </script>
