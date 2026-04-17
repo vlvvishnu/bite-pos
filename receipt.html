@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Receipt — BITE.</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script>
+  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co'; // ← replace
+  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';                // ← replace
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --brand:#E8440A;--brand-dk:#B53308;--brand-lt:#FEF0EB;
+  --surface:#F9F7F4;--card:#fff;--border:rgba(0,0,0,0.09);
+  --text:#1A1208;--muted:#7A6E65;--faint:#C0B8B0;
+  --green:#1A7A3A;--green-bg:#EAF4EE;--green-text:#0E5A28;
+  --red:#C0392B;--red-bg:#FDECEA;--red-text:#922B21;
+  --radius:14px;--radius-sm:8px;
+}
+html,body{min-height:100%;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);font-size:14px;line-height:1.5;}
+
+/* ── LOADING / ERROR ── */
+.full-center{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center;}
+.spinner{width:32px;height:32px;border:3px solid rgba(232,68,10,0.2);border-top-color:var(--brand);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.err-icon{font-size:48px;}
+.err-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:20px;color:var(--text);}
+.err-sub{font-size:13px;color:var(--muted);max-width:280px;line-height:1.6;}
+
+/* ── PAGE SHELL ── */
+.page-wrap{max-width:480px;margin:0 auto;padding:20px 16px 40px;}
+
+/* ── RECEIPT HEADER ── */
+.receipt-header{text-align:center;padding:28px 20px 20px;background:var(--text);border-radius:var(--radius) var(--radius) 0 0;color:#fff;}
+.rh-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.4px;}
+.rh-logo span{color:var(--brand);}
+.rh-sub{font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;}
+.rh-order{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:36px;color:#fff;margin:16px 0 4px;}
+.rh-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:8px;}
+.rh-status.paid{background:var(--green-bg);color:var(--green-text);}
+.rh-status.refunded{background:var(--red-bg);color:var(--red-text);}
+.rh-date{font-size:12px;color:rgba(255,255,255,0.45);}
+
+/* ── RECEIPT BODY ── */
+.receipt-body{background:var(--card);padding:20px;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+
+/* zigzag tear between header and body */
+.tear{height:16px;background:var(--card);position:relative;overflow:hidden;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+.tear::before{content:'';position:absolute;top:0;left:-10px;right:-10px;height:20px;background:var(--text);clip-path:polygon(0 0,calc(1/24*100%) 100%,calc(2/24*100%) 0,calc(3/24*100%) 100%,calc(4/24*100%) 0,calc(5/24*100%) 100%,calc(6/24*100%) 0,calc(7/24*100%) 100%,calc(8/24*100%) 0,calc(9/24*100%) 100%,calc(10/24*100%) 0,calc(11/24*100%) 100%,calc(12/24*100%) 0,calc(13/24*100%) 100%,calc(14/24*100%) 0,calc(15/24*100%) 100%,calc(16/24*100%) 0,calc(17/24*100%) 100%,calc(18/24*100%) 0,calc(19/24*100%) 100%,calc(20/24*100%) 0,calc(21/24*100%) 100%,calc(22/24*100%) 0,calc(23/24*100%) 100%,calc(24/24*100%) 0,100% 0);}
+
+.section-label{font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+.divider{border:none;border-top:1px dashed var(--border);margin:16px 0;}
+
+/* Items */
+.item-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.item-row:last-child{border-bottom:none;}
+.item-icon{font-size:20px;width:28px;flex-shrink:0;line-height:1.4;}
+.item-name{flex:1;font-size:13px;font-weight:500;line-height:1.4;}
+.item-qty{font-size:12px;color:var(--muted);margin-top:1px;}
+.item-price{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;text-align:right;flex-shrink:0;}
+
+/* Totals */
+.total-rows{background:var(--surface);border-radius:var(--radius-sm);padding:12px 14px;margin-top:4px;}
+.tot-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
+.tot-row.grand{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:var(--text);border-top:1px solid var(--border);padding-top:10px;margin-top:4px;}
+.tot-row.grand span:last-child{color:var(--brand);}
+
+/* Customer info */
+.customer-box{margin-top:14px;background:var(--surface);border-radius:var(--radius-sm);padding:12px 14px;}
+.cust-row{font-size:12px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.cust-row:last-child{margin-bottom:0;}
+.cust-row strong{color:var(--text);}
+
+/* Biz info / footer */
+.receipt-footer{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:16px 20px;text-align:center;}
+.rf-biz{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
+.rf-sub{font-size:11px;color:var(--muted);line-height:1.6;}
+.rf-powered{margin-top:12px;font-size:10px;color:var(--faint);}
+.rf-powered span{color:var(--brand);font-weight:600;}
+
+/* ── ACTION BUTTONS ── */
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+.action-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;border-radius:var(--radius);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;border:none;text-decoration:none;transition:all 0.15s;}
+.action-btn.whatsapp{background:#25D366;color:#fff;}
+.action-btn.whatsapp:hover{background:#1ebe5d;}
+.action-btn.download{background:var(--text);color:#fff;}
+.action-btn.download:hover{background:#2d2416;}
+.action-btn.secondary{background:var(--card);color:var(--text);border:1.5px solid var(--border);}
+.action-btn.secondary:hover{border-color:var(--brand);color:var(--brand);}
+.action-btn-icon{font-size:18px;line-height:1;}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── PRINT STYLES ── */
+@media print{
+  body{background:#fff;}
+  .actions,.no-print{display:none !important;}
+  .page-wrap{padding:0;max-width:100%;}
+  .receipt-header{border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .receipt-footer{border-radius:0;}
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="full-center">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--muted)">Loading receipt…</div>
+</div>
+
+<div id="error-screen" class="full-center" style="display:none">
+  <div class="err-icon">🔍</div>
+  <div class="err-title">Receipt not found</div>
+  <div class="err-sub" id="error-msg">This receipt link may be invalid or expired.</div>
+</div>
+
+<div id="receipt-wrap" style="display:none">
+  <div class="page-wrap">
+    <div class="receipt-header">
+      <div class="rh-logo">BITE<span>.</span></div>
+      <div class="rh-sub">by Pay4</div>
+      <div class="rh-order" id="rh-order">#—</div>
+      <div id="rh-status"></div>
+      <div class="rh-date" id="rh-date"></div>
+    </div>
+    <div class="tear"></div>
+    <div class="receipt-body">
+      <div class="section-label">Order Summary</div>
+      <div id="receipt-items"></div>
+      <div id="receipt-totals"></div>
+      <div id="receipt-customer"></div>
+    </div>
+    <div class="receipt-footer">
+      <div class="rf-biz" id="rf-biz">BITE.</div>
+      <div class="rf-sub" id="rf-kiosk"></div>
+      <div class="rf-powered">Powered by <span>Pay4</span></div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions no-print">
+      <a class="action-btn whatsapp" id="wa-btn" href="#" onclick="return shareWhatsApp()">
+        <span class="action-btn-icon">💬</span> Share on WhatsApp
+      </a>
+      <div class="action-row">
+        <button class="action-btn download" onclick="downloadPDF()">
+          <span class="action-btn-icon">⬇️</span> Download
+        </button>
+        <button class="action-btn secondary" onclick="window.print()">
+          <span class="action-btn-icon">🖨️</span> Print
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let orderData = null;
+
+async function loadReceipt() {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('id');
+  const bizName = params.get('biz') || 'BITE.';
+
+  if (!orderId) { showError('No order ID provided in URL.'); return; }
+
+  const { data, error } = await sb
+    .from('orders')
+    .select('*, order_items(product_name,product_icon,qty,unit_price,line_total)')
+    .eq('id', orderId)
+    .single();
+
+  if (error || !data) { showError('Order not found. Please check the link.'); return; }
+
+  orderData = data;
+  renderReceipt(data, bizName);
+}
+
+function renderReceipt(o, bizName) {
+  document.title = `Receipt #${o.order_number} — ${bizName}`;
+
+  document.getElementById('rh-order').textContent = '#' + o.order_number;
+  document.getElementById('rh-status').innerHTML =
+    `<div class="rh-status ${o.status}">${o.status === 'paid' ? '✓ Paid' : '↩ Refunded'}</div>`;
+  document.getElementById('rh-date').textContent =
+    new Date(o.created_at).toLocaleString([], {
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  document.getElementById('rf-biz').textContent = bizName;
+  document.getElementById('rf-kiosk').textContent = o.kiosk_id || '';
+
+  // Items
+  document.getElementById('receipt-items').innerHTML =
+    (o.order_items || []).map(i => `
+      <div class="item-row">
+        <div class="item-icon">${i.product_icon || '🍽️'}</div>
+        <div>
+          <div class="item-name">${i.product_name}</div>
+          <div class="item-qty">${i.qty} × ₹${Number(i.unit_price).toFixed(2)}</div>
+        </div>
+        <div class="item-price">₹${Number(i.line_total).toFixed(2)}</div>
+      </div>`).join('') + '<hr class="divider"/>';
+
+  // Totals
+  document.getElementById('receipt-totals').innerHTML = `
+    <div class="total-rows">
+      <div class="tot-row"><span>Subtotal</span><span>₹${Number(o.subtotal).toFixed(2)}</span></div>
+      <div class="tot-row"><span>Tax</span><span>₹${Number(o.tax).toFixed(2)}</span></div>
+      <div class="tot-row grand"><span>Total</span><span>₹${Number(o.total).toFixed(2)}</span></div>
+    </div>`;
+
+  // Customer
+  const hasCust = o.customer_name || o.customer_email || o.customer_phone;
+  if (hasCust) {
+    document.getElementById('receipt-customer').innerHTML = `
+      <div class="customer-box">
+        ${o.customer_name  ? `<div class="cust-row">👤 <strong>${o.customer_name}</strong></div>` : ''}
+        ${o.customer_email ? `<div class="cust-row">✉️ <strong>${o.customer_email}</strong></div>` : ''}
+        ${o.customer_phone ? `<div class="cust-row">📱 <strong>${o.customer_phone}</strong></div>` : ''}
+      </div>`;
+  }
+
+  // Show receipt
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('receipt-wrap').style.display = 'block';
+}
+
+function showError(msg) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error-screen').style.display = 'flex';
+}
+
+function getReceiptURL() {
+  return window.location.href;
+}
+
+function shareWhatsApp() {
+  if (!orderData) return false;
+  const url = getReceiptURL();
+  const msg = encodeURIComponent(
+    `Hi! Here is your receipt for Order #${orderData.order_number} — ₹${Number(orderData.total).toFixed(2)}\n\nView receipt: ${url}`
+  );
+  // Opens WhatsApp with pre-filled message — works on mobile (app) and desktop (web.whatsapp.com)
+  const waURL = `https://wa.me/?text=${msg}`;
+  window.open(waURL, '_blank');
+  return false;
+}
+
+function downloadPDF() {
+  // Use browser print → Save as PDF
+  // Hide action buttons, trigger print, restore
+  document.querySelectorAll('.no-print').forEach(el => el.style.display = 'none');
+  window.print();
+  setTimeout(() => {
+    document.querySelectorAll('.no-print').forEach(el => el.style.display = '');
+  }, 500);
+}
+
+loadReceipt();
+</script>
+</body>
+</html>
