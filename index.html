@@ -18,10 +18,12 @@
      ║  PASTE YOUR SUPABASE CREDENTIALS HERE       ║
      ╚══════════════════════════════════════════════╝ -->
 <script>
-  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co'; // ← replace
-  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';                // ← replace
-  const BREVO_API_KEY = 'YOUR_BREVO_API_KEY';                  // ← replace (Settings → API Keys in Brevo)
-  const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html'; // ← your receipt page URL
+  const SUPABASE_URL  = 'https://zmyabnehbtudcjphqlrp.supabase.co'; 
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpteWFibmVoYnR1ZGNqcGhxbHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTcxMDksImV4cCI6MjA5MTg5MzEwOX0.YOwUB1Onrb0t48uPoFFiAfgnPxT31DkO2SVJQEmrVdE';                
+  const BREVO_API_KEY = window.__BREVO_KEY__ || '';                  // ← replace (Settings → API Keys in Brevo)
+  const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
+  const ADMIN_EMAIL   = 'admin@pay4.space';   // ← your email
+  const SENDER_EMAIL  = 'noreply@pay4.space'; // ← verified in Brevo
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -51,25 +53,61 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
 @keyframes spin{to{transform:rotate(360deg);}}
 .ls-msg{font-size:12px;color:rgba(255,255,255,0.4);}
 
-/* ── LOGIN ── */
-#login-screen{position:fixed;inset:0;background:var(--text);display:none;align-items:center;justify-content:center;z-index:998;padding:20px;}
-#login-screen.show{display:flex;}
-.login-card{background:var(--card);border-radius:20px;padding:36px 32px;width:100%;max-width:360px;animation:popIn 0.3s ease;}
+/* ── AUTH SCREEN ── */
 @keyframes popIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
-.login-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;color:var(--text);letter-spacing:-0.5px;margin-bottom:2px;}
-.login-logo span{color:var(--brand);}
-.login-by{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:28px;}
-.login-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:18px;margin-bottom:4px;}
-.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
-.lf-group{margin-bottom:14px;}
-.lf-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px;}
-.lf-input{width:100%;font-family:'DM Sans',sans-serif;font-size:14px;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
-.lf-input:focus{border-color:var(--brand);background:#fff;}
-.lf-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.lf-btn:hover{background:var(--brand-dk);}
-.lf-btn:disabled{background:#ccc;cursor:not-allowed;}
-.lf-error{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;margin-top:12px;display:none;}
-.lf-error.show{display:block;}
+#auth-screen{position:fixed;inset:0;background:var(--text);display:none;align-items:flex-start;justify-content:center;z-index:998;padding:20px 16px 40px;overflow-y:auto;}
+#auth-screen.show{display:flex;}
+.auth-wrap{width:100%;max-width:400px;margin:auto;animation:slideUpAnim 0.3s ease;}
+@keyframes slideUpAnim{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.auth-logo-block{text-align:center;padding:20px 0 22px;}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.auth-logo span{color:var(--brand);}
+.auth-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.auth-card{background:var(--card);border-radius:20px;overflow:hidden;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.auth-tab{padding:14px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
+.auth-tab.active{color:var(--text);border-bottom-color:var(--brand);background:var(--brand-lt);}
+.auth-panel{display:none;padding:22px 24px 24px;}
+.auth-panel.active{display:block;}
+.af-group{margin-bottom:12px;}
+.af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.af-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
+.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
+.af-input:focus{border-color:var(--brand);background:#fff;}
+.af-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.af-btn:hover{background:var(--brand-dk);}
+.af-btn:disabled{background:#ccc;cursor:not-allowed;}
+.af-btn.secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border);margin-top:8px;}
+.af-btn.secondary:hover{border-color:var(--brand);}
+.af-error{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;margin-top:10px;display:none;line-height:1.5;}
+.af-error.show{display:block;}
+.af-success{background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;margin-top:10px;display:none;line-height:1.5;}
+.af-success.show{display:block;}
+.af-divider{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--faint);font-size:11px;}
+.af-divider::before,.af-divider::after{content:'';flex:1;border-top:1px solid var(--border);}
+.af-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+.af-panel-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:4px;}
+.af-panel-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.af-terms{font-size:10px;color:var(--muted);margin-top:10px;text-align:center;line-height:1.6;}
+/* ── WELCOME BANNER ── */
+#welcome-banner{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(26,18,8,0.75);}
+#welcome-banner.show{display:flex;}
+.wb-card{background:var(--card);border-radius:24px;max-width:420px;width:100%;overflow:hidden;animation:popIn 0.4s cubic-bezier(0.34,1.1,0.64,1);}
+.wb-top{background:var(--text);padding:28px 24px 20px;text-align:center;position:relative;}
+.wb-confetti{font-size:38px;margin-bottom:8px;display:block;}
+.wb-logo{position:absolute;top:14px;right:16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:13px;color:rgba(255,255,255,0.25);}
+.wb-logo span{color:var(--brand);}
+.wb-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px;}
+.wb-sub{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;}
+.wb-body{padding:20px 22px 22px;}
+.wb-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.wb-feat{background:var(--surface);border-radius:var(--radius-sm);padding:11px;}
+.wb-feat-icon{font-size:20px;margin-bottom:5px;}
+.wb-feat-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:2px;}
+.wb-feat-sub{font-size:10px;color:var(--muted);line-height:1.4;}
+.wb-start-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:background 0.15s;margin-bottom:8px;}
+.wb-start-btn:hover{background:var(--brand-dk);}
+.wb-skip{width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px;}
 
 /* ── TOP NAV ── */
 .topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--text);z-index:90;display:flex;align-items:stretch;}
@@ -412,26 +450,70 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface)
   <div class="ls-msg" id="ls-msg">Starting up…</div>
 </div>
 
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">BITE<span>.</span></div>
-    <div class="login-by">by Pay4</div>
-    <div class="login-title">Staff Login</div>
-    <div class="login-sub">Sign in to manage orders, products and history.</div>
-    <div class="lf-group">
-      <label class="lf-label">Email</label>
-      <input class="lf-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+<!-- AUTH SCREEN (Login + Signup) -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-logo-block">
+      <div class="auth-logo">BITE<span>.</span></div>
+      <div class="auth-by">by Pay4</div>
     </div>
-    <div class="lf-group">
-      <label class="lf-label">Password</label>
-      <input class="lf-input" id="login-password" type="password" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup',this)">Get Started</button>
+      </div>
+      <!-- LOGIN PANEL -->
+      <div class="auth-panel active" id="panel-login">
+        <div class="af-panel-title">Welcome back</div>
+        <div class="af-panel-sub">Sign in to your BITE. POS account.</div>
+        <div class="af-group"><label class="af-label">Email</label><input class="af-input" id="login-email" type="email" placeholder="you@restaurant.com" autocomplete="email"/></div>
+        <div class="af-group"><label class="af-label">Password</label><input class="af-input" id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <button class="af-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+        <div class="af-error" id="login-error"></div>
+        <div class="af-divider">or</div>
+        <button class="af-btn secondary" onclick="switchAuthTab('signup',document.querySelectorAll('.auth-tab')[1])">Create a new account →</button>
+      </div>
+      <!-- SIGNUP PANEL -->
+      <div class="auth-panel" id="panel-signup">
+        <div class="af-panel-title">Start your free trial</div>
+        <div class="af-panel-sub">Set up your restaurant POS in minutes. No credit card required.</div>
+        <div class="af-row">
+          <div class="af-group"><label class="af-label">Your Name</label><input class="af-input" id="su-owner-name" placeholder="John Smith"/></div>
+          <div class="af-group"><label class="af-label">Restaurant Name</label><input class="af-input" id="su-biz-name" placeholder="My Restaurant"/></div>
+        </div>
+        <div class="af-group"><label class="af-label">Work Email</label><input class="af-input" id="su-email" type="email" placeholder="john@myrestaurant.com"/></div>
+        <div class="af-group"><label class="af-label">Password</label><input class="af-input" id="su-password" type="password" placeholder="Min 8 characters" onkeydown="if(event.key==='Enter')doSignup()"/><div class="af-hint">At least 8 characters.</div></div>
+        <div class="af-row">
+          <div class="af-group"><label class="af-label">Phone (optional)</label><input class="af-input" id="su-phone" type="tel" placeholder="+91 98765 43210"/></div>
+          <div class="af-group"><label class="af-label">City (optional)</label><input class="af-input" id="su-city" placeholder="Mumbai"/></div>
+        </div>
+        <button class="af-btn" id="signup-btn" onclick="doSignup()">Create Account</button>
+        <div class="af-error" id="signup-error"></div>
+        <div class="af-success" id="signup-success"></div>
+        <div class="af-terms">By signing up you agree to Pay4 Terms of Service.</div>
+      </div>
     </div>
-    <button class="lf-btn" id="login-btn" onclick="doLogin()">Sign In</button>
-    <div class="lf-error" id="login-error"></div>
-    <div style="margin-top:16px;text-align:center;">
-      <button onclick="showLoginScreen(false)" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;">Back to Kiosk</button>
+  </div>
+</div>
+
+<!-- WELCOME BANNER -->
+<div id="welcome-banner">
+  <div class="wb-card">
+    <div class="wb-top">
+      <div class="wb-logo">BITE<span>.</span></div>
+      <span class="wb-confetti">🎉</span>
+      <div class="wb-title" id="wb-title">Welcome aboard!</div>
+      <div class="wb-sub" id="wb-sub">Your POS is ready. Here is what you can do.</div>
+    </div>
+    <div class="wb-body">
+      <div class="wb-features">
+        <div class="wb-feat"><div class="wb-feat-icon">🛒</div><div class="wb-feat-title">Take Orders</div><div class="wb-feat-sub">Add items and place orders instantly</div></div>
+        <div class="wb-feat"><div class="wb-feat-icon">💳</div><div class="wb-feat-title">UPI Payments</div><div class="wb-feat-sub">Generate QR codes per order</div></div>
+        <div class="wb-feat"><div class="wb-feat-icon">📋</div><div class="wb-feat-title">Order History</div><div class="wb-feat-sub">Track revenue, manage refunds</div></div>
+        <div class="wb-feat"><div class="wb-feat-icon">🍽️</div><div class="wb-feat-title">Manage Menu</div><div class="wb-feat-sub">Add products and categories</div></div>
+      </div>
+      <button class="wb-start-btn" onclick="closeWelcomeBanner()">Let's go →</button>
+      <button class="wb-skip" onclick="closeWelcomeBanner()">Skip for now</button>
     </div>
   </div>
 </div>
@@ -754,6 +836,11 @@ async function init(){
   buildOrderMenu();
   updateAuthUI();
   populateSettingsForm();
+  if(!localStorage.getItem('bite_welcome_shown')&&currentUser){
+    const n=currentUser?.user_metadata?.full_name||'';
+    const b=currentUser?.user_metadata?.biz_name||'';
+    setTimeout(()=>showWelcomeBanner(n,b),1000);
+  }
   const s = loadSettings();
   document.getElementById('kiosk-pill-label').textContent = s.kioskId || 'Kiosk #1';
   tick();
@@ -767,12 +854,11 @@ function updateAuthUI(){
   const isStaff=!!currentUser;
   document.querySelectorAll('.staff-only').forEach(el=>el.classList.toggle('visible',isStaff));
   document.getElementById('nav-logout').style.display=isStaff?'block':'none';
-  document.getElementById('nav-login-btn').style.display=isStaff?'none':'block';
+  document.getElementById('nav-login-btn').style.display='none';
   document.getElementById('nav-user').textContent=isStaff?currentUser.email:'';
-  const active=document.querySelector('.page.active');
-  if(!isStaff && active && active.id!=='page-order') navTo('order',document.querySelector('.nav-link'));
 }
-function showLoginScreen(show){ document.getElementById('login-screen').classList.toggle('show',show); if(show) setTimeout(()=>document.getElementById('login-email').focus(),100); }
+function showAuthScreen(show){ document.getElementById('auth-screen').classList.toggle('show',show); if(show) setTimeout(()=>document.getElementById('login-email').focus(),100); }
+function switchAuthTab(tab,btn){ document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active')); btn.classList.add('active'); document.getElementById('panel-'+tab).classList.add('active'); }
 async function doLogin(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-password').value;
@@ -786,7 +872,54 @@ async function doLogin(){
   if(error){ errEl.textContent=error.message==='Invalid login credentials'?'Incorrect email or password.':error.message; errEl.classList.add('show'); return; }
   showLoginScreen(false); document.getElementById('login-password').value=''; showToast('Welcome back! ✓');
 }
-async function doLogout(){ await sb.auth.signOut(); showToast('Signed out'); }
+
+// ══ SIGNUP ══
+async function doSignup(){
+  const ownerName=document.getElementById('su-owner-name').value.trim();
+  const bizName=document.getElementById('su-biz-name').value.trim();
+  const email=document.getElementById('su-email').value.trim();
+  const pass=document.getElementById('su-password').value;
+  const phone=document.getElementById('su-phone').value.trim();
+  const city=document.getElementById('su-city').value.trim();
+  const btn=document.getElementById('signup-btn');
+  const errEl=document.getElementById('signup-error');
+  const okEl=document.getElementById('signup-success');
+  errEl.classList.remove('show'); okEl.classList.remove('show');
+  if(!ownerName||!bizName||!email||!pass){ errEl.textContent='Please fill in all required fields.'; errEl.classList.add('show'); return; }
+  if(pass.length<8){ errEl.textContent='Password must be at least 8 characters.'; errEl.classList.add('show'); return; }
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Creating account…';
+  const { data:authData, error:authErr }=await sb.auth.signUp({ email, password:pass, options:{ data:{ full_name:ownerName, biz_name:bizName } } });
+  if(authErr){ errEl.textContent=authErr.message; errEl.classList.add('show'); btn.disabled=false; btn.innerHTML='Create Account'; return; }
+  const slug=bizName.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  const { data:tenant }=await sb.from('tenants').insert({ slug:slug+'-'+(Date.now()%10000), name:bizName, owner_email:email, owner_name:ownerName, phone:phone||null, city:city||null, biz_name:bizName, plan:'starter', active:true }).select('id').single();
+  if(authData?.user && tenant){ await sb.from('profiles').insert({ id:authData.user.id, tenant_id:tenant.id, role:'owner', full_name:ownerName }); }
+  await sendWelcomeEmail(email, ownerName, bizName);
+  btn.disabled=false; btn.innerHTML='Create Account';
+  okEl.textContent='Account created! Check your email to verify, then sign in.';
+  okEl.classList.add('show');
+  setTimeout(()=>{ document.getElementById('login-email').value=email; switchAuthTab('login',document.querySelectorAll('.auth-tab')[0]); },2000);
+}
+
+// ══ WELCOME EMAIL ══
+async function sendWelcomeEmail(email, name, bizName){
+  if(!BREVO_API_KEY||BREVO_API_KEY==='YOUR_BREVO_API_KEY') return;
+  const loginUrl='https://bite.pay4.space';
+  const html=`<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9F7F4;font-family:'Helvetica Neue',Arial,sans-serif;"><div style="max-width:520px;margin:32px auto;background:#fff;border-radius:20px;overflow:hidden;border:1px solid rgba(0,0,0,0.07);"><div style="background:#1A1208;padding:40px 32px 32px;text-align:center;"><div style="font-size:26px;font-weight:800;color:#fff;margin-bottom:4px;">BITE<span style="color:#E8440A;">.</span></div><div style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:24px;">by Pay4</div><div style="font-size:44px;margin-bottom:12px;">🎉</div><div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px;">Welcome to BITE. POS!</div><div style="font-size:13px;color:rgba(255,255,255,0.55);">Your POS for <strong style="color:#fff;">${bizName}</strong> is ready.</div></div><div style="padding:28px 28px 24px;"><p style="font-size:15px;color:#1A1208;font-weight:600;margin-bottom:6px;">Hi ${name},</p><p style="font-size:13px;color:#7A6E65;line-height:1.7;margin-bottom:24px;">You are all set! Your BITE. POS account has been created. Here is what to do first:</p><div style="background:#EAF4EE;border-radius:12px;padding:16px 18px;margin-bottom:24px;"><div style="font-size:11px;font-weight:700;color:#0E5A28;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Your first 3 steps</div><div style="font-size:13px;color:#1A7A3A;line-height:1.8;"><div>1. Go to Settings and add your UPI ID</div><div>2. Go to Products and add your menu</div><div>3. Go to Order and take your first order!</div></div></div><div style="text-align:center;margin-bottom:24px;"><a href="${loginUrl}" style="display:inline-block;background:#E8440A;color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:14px;">Open My POS &rarr;</a></div><p style="font-size:12px;color:#7A6E65;line-height:1.6;">Questions? Reply to this email anytime.</p></div><div style="background:#F9F7F4;padding:18px 28px;text-align:center;border-top:1px solid rgba(0,0,0,0.06);"><div style="font-size:13px;font-weight:700;color:#1A1208;margin-bottom:3px;">BITE. by Pay4</div><div style="font-size:11px;color:#C0B8B0;"><a href="${loginUrl}" style="color:#E8440A;text-decoration:none;">bite.pay4.space</a></div></div></div></body></html>`;
+  try{
+    await fetch('https://api.brevo.com/v3/smtp/email',{ method:'POST', headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY}, body:JSON.stringify({ sender:{name:'BITE. by Pay4',email:SENDER_EMAIL}, to:[{email,name}], subject:`Welcome to BITE. POS — ${bizName} is all set!`, htmlContent:html }) });
+  }catch(e){ console.error('Welcome email:',e); }
+}
+
+// ══ WELCOME BANNER ══
+function showWelcomeBanner(name, bizName){
+  if(localStorage.getItem('bite_welcome_shown')) return;
+  document.getElementById('wb-title').textContent='Welcome, '+name+'!';
+  document.getElementById('wb-sub').textContent=bizName+" is ready. Here's what you can do.";
+  document.getElementById('welcome-banner').classList.add('show');
+}
+function closeWelcomeBanner(){ document.getElementById('welcome-banner').classList.remove('show'); localStorage.setItem('bite_welcome_shown','1'); }
+
+async function doLogout(){ await sb.auth.signOut(); currentUser=null; cart={}; categories=[]; products=[]; updateAuthUI(); showAuthScreen(true); showToast('Signed out'); }
 
 // ══ NAV ══
 function navTo(page,btn){
