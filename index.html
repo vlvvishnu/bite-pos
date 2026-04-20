@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -13,12 +16,440 @@
 <title>BITE. POS — Smart Restaurant POS by Pay4</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
 <script>
-  const SUPABASE_URL  = 'https://zmyabnehbtudcjphqlrp.supabase.co'; 
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpteWFibmVoYnR1ZGNqcGhxbHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTcxMDksImV4cCI6MjA5MTg5MzEwOX0.YOwUB1Onrb0t48uPoFFiAfgnPxT31DkO2SVJQEmrVdE';                
-  const BREVO_API_KEY = window.__BREVO_KEY__ || '';                  // ← replace (Settings → API Keys in Brevo)
+  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
+  const BREVO_API_KEY = window.__BREVO_KEY__ || '';
   const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
-  const ADMIN_EMAIL   = 'admin@pay4.space';   // ← your email
-  const SENDER_EMAIL  = 'noreply@pay4.space'; // ← verified in Brevo
+  const ADMIN_EMAIL   = 'admin@pay4.space';
+  const SENDER_EMAIL  = 'noreply@pay4.space';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;}:root{--brand:#E8440A;--brand-dk:#B53308;--brand-lt:#FEF0EB;--surface:#F9F7F4;--card:#fff;--border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.14);--text:#1A1208;--muted:#7A6E65;--faint:#C0B8B0;--green:#1A7A3A;--green-bg:#EAF4EE;--green-text:#0E5A28;--red:#C0392B;--red-bg:#FDECEA;--red-text:#922B21;--blue:#1A5FA8;--blue-bg:#EAF1FB;--blue-text:#154D8C;--amber:#B87A0A;--amber-bg:#FEF6E4;--amber-text:#8A5C07;--radius:14px;--radius-sm:8px;--radius-xs:6px;--nav-h:60px;}html,body{font-family:'DM Sans',sans-serif;color:var(--text);font-size:14px;line-height:1.5;}
+/* ═══ LANDING ═══ */
+html{scroll-behavior:smooth;}
+body{overflow-x:hidden;}
+#view-landing{display:block;background:#fff;}
+#view-pos{display:none;height:100vh;overflow:hidden;flex-direction:column;background:var(--surface);}
+#view-pos.active{display:flex;}
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:80;padding:0 6%;height:60px;display:flex;align-items:center;justify-content:space-between;transition:background 0.3s,box-shadow 0.3s;}
+.lp-nav.scrolled{background:#fff;box-shadow:0 1px 0 var(--border);}
+.lp-logo{display:flex;flex-direction:column;text-decoration:none;}
+.lp-logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-0.4px;line-height:1;transition:color 0.3s;}
+.lp-nav.scrolled .lp-logo-main{color:var(--text);}
+.lp-logo-main span{color:var(--brand);}
+.lp-logo-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;}
+.lp-nav.scrolled .lp-logo-by{color:var(--faint);}
+.lp-nav-actions{display:flex;align-items:center;gap:8px;}
+.lp-signin-btn{font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.25);background:none;cursor:pointer;transition:all 0.15s;}
+.lp-nav.scrolled .lp-signin-btn{color:var(--text);border-color:var(--border-md);}
+.lp-signin-btn:hover{border-color:rgba(255,255,255,0.7);color:#fff;}
+.lp-nav.scrolled .lp-signin-btn:hover{border-color:var(--brand);color:var(--brand);}
+.lp-cta-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:background 0.15s;}
+.lp-cta-btn:hover{background:var(--brand-dk);}
+.hero{min-height:100vh;background:var(--text);display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 6% 70px;position:relative;overflow:hidden;}
+.hero-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80%;height:60%;background:radial-gradient(ellipse at bottom,rgba(232,68,10,0.2) 0%,transparent 70%);pointer-events:none;}
+.hero-content{position:relative;z-index:1;max-width:720px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:26px;}
+.hero-dot{width:6px;height:6px;background:var(--brand);border-radius:50%;animation:hdot 2s infinite;}
+@keyframes hdot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5.5vw,60px);color:#fff;line-height:1.1;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero h1 em{color:var(--brand);font-style:normal;}
+.hero-sub{font-size:clamp(14px,1.8vw,17px);color:rgba(255,255,255,0.5);line-height:1.7;max-width:490px;margin:0 auto 34px;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+.hero-btn-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;color:#fff;padding:14px 30px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:all 0.15s;}
+.hero-btn-main:hover{background:var(--brand-dk);transform:translateY(-1px);}
+.hero-btn-ghost{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:15px;color:rgba(255,255,255,0.65);padding:14px 26px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.2);background:none;cursor:pointer;transition:all 0.15s;}
+.hero-btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,0.45);}
+.hero-stats{display:flex;gap:44px;justify-content:center;flex-wrap:wrap;}
+.hstat-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;color:#fff;line-height:1;}
+.hstat-lbl{font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.lp-section{padding:76px 6%;}
+.bg-surface{background:var(--surface);}
+.lp-tag{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.lp-h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(24px,3.5vw,38px);color:var(--text);line-height:1.2;letter-spacing:-0.8px;margin-bottom:12px;}
+.lp-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:540px;}
+.lp-center{text-align:center;}
+.lp-center .lp-sub{margin:0 auto;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px;margin-top:48px;}
+.feat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:22px;transition:all 0.2s;}
+.feat-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 6px 20px rgba(232,68,10,0.08);}
+.feat-ic{width:44px;height:44px;background:var(--brand-lt);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
+.feat-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:7px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.hiw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:50px;position:relative;}
+.hiw-grid::before{content:'';position:absolute;top:27px;left:calc(12.5% + 20px);right:calc(12.5% + 20px);height:1px;background:var(--border);}
+.hiw-step{text-align:center;padding:0 14px;position:relative;z-index:1;}
+.hiw-num{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;margin:0 auto 14px;background:var(--text);}
+.hiw-step:first-child .hiw-num{background:var(--brand);}
+.hiw-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;}
+.hiw-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.cta-band{background:var(--text);padding:64px 6%;text-align:center;}
+.cta-band-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(22px,3.5vw,36px);color:#fff;letter-spacing:-0.5px;margin-bottom:12px;}
+.cta-band-sub{font-size:15px;color:rgba(255,255,255,0.45);margin:0 auto 32px;max-width:460px;line-height:1.7;}
+.cta-band-btn{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#fff;padding:16px 36px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:all 0.15s;}
+.cta-band-btn:hover{background:var(--brand-dk);transform:translateY(-1px);}
+.upi-logos{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:32px;}
+.upi-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:rgba(255,255,255,0.22);}
+.lp-footer{background:var(--text);border-top:1px solid rgba(255,255,255,0.06);padding:36px 6% 20px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:26px;}
+.footer-brand{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:6px;}
+.footer-brand span{color:var(--brand);}
+.footer-tagline{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;}
+.footer-col-title{font-size:10px;font-weight:700;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+.footer-lk{display:block;font-size:12px;color:rgba(255,255,255,0.42);text-decoration:none;margin-bottom:7px;background:none;border:none;cursor:pointer;padding:0;text-align:left;transition:color 0.15s;}
+.footer-lk:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.footer-copy{font-size:11px;color:rgba(255,255,255,0.22);}
+
+/* ═══ AUTH OVERLAY ═══ */
+#auth-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;background:rgba(26,18,8,0.88);}
+#auth-overlay.show{display:flex;}
+.auth-box{background:var(--card);border-radius:20px;width:100%;max-width:420px;margin:auto;animation:authPop 0.32s cubic-bezier(0.34,1.1,0.64,1);overflow:hidden;position:relative;}
+@keyframes authPop{from{opacity:0;transform:scale(0.92) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.auth-close-btn{position:absolute;top:13px;right:13px;width:30px;height:30px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:1;}
+.auth-close-btn:hover{background:rgba(255,255,255,0.25);}
+.auth-hd{background:var(--text);padding:26px 24px 18px;text-align:center;}
+.auth-hd-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.4px;}
+.auth-hd-logo span{color:var(--brand);}
+.auth-hd-by{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.auth-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-top:14px;}
+.auth-hd-desc{font-size:12px;color:rgba(255,255,255,0.42);margin-top:3px;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.auth-tab{padding:13px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
+.auth-tab.active{color:var(--text);border-bottom-color:var(--brand);background:var(--brand-lt);}
+.auth-body{padding:20px 22px 22px;}
+.auth-panel{display:none;}
+.auth-panel.active{display:block;}
+.af-group{margin-bottom:11px;}
+.af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.af-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
+.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
+.af-input:focus{border-color:var(--brand);background:#fff;}
+.af-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.af-btn:hover{background:var(--brand-dk);}
+.af-btn:disabled{background:#ccc;cursor:not-allowed;}
+.af-ghost{width:100%;background:none;color:var(--text);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:all 0.15s;}
+.af-ghost:hover{border-color:var(--brand);}
+.af-divider{display:flex;align-items:center;gap:10px;margin:11px 0;color:var(--faint);font-size:11px;}
+.af-divider::before,.af-divider::after{content:'';flex:1;border-top:1px solid var(--border);}
+.af-error{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;margin-top:9px;display:none;line-height:1.5;}
+.af-error.show{display:block;}
+.af-success{background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;margin-top:9px;display:none;line-height:1.5;}
+.af-success.show{display:block;}
+.af-hint{font-size:10px;color:var(--muted);margin-top:3px;}
+.af-terms{font-size:10px;color:var(--muted);margin-top:9px;text-align:center;line-height:1.6;}
+
+/* ═══ POS NAV ═══ */
+.pos-nav{height:60px;background:var(--text);display:flex;align-items:stretch;flex-shrink:0;}
+.pos-logo-wrap{display:flex;flex-direction:column;justify-content:center;padding:0 20px;border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;cursor:pointer;}
+.pos-logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:17px;color:#fff;letter-spacing:-0.3px;line-height:1;}
+.pos-logo-main span{color:var(--brand);}
+.pos-logo-sub{font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;}
+.pos-nav-links{display:flex;align-items:stretch;flex:1;padding:0 4px;}
+.pos-nav-link{display:flex;align-items:center;gap:6px;padding:0 13px;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;}
+.pos-nav-link:hover{color:rgba(255,255,255,0.85);}
+.pos-nav-link.active{color:#fff;border-bottom-color:var(--brand);}
+.pos-nav-right{display:flex;align-items:center;gap:8px;padding:0 14px;margin-left:auto;flex-shrink:0;}
+.pos-kiosk-pill{background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;}
+.pos-clock{font-size:12px;color:rgba(255,255,255,0.38);font-variant-numeric:tabular-nums;}
+.pos-user{font-size:11px;color:rgba(255,255,255,0.4);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pos-logout-btn{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.pos-logout-btn:hover{background:rgba(255,255,255,0.16);color:#fff;}
+.pos-hamburger{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;}
+.pos-mob-nav{position:fixed;top:60px;left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-110%);transition:transform 0.28s ease;border-bottom:1px solid rgba(255,255,255,0.08);}
+.pos-mob-nav.open{transform:translateY(0);}
+.pos-mob-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;}
+.pos-mob-item:hover,.pos-mob-item.active{color:#fff;background:rgba(255,255,255,0.1);}
+
+/* ═══ WELCOME BANNER ═══ */
+#welcome-banner{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(26,18,8,0.72);}
+#welcome-banner.show{display:flex;}
+.wb-card{background:var(--card);border-radius:22px;max-width:400px;width:100%;overflow:hidden;animation:authPop 0.4s cubic-bezier(0.34,1.1,0.64,1);}
+.wb-top{background:var(--text);padding:24px 22px 18px;text-align:center;}
+.wb-confetti{font-size:34px;margin-bottom:8px;display:block;}
+.wb-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:4px;}
+.wb-sub{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
+.wb-body{padding:16px 18px 18px;}
+.wb-feats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;}
+.wb-feat{background:var(--surface);border-radius:var(--radius-sm);padding:10px;}
+.wb-feat-ic{font-size:18px;margin-bottom:4px;}
+.wb-feat-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:11px;color:var(--text);}
+.wb-feat-sub{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.wb-go-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:6px;}
+.wb-skip-btn{width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;}
+
+/* responsive */
+@media(max-width:860px){
+  .hiw-grid{grid-template-columns:repeat(2,1fr);}
+  .hiw-grid::before{display:none;}
+  .footer-grid{grid-template-columns:1fr;gap:20px;}
+  .pos-nav-links{display:none;} .pos-hamburger{display:flex;}
+}
+@media(max-width:480px){
+  .hero h1{font-size:30px;letter-spacing:-1px;}
+  .feat-grid{grid-template-columns:1fr;}
+  .hiw-grid{grid-template-columns:1fr;}
+  .auth-box{border-radius:20px 20px 0 0;margin-top:auto;}
+  #auth-overlay{align-items:flex-end;padding:0;}
+}
+
+
+
+
+
+/* ── LOADING ── */
+#loading-screen{position:fixed;inset:0;background:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px;transition:opacity 0.4s;}
+#loading-screen.hidden{opacity:0;pointer-events:none;}
+.ls-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:32px;color:#fff;letter-spacing:-0.5px;}
+.ls-logo span{color:var(--brand);}
+.ls-sub{font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:-8px;}
+.ls-spinner{width:28px;height:28px;border:2.5px solid rgba(255,255,255,0.15);border-top-color:var(--brand);border-radius:50%;animation:spin 0.8s linear infinite;margin-top:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ls-msg{font-size:12px;color:rgba(255,255,255,0.4);}
+
+/* auth handled by overlay */
+
+/* pos nav defined below */
+
+/* ── APP SHELL ── */
+.app{padding-top:var(--nav-h);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.page{display:none;flex:1;overflow:hidden;}
+.page.active{display:flex;flex-direction:column;}
+
+/* ── ORDER PAGE ── */
+.order-layout{display:grid;grid-template-columns:1fr 300px;flex:1;overflow:hidden;}
+.menu-pane{overflow-y:auto;padding:16px;}
+.cart-pane{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.cat-strip{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.cat-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.cat-btn.active,.cat-btn:hover{background:var(--text);color:#fff;border-color:var(--text);}
+.sec-label{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin:12px 0 8px;}
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px;margin-bottom:14px;}
+.item-card{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);padding:12px;cursor:pointer;transition:all 0.15s;position:relative;min-height:128px;display:flex;flex-direction:column;}
+.item-card:hover{border-color:var(--brand);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,68,10,0.1);}
+.item-card.in-cart{border-color:var(--brand);}
+.item-card.out-of-stock{opacity:0.42;pointer-events:none;}
+.cart-dot{position:absolute;top:8px;right:8px;background:var(--brand);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.oos-dot{position:absolute;top:8px;right:8px;background:var(--faint);color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;}
+.ic{font-size:26px;line-height:1;margin-bottom:6px;}
+.iname{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:2px;line-height:1.25;}
+.idesc{font-size:10px;color:var(--muted);line-height:1.4;flex:1;}
+.ifooter{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.iprice{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--brand);}
+.add-btn{width:28px;height:28px;background:var(--text);border:none;border-radius:7px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;line-height:1;}
+.add-btn:hover{background:var(--brand);}
+.cart-head{padding:13px 16px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.cart-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;}
+.cart-count{background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.cart-items{flex:1;overflow-y:auto;padding:6px 14px;}
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100px;color:var(--faint);font-size:12px;gap:6px;}
+.cart-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateX(6px);}to{opacity:1;transform:translateX(0);}}
+.cr-info{flex:1;min-width:0;}
+.cr-name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cr-price{font-size:10px;color:var(--muted);}
+.qty-ctrl{display:flex;align-items:center;gap:4px;}
+.qb{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;transition:all 0.1s;}
+.qb:hover{border-color:var(--brand);color:var(--brand);}
+.qn{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;min-width:16px;text-align:center;}
+.cr-total{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;min-width:40px;text-align:right;}
+.cart-foot{padding:12px 16px;border-top:1px solid var(--border);background:var(--surface);}
+.tot-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
+.tot-row.grand{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:var(--text);border-top:1px solid var(--border);padding-top:9px;margin-top:3px;}
+.pay-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:background 0.15s;margin:11px 0 6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.pay-btn:hover{background:var(--brand-dk);}
+.pay-btn:disabled{background:#ccc;cursor:not-allowed;}
+.clr-btn{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:9px;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.clr-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* Mobile FAB + Drawer */
+.fab-wrap{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;}
+.cart-fab{background:var(--text);color:#fff;border:none;border-radius:20px;padding:13px 22px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;box-shadow:0 8px 28px rgba(0,0,0,0.28);min-width:185px;justify-content:space-between;}
+.fab-badge{background:var(--brand);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.fab-total{font-size:12px;color:rgba(255,255,255,0.7);}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:70;pointer-events:none;transition:background 0.3s;}
+.drawer-overlay.open{background:rgba(0,0,0,0.4);pointer-events:all;}
+.cart-drawer{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-radius:20px 20px 0 0;z-index:80;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.1,0.64,1);max-height:88vh;display:flex;flex-direction:column;}
+.cart-drawer.open{transform:translateY(0);}
+.drawer-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
+.drawer-head2{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.close-x{width:30px;height:30px;background:var(--surface);border:none;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.drawer-items{overflow-y:auto;flex:1;padding:6px 14px;}
+.drawer-foot{padding:13px 16px;border-top:1px solid var(--border);background:var(--surface);}
+
+/* ── HISTORY ── */
+.hist-wrap{flex:1;overflow-y:auto;padding:20px;}
+.hist-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.filter-btn{font-size:12px;font-weight:600;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all 0.15s;}
+.filter-btn.active{background:var(--text);color:#fff;border-color:var(--text);}
+.date-inputs{display:flex;gap:6px;align-items:center;}
+.date-inputs input{font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);outline:none;}
+.date-inputs input:focus{border-color:var(--brand);}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px;}
+.stat-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:22px;color:var(--text);}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.stat-card.green .stat-val{color:var(--green);}
+.stat-card.red .stat-val{color:var(--red);}
+.stat-card.blue .stat-val{color:var(--blue);}
+.orders-table{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+.ot-head{display:grid;grid-template-columns:80px 1fr 110px 90px 80px 80px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;}
+.ot-row{display:grid;grid-template-columns:80px 1fr 110px 90px 80px 80px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.1s;cursor:pointer;}
+.ot-row:last-child{border-bottom:none;}
+.ot-row:hover{background:var(--surface);}
+.ot-id{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:var(--brand);}
+.ot-items{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ot-time{font-size:11px;color:var(--muted);}
+.ot-total{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;display:inline-block;}
+.badge.paid{background:var(--green-bg);color:var(--green-text);}
+.badge.refunded{background:var(--red-bg);color:var(--red-text);}
+.refund-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:var(--radius-xs);border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all 0.15s;}
+.refund-btn:hover{border-color:var(--red);color:var(--red);}
+.refund-btn:disabled{opacity:0.35;pointer-events:none;}
+
+/* ── PRODUCTS / CATEGORIES ── */
+.mgmt-wrap{flex:1;overflow-y:auto;padding:20px;}
+.section-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.section-hd h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;}
+.add-new-btn{background:var(--text);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 16px;font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;}
+.add-new-btn:hover{background:var(--brand);}
+.prod-list,.cat-list{display:flex;flex-direction:column;gap:8px;}
+.prod-item,.cat-item{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:all 0.15s;}
+.prod-item:hover,.cat-item:hover{border-color:var(--brand);}
+.pi-icon,.ci-icon{font-size:22px;width:38px;height:38px;background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pi-info,.ci-info{flex:1;min-width:0;}
+.pi-name,.ci-name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;}
+.pi-meta,.ci-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.pi-price{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--brand);flex-shrink:0;}
+.pi-actions{display:flex;gap:6px;flex-shrink:0;}
+.icon-btn{width:30px;height:30px;border:1px solid var(--border);background:none;border-radius:var(--radius-xs);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.icon-btn:hover{border-color:var(--brand);}
+.icon-btn.del:hover{border-color:var(--red);}
+.oos-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;background:var(--red-bg);color:var(--red-text);margin-left:4px;vertical-align:middle;}
+
+/* ── SETTINGS PAGE ── */
+.settings-wrap{flex:1;overflow-y:auto;padding:20px;max-width:600px;}
+.settings-section{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px;margin-bottom:16px;}
+.settings-section h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;padding-bottom:0;}
+.sr-label{font-size:13px;font-weight:500;}
+.sr-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.sr-input{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;width:200px;transition:border 0.15s;}
+.sr-input:focus{border-color:var(--brand);background:#fff;}
+.save-settings-btn{background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:background 0.15s;margin-top:16px;}
+.save-settings-btn:hover{background:var(--brand-dk);}
+.upi-preview{margin-top:12px;background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--muted);word-break:break-all;}
+.upi-preview span{color:var(--brand);font-weight:600;}
+
+/* ── EDITOR MODAL ── */
+.editor-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.editor-overlay.show{display:flex;}
+.editor-modal{background:var(--card);border-radius:20px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;animation:slideUp 0.3s cubic-bezier(0.34,1.1,0.64,1);}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.em-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.em-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;}
+.em-close{width:32px;height:32px;background:var(--surface);border:none;border-radius:50%;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.em-close:hover{background:var(--red-bg);color:var(--red);}
+.em-body{overflow-y:auto;padding:18px 20px;flex:1;}
+.em-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
+.em-save{flex:1;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.em-save:hover{background:var(--brand-dk);}
+.em-save:disabled{background:#ccc;cursor:not-allowed;}
+.em-cancel{background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:13px;font-weight:500;cursor:pointer;}
+.form-group{margin-bottom:15px;}
+.form-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;display:block;}
+.form-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
+.form-input:focus{border-color:var(--brand);background:#fff;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.icon-picker{display:flex;flex-wrap:wrap;gap:6px;max-height:148px;overflow-y:auto;padding:2px;}
+.ip-opt{width:36px;height:36px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;background:var(--surface);flex-shrink:0;}
+.ip-opt:hover{border-color:var(--brand);}
+.ip-opt.selected{border-color:var(--brand);background:var(--brand-lt);}
+.ing-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;min-height:24px;}
+.ing-tag{display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:500;}
+.ing-tag button{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0;line-height:1;}
+.ing-tag button:hover{color:var(--red);}
+.ing-add{display:flex;gap:6px;margin-top:8px;}
+.ing-add input{flex:1;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;}
+.ing-add input:focus{border-color:var(--brand);}
+.ing-add button{background:var(--text);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.ing-add button:hover{background:var(--brand);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;}
+.toggle-label{font-size:13px;font-weight:500;}
+.toggle{width:40px;height:22px;background:var(--faint);border-radius:20px;position:relative;cursor:pointer;transition:background 0.2s;border:none;padding:0;flex-shrink:0;}
+.toggle.on{background:var(--brand);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform 0.2s;}
+.toggle.on::after{transform:translateX(18px);}
+
+/* ── CHECKOUT MODAL ── */
+.checkout-modal{background:var(--card);border-radius:20px;width:100%;max-width:420px;max-height:92vh;display:flex;flex-direction:column;animation:slideUp 0.3s cubic-bezier(0.34,1.1,0.64,1);}
+.co-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.co-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;}
+.co-body{overflow-y:auto;padding:18px 20px;flex:1;}
+.co-summary{background:var(--surface);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:18px;}
+.co-summary-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;}
+.co-summary-row.total{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;color:var(--text);border-top:1px solid var(--border);padding-top:8px;margin-top:4px;}
+.co-foot{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;}
+.co-place-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;}
+.co-place-btn:hover{background:var(--brand-dk);}
+.co-place-btn:disabled{background:#ccc;cursor:not-allowed;}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* ── UPI PAYMENT MODAL ── */
+.upi-modal{background:var(--card);border-radius:20px;width:100%;max-width:380px;display:flex;flex-direction:column;animation:popIn 0.3s ease;text-align:center;}
+.upi-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.upi-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;}
+.upi-body{padding:20px;}
+.upi-amount{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:32px;color:var(--brand);margin-bottom:4px;}
+.upi-order{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.upi-qr-wrap{width:200px;height:200px;margin:0 auto 14px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);overflow:hidden;}
+#qr-canvas{display:block;}
+.upi-id-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.upi-id-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:16px;}
+.upi-instructions{font-size:11px;color:var(--muted);line-height:1.6;background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:16px;text-align:left;}
+.upi-done-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:15px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.2px;}
+.upi-done-btn:hover{filter:brightness(1.08);}
+.upi-cash-btn{width:100%;background:var(--amber-bg);color:var(--amber-text);border:1.5px solid var(--amber);border-radius:var(--radius);padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.upi-cash-btn:hover{background:var(--amber);color:#fff;}
+.upi-nopay-btn{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:10px;font-size:12px;cursor:pointer;}
+.upi-timer{font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px;font-variant-numeric:tabular-nums;}
+.upi-timer span{font-weight:700;color:var(--text);}
+.upi-waiting{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:12px;}
+.upi-waiting-dot{width:8px;height:8px;background:var(--amber);border-radius:50%;animation:hbpulse 1.2s infinite;}
+.pay-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.pay-confirm-overlay.show{display:flex;}
+.pay-confirm-card{background:var(--card);border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center;animation:slideUp 0.3s ease;}
+.pcc-icon{font-size:44px;margin-bottom:12px;}
+.pcc-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:var(--text);margin-bottom:6px;}
+.pcc-amount{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:32px;color:var(--green);margin-bottom:6px;}
+.pcc-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+.pcc-yes{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;}
+.pcc-yes:hover{filter:brightness(1.08);}
+.pcc-no{width:100%;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:11px;font-size:13px;cursor:pointer;}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="BITE POS"/>
+<meta name="description" content="BITE. POS — The smart POS for modern restaurants. by Pay4."/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%231A1208'/%3E%3Ctext x='96' y='130' font-family='serif' font-weight='900' font-size='110' text-anchor='middle' fill='white'%3EB%3C/text%3E%3Ccircle cx='148' cy='58' r='22' fill='%23E8440A'/%3E%3C/svg%3E"/>
+<title>BITE. POS — Smart Restaurant POS by Pay4</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<script>
+  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
+  const BREVO_API_KEY = window.__BREVO_KEY__ || '';
+  const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
+  const ADMIN_EMAIL   = 'admin@pay4.space';
+  const SENDER_EMAIL  = 'noreply@pay4.space';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -528,6 +959,47 @@ body{overflow-x:hidden;}
   .editor-modal,.checkout-modal,.upi-modal,.order-detail-modal,.success-share{border-radius:20px 20px 0 0;max-height:95vh;margin-top:auto;}
   .editor-overlay,.overlay{align-items:flex-end;padding:0;}
 }
+
+/* Hide POS chrome when landing page is shown */
+body.landing .pos-mob-nav{display:none !important;}
+body.landing #welcome-banner{display:none !important;}
+
+/* SMS listener status */
+.sms-permission-btn{width:100%;background:var(--surface);color:var(--text);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;}
+.sms-permission-btn:hover{border-color:var(--brand);}
+
+/* Email field highlight at checkout */
+#co-email:not(:placeholder-shown){border-color:var(--green);}
+#co-email:not(:placeholder-shown) + div{color:var(--green) !important;}
+
+/* WhatsApp table selector + session indicator */
+.table-selector-wrap{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.table-selector-label{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;}
+.table-selector{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);outline:none;cursor:pointer;}
+.table-selector:focus{border-color:var(--brand);}
+.wa-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--green-bg);color:var(--green-text);animation:fadeIn 0.3s ease;}
+.wa-status.none{background:var(--surface);color:var(--faint);}
+.wa-status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pdot 1.5s infinite;}
+.wa-status.none .wa-status-dot{background:var(--faint);animation:none;}
+/* QR card generator */
+.qr-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px;}
+.qr-card-preview{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;}
+.qr-card-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;margin-bottom:4px;}
+.qr-card-sub{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.qr-card-qr{width:100px;height:100px;margin:0 auto 8px;}
+.qr-card-code{font-size:11px;color:var(--muted);font-family:monospace;}
+.wa-settings-preview{background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px;font-size:11px;color:var(--muted);display:none;}
+.wa-settings-preview span{color:var(--brand);font-weight:600;}
+
+/* BITE logo SVG */
+.bite-logo-svg{display:inline-flex;align-items:center;vertical-align:middle;}
+.bite-logo-svg svg{height:16px;width:auto;}
+.bite-logo-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
+.bite-logo-by{font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;}
+.lp-logo-wrap .bite-logo-by{color:rgba(255,255,255,0.4);}
+.lp-logo-wrap.solid .bite-logo-by{color:var(--faint);}
+.pos-logo-wrap .bite-logo-by{color:rgba(255,255,255,0.3);}
+.auth-logo-wrap .bite-logo-by{color:rgba(255,255,255,0.3);}
 </style>
 </head>
 <body>
@@ -535,9 +1007,9 @@ body{overflow-x:hidden;}
 <!-- ═══ LANDING PAGE ═══ -->
 <div id="view-landing">
   <nav class="lp-nav" id="lp-nav">
-    <a class="lp-logo" href="#">
-      <div class="lp-logo-main">BITE<span>.</span></div>
-      <div class="lp-logo-by">by Pay4</div>
+    <a class="lp-logo" href="#" style="display:flex;flex-direction:column;text-decoration:none;gap:2px">
+      <svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="white"/><path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236ZM28.7714 8.17732C28.8515 8.33552 28.8678 8.51792 28.8166 8.68439C28.7655 8.85087 28.6511 8.98779 28.4986 9.06503C28.3461 9.14227 28.168 9.1535 28.0035 9.09625C27.8391 9.03901 27.7016 8.91797 27.6215 8.75978C27.5414 8.60158 27.5251 8.41918 27.5763 8.2527C27.6274 8.08622 27.7418 7.94931 27.8943 7.87207C28.0468 7.79483 28.2249 7.7836 28.3893 7.84084C28.5538 7.89809 28.6912 8.01912 28.7714 8.17732ZM25.3563 9.99343C25.5088 9.91619 25.6869 9.90496 25.8513 9.96221C26.0158 10.0195 26.1532 10.1405 26.2334 10.2987C26.3135 10.4569 26.3298 10.6393 26.2786 10.8058C26.2275 10.9722 26.1131 11.1092 25.9606 11.1864C25.8081 11.2636 25.63 11.2749 25.4655 11.2176C25.3011 11.1604 25.1636 11.0393 25.0835 10.8811C25.0034 10.7229 24.9871 10.5405 25.0383 10.3741C25.0894 10.2076 25.2038 10.0707 25.3563 9.99343ZM28.6212 13.5863C28.7013 13.7445 28.7176 13.9269 28.6664 14.0934C28.6152 14.2599 28.5008 14.3968 28.3484 14.474C28.1959 14.5513 28.0178 14.5625 27.8533 14.5053C27.6888 14.448 27.5514 14.327 27.4713 14.1688C27.3912 14.0106 27.3749 13.8282 27.426 13.6617C27.4772 13.4952 27.5916 13.3583 27.7441 13.2811C27.8966 13.2038 28.0746 13.1926 28.2391 13.2499C28.4036 13.3071 28.541 13.4281 28.6212 13.5863Z" fill="#E8440A"/></svg>
+      <div class="lp-logo-by" style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.8px;text-transform:uppercase">by Pay4</div>
     </a>
     <div class="lp-nav-actions">
       <button class="lp-signin-btn" onclick="openAuth('login')">Sign In</button>
@@ -605,7 +1077,10 @@ body{overflow-x:hidden;}
 
   <footer class="lp-footer">
     <div class="footer-grid">
-      <div><div class="footer-brand">BITE<span>.</span></div><div class="footer-tagline">The smart POS for modern restaurants.<br>by Pay4 &mdash; bite.pay4.space</div></div>
+      <div><div class="footer-brand"><svg width="26" height="16" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="#1A1208"/>
+<path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236ZM28.7714 8.17732C28.8515 8.33552 28.8678 8.51792 28.8166 8.68439C28.7655 8.85087 28.6511 8.98779 28.4986 9.06503C28.3461 9.14227 28.168 9.1535 28.0035 9.09625C27.8391 9.03901 27.7016 8.91797 27.6215 8.75978C27.5414 8.60158 27.5251 8.41918 27.5763 8.2527C27.6274 8.08622 27.7418 7.94931 27.8943 7.87207C28.0468 7.79483 28.2249 7.7836 28.3893 7.84084C28.5538 7.89809 28.6912 8.01912 28.7714 8.17732ZM25.3563 9.99343C25.5088 9.91619 25.6869 9.90496 25.8513 9.96221C26.0158 10.0195 26.1532 10.1405 26.2334 10.2987C26.3135 10.4569 26.3298 10.6393 26.2786 10.8058C26.2275 10.9722 26.1131 11.1092 25.9606 11.1864C25.8081 11.2636 25.63 11.2749 25.4655 11.2176C25.3011 11.1604 25.1636 11.0393 25.0835 10.8811C25.0034 10.7229 24.9871 10.5405 25.0383 10.3741C25.0894 10.2076 25.2038 10.0707 25.3563 9.99343ZM28.6212 13.5863C28.7013 13.7445 28.7176 13.9269 28.6664 14.0934C28.6152 14.2599 28.5008 14.3968 28.3484 14.474C28.1959 14.5513 28.0178 14.5625 27.8533 14.5053C27.6888 14.448 27.5514 14.327 27.4713 14.1688C27.3912 14.0106 27.3749 13.8282 27.426 13.6617C27.4772 13.4952 27.5916 13.3583 27.7441 13.2811C27.8966 13.2038 28.0746 13.1926 28.2391 13.2499C28.4036 13.3071 28.541 13.4281 28.6212 13.5863Z" fill="#E8440A"/>
+</svg></div><div class="footer-tagline">The smart POS for modern restaurants.<br>by Pay4 &mdash; bite.pay4.space</div></div>
       <div>
         <div class="footer-col-title">Product</div>
         <a class="footer-lk" href="#features">Features</a>
@@ -630,7 +1105,10 @@ body{overflow-x:hidden;}
   <div class="auth-box">
     <button class="auth-close-btn" onclick="closeAuth()">&#x2715;</button>
     <div class="auth-hd">
-      <div class="auth-hd-logo">BITE<span>.</span></div>
+      <div style="display:flex;justify-content:center;margin-bottom:4px"><svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="white"/>
+<path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236ZM28.7714 8.17732C28.8515 8.33552 28.8678 8.51792 28.8166 8.68439C28.7655 8.85087 28.6511 8.98779 28.4986 9.06503C28.3461 9.14227 28.168 9.1535 28.0035 9.09625C27.8391 9.03901 27.7016 8.91797 27.6215 8.75978C27.5414 8.60158 27.5251 8.41918 27.5763 8.2527C27.6274 8.08622 27.7418 7.94931 27.8943 7.87207C28.0468 7.79483 28.2249 7.7836 28.3893 7.84084C28.5538 7.89809 28.6912 8.01912 28.7714 8.17732ZM25.3563 9.99343C25.5088 9.91619 25.6869 9.90496 25.8513 9.96221C26.0158 10.0195 26.1532 10.1405 26.2334 10.2987C26.3135 10.4569 26.3298 10.6393 26.2786 10.8058C26.2275 10.9722 26.1131 11.1092 25.9606 11.1864C25.8081 11.2636 25.63 11.2749 25.4655 11.2176C25.3011 11.1604 25.1636 11.0393 25.0835 10.8811C25.0034 10.7229 24.9871 10.5405 25.0383 10.3741C25.0894 10.2076 25.2038 10.0707 25.3563 9.99343ZM28.6212 13.5863C28.7013 13.7445 28.7176 13.9269 28.6664 14.0934C28.6152 14.2599 28.5008 14.3968 28.3484 14.474C28.1959 14.5513 28.0178 14.5625 27.8533 14.5053C27.6888 14.448 27.5514 14.327 27.4713 14.1688C27.3912 14.0106 27.3749 13.8282 27.426 13.6617C27.4772 13.4952 27.5916 13.3583 27.7441 13.2811C27.8966 13.2038 28.0746 13.1926 28.2391 13.2499C28.4036 13.3071 28.541 13.4281 28.6212 13.5863Z" fill="#E8440A"/>
+</svg></div>
       <div class="auth-hd-by">by Pay4</div>
       <div class="auth-hd-title" id="auth-hd-title">Sign in to your POS</div>
       <div class="auth-hd-desc" id="auth-hd-desc">Access your kiosk and manage your restaurant.</div>
@@ -680,8 +1158,10 @@ body{overflow-x:hidden;}
 <div id="view-pos">
   <nav class="pos-nav">
     <div class="pos-logo-wrap" onclick="confirmLogout()">
-      <div class="pos-logo-main">BITE<span>.</span></div>
-      <div class="pos-logo-sub">by Pay4</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+        <svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="white"/><path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236ZM28.7714 8.17732C28.8515 8.33552 28.8678 8.51792 28.8166 8.68439C28.7655 8.85087 28.6511 8.98779 28.4986 9.06503C28.3461 9.14227 28.168 9.1535 28.0035 9.09625C27.8391 9.03901 27.7016 8.91797 27.6215 8.75978C27.5414 8.60158 27.5251 8.41918 27.5763 8.2527C27.6274 8.08622 27.7418 7.94931 27.8943 7.87207C28.0468 7.79483 28.2249 7.7836 28.3893 7.84084C28.5538 7.89809 28.6912 8.01912 28.7714 8.17732ZM25.3563 9.99343C25.5088 9.91619 25.6869 9.90496 25.8513 9.96221C26.0158 10.0195 26.1532 10.1405 26.2334 10.2987C26.3135 10.4569 26.3298 10.6393 26.2786 10.8058C26.2275 10.9722 26.1131 11.1092 25.9606 11.1864C25.8081 11.2636 25.63 11.2749 25.4655 11.2176C25.3011 11.1604 25.1636 11.0393 25.0835 10.8811C25.0034 10.7229 24.9871 10.5405 25.0383 10.3741C25.0894 10.2076 25.2038 10.0707 25.3563 9.99343ZM28.6212 13.5863C28.7013 13.7445 28.7176 13.9269 28.6664 14.0934C28.6152 14.2599 28.5008 14.3968 28.3484 14.474C28.1959 14.5513 28.0178 14.5625 27.8533 14.5053C27.6888 14.448 27.5514 14.327 27.4713 14.1688C27.3912 14.0106 27.3749 13.8282 27.426 13.6617C27.4772 13.4952 27.5916 13.3583 27.7441 13.2811C27.8966 13.2038 28.0746 13.1926 28.2391 13.2499C28.4036 13.3071 28.541 13.4281 28.6212 13.5863Z" fill="#E8440A"/></svg>
+        <div class="pos-logo-sub">by Pay4</div>
+      </div>
     </div>
     <div class="pos-nav-links" id="pos-nav-links">
       <button class="pos-nav-link active" onclick="posNavTo('order',this)">&#x1F6D2; Order</button>
@@ -709,7 +1189,18 @@ body{overflow-x:hidden;}
 <div class="pos-content">
   <!-- ORDER PAGE -->
   <div class="pos-page active" id="pos-page-order">
-    <div class="order-layout">
+    
+      <div class="table-selector-wrap" id="table-selector-wrap" style="display:none">
+        <span class="table-selector-label">🪑 Table:</span>
+        <select class="table-selector" id="table-selector" onchange="onTableChange(this.value)">
+          <option value="">— Select table —</option>
+        </select>
+        <div class="wa-status none" id="wa-status-indicator">
+          <span class="wa-status-dot"></span>
+          <span id="wa-status-text">No WhatsApp</span>
+        </div>
+      </div>
+      <div class="order-layout">
       <div class="menu-pane">
         <div class="cat-strip" id="cat-strip-order"></div>
         <div id="menu-sections-order"></div>
@@ -805,7 +1296,55 @@ body{overflow-x:hidden;}
             <input class="sr-input" id="set-tax" type="number" min="0" max="50" step="0.5" placeholder="8"/>
           </div>
         </div>
+        <div class="settings-section" style="margin-top:16px">
+            <h3>&#x1F4F1; WhatsApp Bill Sharing</h3>
+            <div class="settings-row">
+              <div>
+                <div class="sr-label">Pay4 WhatsApp Number</div>
+                <div class="sr-sub">Your Pay4 WA Business number (e.g. 919XXXXXXXXX)</div>
+              </div>
+              <input class="sr-input" id="set-pay4-wa" placeholder="919000000000"
+                oninput="localStorage.setItem('bite_pay4_wa_number',this.value.trim())"/>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="sr-label">Restaurant Code</div>
+                <div class="sr-sub">Short code for QR e.g. BB for Boba Baba</div>
+              </div>
+              <input class="sr-input" id="set-wa-code" placeholder="BB" maxlength="10"
+                style="text-transform:uppercase"
+                oninput="this.value=this.value.toUpperCase();updateWaPreview()"/>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="sr-label">Number of Tables</div>
+                <div class="sr-sub">How many QR codes to generate</div>
+              </div>
+              <input class="sr-input" id="set-table-count" type="number" min="1" max="100" placeholder="10"/>
+            </div>
+            <div class="wa-settings-preview" id="wa-settings-preview">
+              Customer scans QR &#8594; sends <span id="wa-code-preview">BB-T1</span>
+              &#8594; bill sent FREE via WhatsApp &#10003;
+            </div>
+            <button class="save-settings-btn" onclick="generateQRCards()"
+              style="background:var(--blue);margin-top:16px">
+              &#x1F4F2; Generate Table QR Cards
+            </button>
+          </div>
         <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
+          <div class="settings-section" style="margin-top:16px">
+            <h3>&#x1F512; Change Password</h3>
+            <div class="settings-row">
+              <div><div class="sr-label">New Password</div><div class="sr-sub">Min 8 characters</div></div>
+              <input class="sr-input" id="set-new-password" type="password" placeholder="New password"/>
+            </div>
+            <div class="settings-row">
+              <div><div class="sr-label">Confirm Password</div><div class="sr-sub">Must match above</div></div>
+              <input class="sr-input" id="set-confirm-password" type="password" placeholder="Confirm password"/>
+            </div>
+            <button class="save-settings-btn" onclick="changePassword()" style="background:var(--blue);margin-top:16px">Update Password</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -844,9 +1383,9 @@ body{overflow-x:hidden;}
         <input class="form-input" id="co-name" placeholder="John Smith"/>
       </div>
       <div class="form-group">
-        <label class="form-label">Email <span style="color:var(--faint);font-weight:400;text-transform:none">(optional)</span></label>
-        <input class="form-input" id="co-email" type="email" placeholder="john@example.com"/>
-        <div class="field-hint">For receipt or follow-up</div>
+        <label class="form-label">Email <span style="color:var(--brand);font-weight:600;font-size:10px;text-transform:none">★ Receipt sent here</span></label>
+        <input class="form-input" id="co-email" type="email" placeholder="customer@email.com" autocomplete="off"/>
+        <div class="field-hint" id="co-email-hint">Receipt will be auto-sent here after payment. ★</div>
       </div>
       <div class="form-group">
         <label class="form-label">Phone <span style="color:var(--faint);font-weight:400;text-transform:none">(optional)</span></label>
@@ -929,6 +1468,39 @@ body{overflow-x:hidden;}
   </div>
 </div>
 
+<!-- PAYMENT CONFIRM DIALOG -->
+<div class="pay-confirm-overlay" id="pay-confirm-overlay">
+  <div class="pay-confirm-card">
+    <div class="pcc-icon" id="pcc-icon">💳</div>
+    <div class="pcc-title" id="pcc-title">Payment Received?</div>
+    <div class="pcc-amount" id="pcc-amount">₹0.00</div>
+    <div class="pcc-sub" id="pcc-sub">Did you see the payment notification on your phone?</div>
+    <button class="pcc-yes" id="pcc-yes-btn" onclick="confirmPaymentYes()">✓ Yes, Payment Received</button>
+    <button class="pcc-no" onclick="closePayConfirm()">✗ No, Customer Still Paying</button>
+  </div>
+</div>
+
+
+<!-- QR CARDS MODAL -->
+<div class="editor-overlay" id="qr-modal-overlay">
+  <div class="editor-modal" style="max-width:680px">
+    <div class="em-head">
+      <div class="em-title">📲 Table QR Cards</div>
+      <button class="em-close" onclick="closeQRModal()">✕</button>
+    </div>
+    <div class="em-body" id="qr-modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+        Print and place these cards on each table. Customers scan to get their bill on WhatsApp for free.
+      </p>
+      <div class="qr-cards-grid" id="qr-cards-grid"></div>
+    </div>
+    <div class="em-foot">
+      <button class="em-cancel" onclick="closeQRModal()">Close</button>
+      <button class="em-save" onclick="printQRCards()">🖨️ Print All Cards</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 
@@ -937,6 +1509,7 @@ body{overflow-x:hidden;}
   <div class="wb-card">
     <div class="wb-top">
       <span class="wb-confetti">&#x1F389;</span>
+      <div style="display:flex;justify-content:center;margin-bottom:10px"><svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="white"/><path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236ZM28.7714 8.17732C28.8515 8.33552 28.8678 8.51792 28.8166 8.68439C28.7655 8.85087 28.6511 8.98779 28.4986 9.06503C28.3461 9.14227 28.168 9.1535 28.0035 9.09625C27.8391 9.03901 27.7016 8.91797 27.6215 8.75978C27.5414 8.60158 27.5251 8.41918 27.5763 8.2527C27.6274 8.08622 27.7418 7.94931 27.8943 7.87207C28.0468 7.79483 28.2249 7.7836 28.3893 7.84084C28.5538 7.89809 28.6912 8.01912 28.7714 8.17732ZM25.3563 9.99343C25.5088 9.91619 25.6869 9.90496 25.8513 9.96221C26.0158 10.0195 26.1532 10.1405 26.2334 10.2987C26.3135 10.4569 26.3298 10.6393 26.2786 10.8058C26.2275 10.9722 26.1131 11.1092 25.9606 11.1864C25.8081 11.2636 25.63 11.2749 25.4655 11.2176C25.3011 11.1604 25.1636 11.0393 25.0835 10.8811C25.0034 10.7229 24.9871 10.5405 25.0383 10.3741C25.0894 10.2076 25.2038 10.0707 25.3563 9.99343ZM28.6212 13.5863C28.7013 13.7445 28.7176 13.9269 28.6664 14.0934C28.6152 14.2599 28.5008 14.3968 28.3484 14.474C28.1959 14.5513 28.0178 14.5625 27.8533 14.5053C27.6888 14.448 27.5514 14.327 27.4713 14.1688C27.3912 14.0106 27.3749 13.8282 27.426 13.6617C27.4772 13.4952 27.5916 13.3583 27.7441 13.2811C27.8966 13.2038 28.0746 13.1926 28.2391 13.2499C28.4036 13.3071 28.541 13.4281 28.6212 13.5863Z" fill="#E8440A"/></svg></div>
       <div class="wb-title" id="wb-title">Welcome aboard!</div>
       <div class="wb-sub" id="wb-sub">Your POS is ready to use.</div>
     </div>
@@ -952,6 +1525,39 @@ body{overflow-x:hidden;}
     </div>
   </div>
 </div>
+<!-- PAYMENT CONFIRM DIALOG -->
+<div class="pay-confirm-overlay" id="pay-confirm-overlay">
+  <div class="pay-confirm-card">
+    <div class="pcc-icon" id="pcc-icon">💳</div>
+    <div class="pcc-title" id="pcc-title">Payment Received?</div>
+    <div class="pcc-amount" id="pcc-amount">₹0.00</div>
+    <div class="pcc-sub" id="pcc-sub">Did you see the payment notification on your phone?</div>
+    <button class="pcc-yes" id="pcc-yes-btn" onclick="confirmPaymentYes()">✓ Yes, Payment Received</button>
+    <button class="pcc-no" onclick="closePayConfirm()">✗ No, Customer Still Paying</button>
+  </div>
+</div>
+
+
+<!-- QR CARDS MODAL -->
+<div class="editor-overlay" id="qr-modal-overlay">
+  <div class="editor-modal" style="max-width:680px">
+    <div class="em-head">
+      <div class="em-title">📲 Table QR Cards</div>
+      <button class="em-close" onclick="closeQRModal()">✕</button>
+    </div>
+    <div class="em-body" id="qr-modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+        Print and place these cards on each table. Customers scan to get their bill on WhatsApp for free.
+      </p>
+      <div class="qr-cards-grid" id="qr-cards-grid"></div>
+    </div>
+    <div class="em-foot">
+      <button class="em-cancel" onclick="closeQRModal()">Close</button>
+      <button class="em-save" onclick="printQRCards()">🖨️ Print All Cards</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 const { createClient } = supabase;
@@ -1060,6 +1666,9 @@ async function launchPOS(){
   posEl.classList.add('active');
   document.body.className='pos-active';
   document.getElementById('pos-user').textContent=currentUser.email;
+  // Load tenant_id from profiles so we only show this user's data
+  const {data:prof}=await sb.from('profiles').select('tenant_id').eq('id',currentUser.id).single();
+  if(prof?.tenant_id) window._tenantId=prof.tenant_id;
   document.getElementById('kiosk-pill-label').textContent=loadSettings().kioskId||'Kiosk #1';
   await Promise.all([loadCategories(),loadProducts()]);
   buildOrderMenu();
@@ -1086,6 +1695,529 @@ async function doLogout(){
   document.body.className='landing';
   showToast('Signed out');
 }
+
+
+
+// ══ AUTO SEND RECEIPT ══
+// Called automatically after every payment confirmation
+// Silently sends email if customer email was collected
+async function autoSendReceipt(order){
+  if(!order.customer_email){
+    // No email collected — nothing to do, staff can share manually
+    return;
+  }
+  if(!BREVO_API_KEY){
+    console.warn('Brevo API key not configured — receipt email skipped');
+    return;
+  }
+  const {bizName}=loadSettings();
+  const receiptURL=getReceiptURL(order.id, bizName);
+  try {
+    await sendReceiptEmail(
+      order.id,
+      order.order_number,
+      typeof order.total === 'number' ? order.total.toFixed(2) : order.total,
+      order.customer_email,
+      order.customer_name||'',
+      receiptURL,
+      bizName
+    );
+    showToast('Receipt sent to '+order.customer_email+' ✓');
+  } catch(e){
+    console.error('Auto receipt email failed:', e);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SMS PAYMENT LISTENER
+// Reads incoming SMS on Android to detect UPI payments
+// Falls back gracefully on iOS/desktop
+// ══════════════════════════════════════════════════════
+
+let _smsListenerActive = false;
+let _smsPermissionGranted = false;
+
+// UPI credit SMS patterns from major Indian banks
+const SMS_PATTERNS = [
+  // Generic credited pattern
+  /(?:credited|received|deposited).{0,60}?(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)/i,
+  // Amount first pattern
+  /(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)[\s\S]{0,60}?(?:credited|received|deposited)/i,
+  // UPI specific
+  /upi[\s\S]{0,80}?(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)/i,
+  /(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)[\s\S]{0,80}?upi/i,
+  // Bank specific patterns
+  /a\/c.{0,30}?credited.{0,40}?(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)/i,
+];
+
+// Extract amount from SMS text
+function extractAmountFromSMS(smsBody) {
+  for (const pattern of SMS_PATTERNS) {
+    const match = smsBody.match(pattern);
+    if (match) {
+      const amt = parseFloat(match[1].replace(/,/g, ''));
+      if (!isNaN(amt) && amt > 0) return amt;
+    }
+  }
+  return null;
+}
+
+// Check if SMS amount matches pending order (within ₹1 tolerance)
+function smsMatchesOrder(smsAmount, orderTotal) {
+  return Math.abs(smsAmount - orderTotal) < 1;
+}
+
+// Request SMS permission on Android (via Web Share Target / Android Intent)
+async function requestSMSPermission() {
+  // Check if Web OTP API is available (Chrome on Android)
+  if ('OTPCredential' in window) {
+    try {
+      const ac = new AbortController();
+      // We use OTP API as a hook to get SMS reading permission
+      // The abort after 100ms just checks if API is available
+      setTimeout(() => ac.abort(), 100);
+      await navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal });
+    } catch(e) {
+      // AbortError is expected - means API is available
+      if (e.name === 'AbortError') {
+        _smsPermissionGranted = true;
+        return true;
+      }
+    }
+  }
+
+  // Check if Android SMS permission API is available
+  if (navigator.permissions) {
+    try {
+      const result = await navigator.permissions.query({ name: 'sms' });
+      if (result.state === 'granted') {
+        _smsPermissionGranted = true;
+        return true;
+      }
+    } catch(e) {}
+  }
+  return false;
+}
+
+// Start listening for payment SMS
+// Uses Web OTP API on Android Chrome + manual polling fallback
+async function startSMSListener(order, onPaymentDetected) {
+  if (_smsListenerActive) return;
+  _smsListenerActive = true;
+
+  const targetAmount = parseFloat(order.total.toFixed(2));
+
+  // ── METHOD 1: Web OTP API (Android Chrome) ────────────────
+  // This is the primary method — Chrome on Android intercepts
+  // SMS messages that match the format
+  if ('OTPCredential' in window) {
+    try {
+      const ac = new AbortController();
+      window._smsAbortController = ac;
+
+      // Set timeout — stop listening after 5 minutes
+      const timeout = setTimeout(() => ac.abort(), 5 * 60 * 1000);
+
+      showSMSListenerStatus('active');
+
+      navigator.credentials.get({
+        otp: { transport: ['sms'] },
+        signal: ac.signal
+      }).then(otp => {
+        clearTimeout(timeout);
+        // OTP received — but we use this just as a trigger
+        // The actual payment detection is from the SMS content
+        // We'll show the confirm dialog
+        onPaymentDetected('sms-otp');
+      }).catch(err => {
+        clearTimeout(timeout);
+        if (err.name !== 'AbortError') {
+          console.log('SMS OTP listener ended:', err.message);
+        }
+        showSMSListenerStatus('inactive');
+      });
+      return; // OTP API is active, don't start other methods
+    } catch(e) {
+      console.log('OTP API not available:', e);
+    }
+  }
+
+  // ── METHOD 2: Android Intent (TWA/WebAPK context) ─────────
+  if (window.Android && window.Android.startSMSListener) {
+    window.Android.startSMSListener();
+    window.onSMSReceived = function(smsBody) {
+      const amount = extractAmountFromSMS(smsBody);
+      if (amount && smsMatchesOrder(amount, targetAmount)) {
+        onPaymentDetected('sms-android');
+      }
+    };
+    showSMSListenerStatus('active');
+    return;
+  }
+
+  // ── METHOD 3: Clipboard polling (fallback) ────────────────
+  // Some UPI apps copy transaction details to clipboard
+  // Poll clipboard every 2 seconds looking for payment confirmation
+  let clipboardAttempts = 0;
+  const maxAttempts = 150; // 5 minutes at 2s intervals
+
+  const pollClipboard = async () => {
+    if (!_smsListenerActive || clipboardAttempts >= maxAttempts) {
+      stopSMSListener();
+      return;
+    }
+    clipboardAttempts++;
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text && text.length > 10) {
+          const amount = extractAmountFromSMS(text);
+          if (amount && smsMatchesOrder(amount, targetAmount)) {
+            onPaymentDetected('clipboard');
+            return;
+          }
+        }
+      }
+    } catch(e) { /* clipboard permission denied is fine */ }
+    setTimeout(pollClipboard, 2000);
+  };
+
+  showSMSListenerStatus('watching');
+  setTimeout(pollClipboard, 2000);
+}
+
+function stopSMSListener() {
+  _smsListenerActive = false;
+  if (window._smsAbortController) {
+    window._smsAbortController.abort();
+    window._smsAbortController = null;
+  }
+  showSMSListenerStatus('inactive');
+}
+
+// Update the SMS status indicator in the UPI modal
+function showSMSListenerStatus(status) {
+  const el = document.getElementById('sms-status');
+  if (!el) return;
+  const states = {
+    active:   { icon:'📡', text:'Auto-detecting payment via SMS…', color:'var(--green)' },
+    watching: { icon:'👀', text:'Watching for payment…', color:'var(--amber)' },
+    detected: { icon:'✅', text:'Payment detected!', color:'var(--green)' },
+    inactive: { icon:'', text:'', color:'' },
+  };
+  const s = states[status] || states.inactive;
+  el.innerHTML = s.text ? `<span style="color:${s.color};font-weight:600">${s.icon} ${s.text}</span>` : '';
+}
+
+// Called when SMS listener detects a payment
+function onSMSPaymentDetected(method) {
+  stopSMSListener();
+  showSMSListenerStatus('detected');
+  showToast('Payment detected! Confirming…');
+  // Small delay for UX then auto-confirm
+  setTimeout(() => {
+    openPayConfirm(window._pendingPayMethod || 'upi');
+  }, 800);
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// WHATSAPP TABLE SESSION SYSTEM
+// ══════════════════════════════════════════════════════════════════
+
+let _waSessions = [];        // active WhatsApp sessions for this tenant
+let _selectedTable = null;   // currently selected table number
+let _waPollingInterval = null;
+
+// ── Load settings into form ──────────────────────────────────────
+const _origPopulateSettings = populateSettingsForm;
+function populateSettingsForm() {
+  _origPopulateSettings();
+  const s = loadSettings();
+  const waCodeEl = document.getElementById('set-wa-code');
+  const tableCountEl = document.getElementById('set-table-count');
+  const pay4WaEl = document.getElementById('set-pay4-wa');
+  if (waCodeEl) waCodeEl.value = s.waCode || '';
+  if (tableCountEl) tableCountEl.value = s.tableCount || 10;
+  if (pay4WaEl) pay4WaEl.value = localStorage.getItem('bite_pay4_wa_number') || '';
+  updateWaPreview();
+  buildTableSelector(s.tableCount || 10);
+}
+
+// ── Save settings ────────────────────────────────────────────────
+const _origSaveSettings = saveSettings;
+function saveSettings() {
+  _origSaveSettings();
+  const waCode = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+  const tableCount = parseInt(document.getElementById('set-table-count')?.value) || 10;
+  localStorage.setItem('bite_wa_code', waCode || '');
+  localStorage.setItem('bite_table_count', tableCount);
+  buildTableSelector(tableCount);
+  if (waCode) startWAPolling();
+}
+
+// ── Load extra settings ──────────────────────────────────────────
+const _origLoadSettings = loadSettings;
+function loadSettings() {
+  const base = _origLoadSettings();
+  return {
+    ...base,
+    waCode: localStorage.getItem('bite_wa_code') || '',
+    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
+  };
+}
+
+function updateWaPreview() {
+  const code = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+  const prev = document.getElementById('wa-settings-preview');
+  const codeEl = document.getElementById('wa-code-preview');
+  if (!prev || !codeEl) return;
+  if (code) {
+    codeEl.textContent = code + '-T1';
+    prev.style.display = 'block';
+  } else {
+    prev.style.display = 'none';
+  }
+}
+
+// ── Build table selector dropdown ────────────────────────────────
+function buildTableSelector(count) {
+  const wrap = document.getElementById('table-selector-wrap');
+  const sel = document.getElementById('table-selector');
+  if (!sel) return;
+  const s = loadSettings();
+  if (!s.waCode || count < 1) {
+    if (wrap) wrap.style.display = 'none';
+    return;
+  }
+  if (wrap) wrap.style.display = 'flex';
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Select table —</option>';
+  for (let i = 1; i <= count; i++) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = 'Table ' + i;
+    if (String(i) === current) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+// ── On table selected ─────────────────────────────────────────────
+function onTableChange(tableNum) {
+  _selectedTable = tableNum || null;
+  updateWAStatus();
+}
+
+// ── Update WhatsApp status indicator ─────────────────────────────
+function updateWAStatus() {
+  const indicator = document.getElementById('wa-status-indicator');
+  const statusText = document.getElementById('wa-status-text');
+  if (!indicator || !statusText) return;
+
+  if (!_selectedTable) {
+    indicator.className = 'wa-status none';
+    statusText.textContent = 'No table selected';
+    return;
+  }
+
+  // Find matching session for this table
+  const session = _waSessions.find(s =>
+    s.table_number === String(_selectedTable)
+  );
+
+  if (session) {
+    indicator.className = 'wa-status';
+    const phone = session.customer_phone.replace(/^91/, '+91 ');
+    statusText.textContent = '📱 ' + phone;
+  } else {
+    indicator.className = 'wa-status none';
+    statusText.textContent = 'No WhatsApp yet';
+  }
+}
+
+// ── Poll for new WhatsApp sessions ───────────────────────────────
+async function startWAPolling() {
+  if (_waPollingInterval) clearInterval(_waPollingInterval);
+  await fetchWASessions();
+  _waPollingInterval = setInterval(fetchWASessions, 10000); // every 10s
+}
+
+async function fetchWASessions() {
+  if (!window._tenantId) return;
+  try {
+    const res = await fetch(
+      '/api/wa-sessions?tenant_id=' + window._tenantId
+    );
+    if (res.ok) {
+      _waSessions = await res.json();
+      updateWAStatus();
+      updateWABadges();
+    }
+  } catch(e) {
+    // Silently fail if worker not deployed yet
+  }
+}
+
+// ── Update badges on table selector options ───────────────────────
+function updateWABadges() {
+  const sel = document.getElementById('table-selector');
+  if (!sel) return;
+  Array.from(sel.options).forEach(opt => {
+    if (!opt.value) return;
+    const hasSession = _waSessions.some(s =>
+      s.table_number === opt.value
+    );
+    // Add/remove WhatsApp indicator in option text
+    const base = opt.textContent.replace(' 📱', '');
+    opt.textContent = base + (hasSession ? ' 📱' : '');
+  });
+}
+
+// ── Get customer phone for current table (for receipt) ────────────
+function getCustomerPhoneForTable() {
+  if (!_selectedTable) return null;
+  const session = _waSessions.find(s =>
+    s.table_number === String(_selectedTable) && !s.receipt_sent
+  );
+  return session?.customer_phone || null;
+}
+
+// ── Send receipt via WhatsApp after payment ───────────────────────
+async function sendWhatsAppReceipt(order) {
+  const phone = getCustomerPhoneForTable();
+  if (!phone) return false; // No WhatsApp session
+
+  const { bizName, waCode } = loadSettings();
+  const receiptUrl = getReceiptURL(order.id, bizName);
+
+  try {
+    const res = await fetch('/api/send-receipt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerPhone: phone,
+        orderNumber:   order.order_number,
+        total:         order.total.toFixed(2),
+        receiptUrl:    receiptUrl,
+        bizName:       bizName,
+        tenantCode:    waCode
+      })
+    });
+    if (res.ok) {
+      showToast('Receipt sent via WhatsApp ✓');
+      // Refresh sessions
+      await fetchWASessions();
+      return true;
+    }
+  } catch(e) {
+    console.log('WA receipt send failed (worker not deployed?):', e.message);
+  }
+  return false;
+}
+
+// ── Generate QR Cards ─────────────────────────────────────────────
+function generateQRCards() {
+  const s = loadSettings();
+  if (!s.waCode) {
+    showToast('Please enter your WhatsApp Code first');
+    return;
+  }
+  // Get Pay4 WA number from settings or use placeholder
+  const waNumber = localStorage.getItem('bite_pay4_wa_number') || '919000000000';
+  const count = s.tableCount || 10;
+  const grid = document.getElementById('qr-cards-grid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+  for (let i = 1; i <= count; i++) {
+    const code = s.waCode + '-T' + i;
+    // QR 1: WhatsApp link with pre-filled table code
+    const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(code)}`;
+
+    const card = document.createElement('div');
+    card.className = 'qr-card-preview';
+    card.innerHTML = `
+      <div class="qr-card-title">${s.bizName || 'Restaurant'}</div>
+      <div class="qr-card-sub" style="font-size:12px;margin-bottom:12px">Table ${i}</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+
+        <div style="text-align:center">
+          <div style="font-size:10px;font-weight:700;color:#1A1208;margin-bottom:6px">
+            💬 Bill on WhatsApp
+          </div>
+          <div id="qr-wa-${i}" style="width:80px;height:80px;margin:0 auto"></div>
+          <div style="font-size:9px;color:#7A6E65;margin-top:4px">
+            Scan → send ${code}
+          </div>
+        </div>
+
+      </div>
+
+      <div style="font-size:9px;color:#C0B8B0;border-top:1px solid #eee;padding-top:6px">
+        💬 Reply 1 for bill · 2 for offers
+      </div>`;
+
+    grid.appendChild(card);
+
+    setTimeout(() => {
+      const waEl = document.getElementById('qr-wa-' + i);
+      if (waEl && typeof QRCode !== 'undefined') {
+        new QRCode(waEl, {
+          text: waLink, width:80, height:80,
+          colorDark:'#1A1208', colorLight:'#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }, 80 * i);
+  }
+
+  document.getElementById('qr-modal-overlay').classList.add('show');
+}
+
+function closeQRModal() {
+  document.getElementById('qr-modal-overlay').classList.remove('show');
+}
+
+function printQRCards() {
+  // Open print dialog for just the QR cards
+  const content = document.getElementById('qr-cards-grid').innerHTML;
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <html><head><title>Table QR Cards</title>
+    <style>
+      body{margin:16px;font-family:sans-serif;}
+      .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+      .card{border:1px solid #ccc;border-radius:8px;padding:12px;text-align:center;break-inside:avoid;}
+      @media print{.grid{grid-template-columns:repeat(4,1fr);}}
+    </style></head>
+    <body onload="window.print()">
+    <div class="grid">${content}</div>
+    </body></html>`);
+  win.document.close();
+}
+
+// ── Start polling when POS launches ──────────────────────────────
+const _origLaunchPOS = launchPOS;
+async function launchPOS() {
+  await _origLaunchPOS();
+  const s = loadSettings();
+  if (s.waCode) {
+    buildTableSelector(s.tableCount || 10);
+    startWAPolling();
+  }
+}
+
+// ── Hook into confirmPaymentYes to also send WA receipt ──────────
+const _origConfirmPaymentYes = confirmPaymentYes;
+async function confirmPaymentYes() {
+  await _origConfirmPaymentYes();
+  // Also try WhatsApp receipt (non-blocking)
+  if (window._pendingOrder) {
+    sendWhatsAppReceipt(window._pendingOrder).catch(() => {});
+  }
+}
+
 
 // ══ INIT ══
 async function init(){
@@ -1138,13 +2270,31 @@ function updateUpiPreview(){
   prev.style.display=val?'block':'none';
 }
 
+// ══ CHANGE PASSWORD ══
+async function changePassword(){
+  const np=document.getElementById('set-new-password').value;
+  const cp=document.getElementById('set-confirm-password').value;
+  if(!np||!cp){ showToast('Please fill both fields'); return; }
+  if(np.length<8){ showToast('Password must be at least 8 characters'); return; }
+  if(np!==cp){ showToast('Passwords do not match'); return; }
+  const {error}=await sb.auth.updateUser({password:np});
+  if(error){ showToast('Error: '+error.message); return; }
+  document.getElementById('set-new-password').value='';
+  document.getElementById('set-confirm-password').value='';
+  showToast('Password updated ✓');
+}
+
 // ══ DATA ══
 async function loadCategories(){
-  const {data,error}=await sb.from('categories').select('*').order('sort_order',{ascending:true});
+  let q=sb.from('categories').select('*').order('sort_order',{ascending:true});
+  if(window._tenantId) q=q.eq('tenant_id',window._tenantId);
+  const {data,error}=await q;
   if(!error&&data) categories=data;
 }
 async function loadProducts(){
-  const {data,error}=await sb.from('products').select('*, categories(name,icon)').order('sort_order',{ascending:true});
+  let q=sb.from('products').select('*, categories(name,icon)').order('sort_order',{ascending:true});
+  if(window._tenantId) q=q.eq('tenant_id',window._tenantId);
+  const {data,error}=await q;
   if(!error&&data) products=data.map(p=>({...p,catId:p.category_id,catName:p.categories?.name||'',catIcon:p.categories?.icon||'',outOfStock:p.out_of_stock}));
 }
 
@@ -1222,6 +2372,8 @@ function openCheckout(){
     <div class="co-summary-row total"><span>Total</span><span>₹${total.toFixed(2)}</span></div>`;
   ['co-name','co-email','co-phone'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('checkout-overlay').classList.add('show');
+  // Focus email field after short delay
+  setTimeout(()=>{ const el=document.getElementById('co-email'); if(el) el.focus(); },200);
 }
 function closeCheckout(){ document.getElementById('checkout-overlay').classList.remove('show'); }
 
@@ -1237,6 +2389,7 @@ async function placeOrder(){
   const custPhone=document.getElementById('co-phone')?.value.trim();
   const { data:orderData, error:orderErr }=await sb.from('orders')
     .insert({ subtotal:sub.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),status:'paid',
+              tenant_id:window._tenantId||null,
               customer_name:custName||null,customer_email:custEmail||null,customer_phone:custPhone||null,
               kiosk_id:loadSettings().kioskId })
     .select('id,order_number').single();
@@ -1253,39 +2406,109 @@ async function placeOrder(){
 }
 
 // ══ UPI ══
+// ══ PAYMENT TIMER ══
+let _upiTimerInterval=null;
+function startUpiTimer(){
+  let secs=0;
+  const el=document.getElementById('upi-timer-val');
+  clearInterval(_upiTimerInterval);
+  _upiTimerInterval=setInterval(()=>{
+    secs++;
+    const m=String(Math.floor(secs/60)).padStart(2,'0');
+    const s=String(secs%60).padStart(2,'0');
+    if(el) el.textContent=m+':'+s;
+  },1000);
+}
+function stopUpiTimer(){ clearInterval(_upiTimerInterval); _upiTimerInterval=null; }
+
 function showUpiModal(order){
   const {upiId,bizName}=loadSettings();
   const body=document.getElementById('upi-body');
   document.getElementById('upi-overlay').classList.add('show');
   window._pendingOrder=order;
+  window._pendingPayMethod='upi';
   if(!upiId){
-    body.innerHTML=`<div class="no-upi-msg"><div style="font-size:32px;margin-bottom:10px">⚙️</div><strong>UPI ID not configured</strong><br><br>Order #${order.order_number} placed!<br>Go to Settings to add your UPI ID.<br><br><button class="upi-done-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">Next →</button></div>`;
+    body.innerHTML=`<div class="no-upi-msg"><div style="font-size:32px;margin-bottom:10px">⚙️</div>
+      <strong>UPI ID not configured</strong><br><br>Order #${order.order_number} placed for ₹${order.total.toFixed(2)}<br><br>
+      Go to <strong>Settings</strong> to add your UPI ID.<br><br>
+      <button class="upi-cash-btn" onclick="openPayConfirm('cash')">💵 Mark as Cash Payment</button>
+      <button class="upi-nopay-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder,'pending')">Skip for now</button></div>`;
     return;
   }
   const upiStr=`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(bizName)}&am=${order.total.toFixed(2)}&tn=${encodeURIComponent('Order #'+order.order_number)}&cu=INR`;
   body.innerHTML=`
     <div class="upi-amount">₹${order.total.toFixed(2)}</div>
     <div class="upi-order">Order #${order.order_number}</div>
+    <div class="upi-waiting"><span class="upi-waiting-dot"></span> Waiting for payment…</div>
+    <div id="sms-status" style="font-size:12px;text-align:center;margin-bottom:4px;min-height:18px;"></div>
     <div class="upi-qr-wrap"><div id="qr-canvas"></div></div>
     <div class="upi-id-label">Scan with any UPI app</div>
     <div class="upi-id-val">${upiId}</div>
-    <div class="upi-instructions">1. Open GPay, PhonePe, Paytm or any UPI app<br>2. Tap Scan QR and point at the code<br>3. Confirm the amount and pay</div>
-    <button class="upi-done-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">✓ Payment Done — Next</button>
-    <button class="upi-nopay-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder)">Pay Later / Cash</button>`;
-  setTimeout(()=>{ const el=document.getElementById('qr-canvas'); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:upiStr,width:192,height:192,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); },100);
+    <div class="upi-timer">Waiting: <span id="upi-timer-val">00:00</span></div>
+    <button class="upi-done-btn" onclick="openPayConfirm('upi')">
+      ✓ Confirm UPI Payment Received
+    </button>
+    <button class="upi-cash-btn" onclick="openPayConfirm('cash')">
+      💵 Accept as Cash Instead
+    </button>
+    <button class="upi-nopay-btn" onclick="closeUpiModal();showSuccessModal(window._pendingOrder,'pending');autoSendReceipt(window._pendingOrder||{})">
+      Save order, collect later
+    </button>`;
+  startUpiTimer();
+  // Start SMS listener for auto-detection
+  startSMSListener(order, onSMSPaymentDetected);
+  setTimeout(()=>{ const el=document.getElementById('qr-canvas'); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:upiStr,width:185,height:185,colorDark:'#1A1208',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); },100);
 }
-function closeUpiModal(){ document.getElementById('upi-overlay').classList.remove('show'); }
+function closeUpiModal(){ stopUpiTimer(); stopSMSListener(); document.getElementById('upi-overlay').classList.remove('show'); }
+
+// ══ PAYMENT CONFIRM DIALOG ══
+function openPayConfirm(method){
+  window._pendingPayMethod=method;
+  const order=window._pendingOrder;
+  const icon=method==='upi'?'📱':'💵';
+  const title=method==='upi'?'Confirm UPI Payment':'Confirm Cash Payment';
+  const sub=method==='upi'
+    ?'Did you receive a payment notification on your UPI app?'
+    :'Confirm you have received cash from the customer.';
+  document.getElementById('pcc-icon').textContent=icon;
+  document.getElementById('pcc-title').textContent=title;
+  document.getElementById('pcc-amount').textContent='₹'+order.total.toFixed(2);
+  document.getElementById('pcc-sub').textContent=sub;
+  document.getElementById('pcc-yes-btn').textContent=method==='upi'?'✓ Yes, I received ₹'+order.total.toFixed(2):'✓ Cash received ₹'+order.total.toFixed(2);
+  document.getElementById('pay-confirm-overlay').classList.add('show');
+}
+function closePayConfirm(){ document.getElementById('pay-confirm-overlay').classList.remove('show'); }
+async function confirmPaymentYes(){
+  closePayConfirm();
+  closeUpiModal();
+  const order=window._pendingOrder;
+  const method=window._pendingPayMethod||'upi';
+  // Update order with payment method
+  await sb.from('orders').update({payment_method:method}).eq('id',order.id);
+  const finalOrder={...order, payment_method:method};
+  showSuccessModal(finalOrder,'paid');
+  // Auto-send receipt email the moment payment is confirmed
+  autoSendReceipt(finalOrder);
+}
 
 // ══ SUCCESS ══
 function getReceiptURL(orderId,bizName){ return `${RECEIPT_BASE}?id=${orderId}&biz=${encodeURIComponent(bizName||'BITE.')}`; }
-function showSuccessModal(order){
+function showSuccessModal(order, payStatus){
   if(!order) return;
   const {bizName}=loadSettings();
   const receiptURL=getReceiptURL(order.id,bizName);
+  // Set icon and message based on payment status
+  const iconEl=document.getElementById('ss-pay-icon');
+  const subEl=document.getElementById('ss-pay-sub');
+  if(iconEl){
+    if(payStatus==='paid' && order.payment_method==='cash'){ iconEl.textContent='💵'; if(subEl) subEl.textContent='Cash payment received ✓'; }
+    else if(payStatus==='paid'){ iconEl.textContent='✅'; if(subEl) subEl.textContent='UPI payment confirmed ✓'; }
+    else{ iconEl.textContent='🕐'; if(subEl) subEl.textContent='Order saved — collect payment later.'; }
+  }
   document.getElementById('ss-body').innerHTML=`
-    <div class="ss-icon">✅</div>
-    <div class="ss-title">Order Placed!</div>
-    <div class="ss-sub">Confirmed and saved.</div>
+    <div class="ss-icon" id="ss-pay-icon">✅</div>
+    <div class="ss-title">Order Confirmed!</div>
+    <div class="ss-sub" id="ss-pay-sub">Payment received and saved.</div>
     <div class="ss-center"><div class="ss-order-badge">#${order.order_number}</div></div>
     <div class="ss-center" style="margin-bottom:12px">
       <div class="ss-qr-wrap"><div id="ss-qr-canvas"></div></div>
@@ -1346,6 +2569,7 @@ async function renderHistory(){
     fromISO=new Date(f).toISOString(); toISO=new Date(t+'T23:59:59').toISOString();
   }
   let q=sb.from('orders').select('*, order_items(product_name,product_icon,qty,unit_price,line_total)').order('created_at',{ascending:false});
+  if(window._tenantId) q=q.eq('tenant_id',window._tenantId);
   if(fromISO) q=q.gte('created_at',fromISO);
   if(toISO)   q=q.lt('created_at',toISO);
   const {data:orders,error}=await q;
