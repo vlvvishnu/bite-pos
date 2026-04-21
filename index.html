@@ -1389,6 +1389,7 @@ body.landing #welcome-banner{display:none !important;}
         <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
           <div class="settings-section" style="margin-top:16px">
             <h3>&#x1F512; Change Password</h3>
+            <form onsubmit="return false" autocomplete="off">
             <div class="settings-row">
               <div><div class="sr-label">New Password</div><div class="sr-sub">Min 8 characters</div></div>
               <input class="sr-input" id="set-new-password" type="password" placeholder="New password"/>
@@ -1738,6 +1739,7 @@ async function launchPOS(){
       document.getElementById('welcome-banner').classList.add('show');
     },700);
   }
+  initWASystem();
 }
 function closeWelcomeBanner(){ document.getElementById('welcome-banner').classList.remove('show'); localStorage.setItem('bite_welcome_shown','1'); }
 
@@ -1985,41 +1987,31 @@ let _selectedTable = null;   // currently selected table number
 let _waPollingInterval = null;
 
 // ── Load settings into form ──────────────────────────────────────
-const _origPopulateSettings = populateSettingsForm;
-function populateSettingsForm() {
-  _origPopulateSettings();
-  const s = loadSettings();
-  const waCodeEl = document.getElementById('set-wa-code');
-  const tableCountEl = document.getElementById('set-table-count');
-  const pay4WaEl = document.getElementById('set-pay4-wa');
-  if (waCodeEl) waCodeEl.value = s.waCode || '';
-  if (tableCountEl) tableCountEl.value = s.tableCount || 10;
-  if (pay4WaEl) pay4WaEl.value = localStorage.getItem('bite_pay4_wa_number') || '';
-  updateWaPreview();
-  buildTableSelector(s.tableCount || 10);
+// ── WA extra settings helpers (no override pattern — avoids recursion) ──
+function getWASettings() {
+  return {
+    waCode:     localStorage.getItem('bite_wa_code') || '',
+    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
+  };
 }
 
-// ── Save settings ────────────────────────────────────────────────
-const _origSaveSettings = saveSettings;
-function saveSettings() {
-  _origSaveSettings();
-  const waCode = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+function populateWASettingsForm() {
+  const wa = getWASettings();
+  const waCodeEl     = document.getElementById('set-wa-code');
+  const tableCountEl = document.getElementById('set-table-count');
+  const pay4WaEl     = document.getElementById('set-pay4-wa');
+  if (waCodeEl)     waCodeEl.value     = wa.waCode || '';
+  if (tableCountEl) tableCountEl.value = wa.tableCount || 10;
+  if (pay4WaEl)     pay4WaEl.value     = localStorage.getItem('bite_pay4_wa_number') || '';
+}
+
+function saveWASettings() {
+  const waCode     = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
   const tableCount = parseInt(document.getElementById('set-table-count')?.value) || 10;
   localStorage.setItem('bite_wa_code', waCode || '');
   localStorage.setItem('bite_table_count', tableCount);
   buildTableSelector(tableCount);
   if (waCode) startWAPolling();
-}
-
-// ── Load extra settings ──────────────────────────────────────────
-const _origLoadSettings = loadSettings;
-function loadSettings() {
-  const base = _origLoadSettings();
-  return {
-    ...base,
-    waCode: localStorage.getItem('bite_wa_code') || '',
-    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
-  };
 }
 
 function updateWaPreview() {
@@ -2252,26 +2244,16 @@ function printQRCards() {
   win.document.close();
 }
 
-// ── Start polling when POS launches ──────────────────────────────
-const _origLaunchPOS = launchPOS;
-async function launchPOS() {
-  await _origLaunchPOS();
-  const s = loadSettings();
-  if (s.waCode) {
-    buildTableSelector(s.tableCount || 10);
+// ── Init WA system when POS launches (called from initWASystem) ──
+function initWASystem() {
+  const wa = getWASettings();
+  if (wa.waCode) {
+    buildTableSelector(wa.tableCount || 10);
     startWAPolling();
   }
 }
 
-// ── Hook into confirmPaymentYes to also send WA receipt ──────────
-const _origConfirmPaymentYes = confirmPaymentYes;
-async function confirmPaymentYes() {
-  await _origConfirmPaymentYes();
-  // Also try WhatsApp receipt (non-blocking)
-  if (window._pendingOrder) {
-    sendWhatsAppReceipt(window._pendingOrder).catch(() => {});
-  }
-}
+// WA receipt triggered directly from confirmPaymentYes()
 
 
 // ══ INIT ══
@@ -2309,6 +2291,7 @@ function saveSettings(){
   localStorage.setItem('bite_kiosk_id',kiosk||'Kiosk #1'); localStorage.setItem('bite_tax_rate',tax);
   document.getElementById('kiosk-pill-label').textContent=kiosk||'Kiosk #1';
   showToast('Settings saved ✓'); updateCart();
+  saveWASettings();
 }
 function populateSettingsForm(){
   const s=loadSettings();
@@ -2317,6 +2300,7 @@ function populateSettingsForm(){
   document.getElementById('set-kiosk-id').value=s.kioskId;
   document.getElementById('set-tax').value=s.taxRate;
   updateUpiPreview();
+  populateWASettingsForm();
 }
 function updateUpiPreview(){
   const val=document.getElementById('set-upi').value.trim();
@@ -2544,6 +2528,7 @@ async function confirmPaymentYes(){
   showSuccessModal(finalOrder,'paid');
   // Auto-send receipt email the moment payment is confirmed
   autoSendReceipt(finalOrder);
+  if (window._pendingOrder) sendWhatsAppReceipt(window._pendingOrder).catch(()=>{});
 }
 
 // ══ SUCCESS ══
