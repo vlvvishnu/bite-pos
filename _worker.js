@@ -282,28 +282,22 @@ ${supportPhone ?
     return `${status} *Order #${o.order_number}*
    ₹${Number(o.total).toFixed(2)} · ${dateStr} ${timeStr}
    🔗 ${link}`;
-  }).join('
-
-');
+  }).join('\n\n');
 
   const totalSpent = orders
     .filter(o => o.status === 'paid')
     .reduce((s, o) => s + Number(o.total), 0);
 
-  const msg =
-`🧾 *Your Bills at ${bizName}*
-${orders.length} order${orders.length > 1 ? 's' : ''} · Total spent: ₹${totalSpent.toFixed(2)}
+  const divider = '─────────────────';
+  const supportSection = supportPhone
+    ? divider + '\n❓ *Grievances or queries?*\n📞 Call ' + bizName + ': *' + supportPhone + '*\n\nWe\'re happy to help! 😊'
+    : divider + '\n❓ Ask your server for any help 😊';
 
-${billLines}
-
-${supportPhone ?
-`─────────────────
-❓ *Grievances or queries?*
-📞 Call ${bizName}: *${supportPhone}*
-
-We're happy to help! 😊` :
-`─────────────────
-❓ Ask your server for any help 😊`}`;
+  const orderCount = orders.length > 1 ? orders.length + ' orders' : orders.length + ' order';
+  const msg = '🧾 *Your Bills at ' + bizName + '*\n'
+    + orderCount + ' · Total spent: ₹' + totalSpent.toFixed(2) + '\n\n'
+    + billLines + '\n\n'
+    + supportSection;
 
   await sendWhatsAppMessage(env, fromPhone, {
     type: 'bills_list',
@@ -369,16 +363,10 @@ async function handleMenuReply(fromPhone, choice, env) {
 
     await sendWhatsAppMessage(env, fromPhone, {
       type: 'text',
-      text:
-`🎁 *Offers from ${bizName}*
-
-Here's what we have for you today:
-
-⭐ *Come back this week* — mention this message and get *10% off* your next order!
-
-📲 *Refer a friend* — bring a friend and both of you get a *free drink*!
-
-We'd love to see you again soon! 😊`
+      text: '🎁 *Offers from ' + bizName + '*\n\nHere\'s what we have for you today:\n\n'
+        + '⭐ *Come back this week* — mention this message and get *10% off* your next order!\n\n'
+        + '📲 *Refer a friend* — bring a friend and both of you get a *free drink*!\n\n'
+        + 'We\'d love to see you again soon! 😊'
     });
   }
 }
@@ -427,10 +415,7 @@ async function sendWhatsAppMessage(env, toPhone, payload) {
       to: phone,
       type: 'text',
       text: {
-        body:
-`👋 Hi! Hope you enjoyed your food at *${payload.bizName}*${table}! 😊
-
-Fetching your bills... just a moment 🧾`
+        body: '👋 Hi! Hope you enjoyed your food at *' + payload.bizName + '*' + table + '! 😊\n\nFetching your bills... just a moment 🧾'
       }
     };
   } else if (payload.type === 'bills_list') {
@@ -446,17 +431,13 @@ Fetching your bills... just a moment 🧾`
       to: phone,
       type: 'text',
       text: {
-        body:
-`✅ *Payment Confirmed!*
-
-*${payload.bizName || 'Restaurant'}*
-Order #${payload.orderNumber}
-Amount: ₹${payload.total}
-
-📄 View your receipt:
-${payload.receiptUrl}
-
-Thank you for visiting! Come again 😊`
+        body: '✅ *Payment Confirmed!*\n\n'
+          + '*' + (payload.bizName || 'Restaurant') + '*\n'
+          + 'Order #' + payload.orderNumber + '\n'
+          + 'Amount: ₹' + payload.total + '\n\n'
+          + '📄 View your receipt:\n'
+          + payload.receiptUrl + '\n\n'
+          + 'Thank you for visiting! Come again 😊'
       }
     };
   } else if (payload.type === 'unknown') {
@@ -465,10 +446,7 @@ Thank you for visiting! Come again 😊`
       to: phone,
       type: 'text',
       text: {
-        body:
-`👋 Hi! Please scan the QR code at your table to get your bill on WhatsApp.
-
-If you need help, ask a staff member. 😊`
+        body: '👋 Hi! Please scan the QR code at your table to get your bill on WhatsApp.\n\nIf you need help, ask a staff member. 😊'
       }
     };
   } else if (payload.type === 'not_found') {
@@ -477,7 +455,7 @@ If you need help, ask a staff member. 😊`
       to: phone,
       type: 'text',
       text: {
-        body: `We couldn't find restaurant code "${payload.code}". Please scan the QR code at your table again.`
+        body: 'We couldn\'t find restaurant code "' + payload.code + '". Please scan the QR code at your table again.'
       }
     };
   } else {
