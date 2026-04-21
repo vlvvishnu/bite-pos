@@ -16,10 +16,12 @@
 <title>BITE. POS — Smart Restaurant POS by Pay4</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
 <script>
-  const SUPABASE_URL  = 'https://zmyabnehbtudcjphqlrp.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpteWFibmVoYnR1ZGNqcGhxbHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTcxMDksImV4cCI6MjA5MTg5MzEwOX0.YOwUB1Onrb0t48uPoFFiAfgnPxT31DkO2SVJQEmrVdE';
+  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
   const BREVO_API_KEY = window.__BREVO_KEY__ || '';
   const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
+  const PRINT_BASE    = 'https://bite.pay4.space/print.html';
+  const BILLS_BASE    = 'https://bite.pay4.space/bills.html';
   const ADMIN_EMAIL   = 'admin@pay4.space';
   const SENDER_EMAIL  = 'noreply@pay4.space';
 </script>
@@ -32,17 +34,26 @@ body{overflow-x:hidden;}
 #view-landing{display:block;background:#fff;}
 #view-pos{display:none;height:100vh;overflow:hidden;flex-direction:column;background:var(--surface);}
 #view-pos.active{display:flex;}
-.lp-nav{position:fixed;top:0;left:0;right:0;z-index:80;padding:0 6%;height:60px;display:flex;align-items:center;justify-content:space-between;transition:background 0.3s,box-shadow 0.3s;}
-.lp-nav.scrolled{background:#fff;box-shadow:0 1px 0 var(--border);}
+.lp-nav{
+  position:fixed;top:0;left:0;right:0;z-index:80;padding:0 6%;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--text);
+  box-shadow:0 1px 0 rgba(255,255,255,0.06);
+  transition:background 0.3s,box-shadow 0.3s;
+}
+.lp-nav.scrolled{
+  background:var(--text);
+  box-shadow:0 2px 16px rgba(0,0,0,0.25);
+}
 .lp-logo{display:flex;flex-direction:column;text-decoration:none;}
 .lp-logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-0.4px;line-height:1;transition:color 0.3s;}
 .lp-nav.scrolled .lp-logo-main{color:var(--text);}
 .lp-logo-main span{color:var(--brand);}
-.lp-logo-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;}
+.lp-logo-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;}
 .lp-nav.scrolled .lp-logo-by{color:var(--faint);}
 .lp-nav-actions{display:flex;align-items:center;gap:8px;}
 .lp-signin-btn{font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.25);background:none;cursor:pointer;transition:all 0.15s;}
-.lp-nav.scrolled .lp-signin-btn{color:var(--text);border-color:var(--border-md);}
+.lp-signin-btn:hover{color:#fff;border-color:rgba(255,255,255,0.6);}
 .lp-signin-btn:hover{border-color:rgba(255,255,255,0.7);color:#fff;}
 .lp-nav.scrolled .lp-signin-btn:hover{border-color:var(--brand);color:var(--brand);}
 .lp-cta-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:background 0.15s;}
@@ -71,7 +82,9 @@ body{overflow-x:hidden;}
 .lp-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:540px;}
 .lp-center{text-align:center;}
 .lp-center .lp-sub{margin:0 auto;}
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px;margin-top:48px;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:16px;margin-top:40px;}
+@media(min-width:900px){.feat-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:1200px){.feat-grid{grid-template-columns:repeat(3,1fr);max-width:960px;margin-left:auto;margin-right:auto;}}
 .feat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:22px;transition:all 0.2s;}
 .feat-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 6px 20px rgba(232,68,10,0.08);}
 .feat-ic{width:44px;height:44px;background:var(--brand-lt);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
@@ -105,26 +118,26 @@ body{overflow-x:hidden;}
 /* ═══ AUTH OVERLAY ═══ */
 #auth-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;background:rgba(26,18,8,0.88);}
 #auth-overlay.show{display:flex;}
-.auth-box{background:var(--card);border-radius:20px;width:100%;max-width:420px;margin:auto;animation:authPop 0.32s cubic-bezier(0.34,1.1,0.64,1);overflow:hidden;position:relative;}
+.auth-box{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,0.3);width:100%;max-width:420px;margin:auto;animation:authPop 0.32s cubic-bezier(0.34,1.1,0.64,1);overflow:hidden;position:relative;}
 @keyframes authPop{from{opacity:0;transform:scale(0.92) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
-.auth-close-btn{position:absolute;top:13px;right:13px;width:30px;height:30px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:1;}
+.auth-close-btn{position:absolute;top:13px;right:13px;width:30px;height:30px;background:rgba(26,18,8,0.08,255,255,0.15);border:none;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1A1208;z-index:1;}
 .auth-close-btn:hover{background:rgba(255,255,255,0.25);}
-.auth-hd{background:var(--text);padding:26px 24px 18px;text-align:center;}
-.auth-hd-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.4px;}
-.auth-hd-logo span{color:var(--brand);}
-.auth-hd-by{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
-.auth-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-top:14px;}
-.auth-hd-desc{font-size:12px;color:rgba(255,255,255,0.42);margin-top:3px;}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.auth-tab{padding:13px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
-.auth-tab.active{color:var(--text);border-bottom-color:var(--brand);background:var(--brand-lt);}
+.auth-hd{background:#fff;padding:24px 24px 16px;text-align:center;border-bottom:1px solid #f0ede8;}
+.auth-hd-logo-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:3px;
+  background:#1A1208;border-radius:14px;padding:10px 16px;margin-bottom:14px;}
+.auth-hd-by{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;margin-top:0;}
+.auth-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#1A1208;margin-top:0;}
+.auth-hd-desc{font-size:12px;color:#7A6E65;margin-top:3px;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e8e4e0;background:#fff;}
+.auth-tab{padding:13px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#9A9290;cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
+.auth-tab.active{color:#1A1208;border-bottom-color:#E8440A;background:#FEF0EB;}
 .auth-body{padding:20px 22px 22px;}
 .auth-panel{display:none;}
 .auth-panel.active{display:block;}
 .af-group{margin-bottom:11px;}
 .af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.af-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
-.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
+.af-label{font-size:10px;font-weight:600;color:#7A6E65;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
+.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid #e0dbd5;border-radius:var(--radius-sm);background:#f9f7f4;color:#1A1208;outline:none;transition:border 0.15s;}
 .af-input:focus{border-color:var(--brand);background:#fff;}
 .af-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
 .af-btn:hover{background:var(--brand-dk);}
@@ -137,7 +150,7 @@ body{overflow-x:hidden;}
 .af-error.show{display:block;}
 .af-success{background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;margin-top:9px;display:none;line-height:1.5;}
 .af-success.show{display:block;}
-.af-hint{font-size:10px;color:var(--muted);margin-top:3px;}
+.af-hint{font-size:10px;color:#9A9290;margin-top:3px;}
 .af-terms{font-size:10px;color:var(--muted);margin-top:9px;text-align:center;line-height:1.6;}
 
 /* ═══ POS NAV ═══ */
@@ -448,6 +461,8 @@ body{overflow-x:hidden;}
   const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
   const BREVO_API_KEY = window.__BREVO_KEY__ || '';
   const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
+  const PRINT_BASE    = 'https://bite.pay4.space/print.html';
+  const BILLS_BASE    = 'https://bite.pay4.space/bills.html';
   const ADMIN_EMAIL   = 'admin@pay4.space';
   const SENDER_EMAIL  = 'noreply@pay4.space';
 </script>
@@ -460,17 +475,26 @@ body{overflow-x:hidden;}
 #view-landing{display:block;background:#fff;}
 #view-pos{display:none;height:100vh;overflow:hidden;flex-direction:column;background:var(--surface);}
 #view-pos.active{display:flex;}
-.lp-nav{position:fixed;top:0;left:0;right:0;z-index:80;padding:0 6%;height:60px;display:flex;align-items:center;justify-content:space-between;transition:background 0.3s,box-shadow 0.3s;}
-.lp-nav.scrolled{background:#fff;box-shadow:0 1px 0 var(--border);}
+.lp-nav{
+  position:fixed;top:0;left:0;right:0;z-index:80;padding:0 6%;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--text);
+  box-shadow:0 1px 0 rgba(255,255,255,0.06);
+  transition:background 0.3s,box-shadow 0.3s;
+}
+.lp-nav.scrolled{
+  background:var(--text);
+  box-shadow:0 2px 16px rgba(0,0,0,0.25);
+}
 .lp-logo{display:flex;flex-direction:column;text-decoration:none;}
 .lp-logo-main{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-0.4px;line-height:1;transition:color 0.3s;}
 .lp-nav.scrolled .lp-logo-main{color:var(--text);}
 .lp-logo-main span{color:var(--brand);}
-.lp-logo-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;}
+.lp-logo-by{font-size:9px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:0.8px;text-transform:uppercase;transition:color 0.3s;}
 .lp-nav.scrolled .lp-logo-by{color:var(--faint);}
 .lp-nav-actions{display:flex;align-items:center;gap:8px;}
 .lp-signin-btn{font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.25);background:none;cursor:pointer;transition:all 0.15s;}
-.lp-nav.scrolled .lp-signin-btn{color:var(--text);border-color:var(--border-md);}
+.lp-signin-btn:hover{color:#fff;border-color:rgba(255,255,255,0.6);}
 .lp-signin-btn:hover{border-color:rgba(255,255,255,0.7);color:#fff;}
 .lp-nav.scrolled .lp-signin-btn:hover{border-color:var(--brand);color:var(--brand);}
 .lp-cta-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:var(--brand);cursor:pointer;transition:background 0.15s;}
@@ -499,7 +523,9 @@ body{overflow-x:hidden;}
 .lp-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:540px;}
 .lp-center{text-align:center;}
 .lp-center .lp-sub{margin:0 auto;}
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px;margin-top:48px;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:16px;margin-top:40px;}
+@media(min-width:900px){.feat-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:1200px){.feat-grid{grid-template-columns:repeat(3,1fr);max-width:960px;margin-left:auto;margin-right:auto;}}
 .feat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:22px;transition:all 0.2s;}
 .feat-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 6px 20px rgba(232,68,10,0.08);}
 .feat-ic{width:44px;height:44px;background:var(--brand-lt);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
@@ -533,26 +559,26 @@ body{overflow-x:hidden;}
 /* ═══ AUTH OVERLAY ═══ */
 #auth-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;background:rgba(26,18,8,0.88);}
 #auth-overlay.show{display:flex;}
-.auth-box{background:var(--card);border-radius:20px;width:100%;max-width:420px;margin:auto;animation:authPop 0.32s cubic-bezier(0.34,1.1,0.64,1);overflow:hidden;position:relative;}
+.auth-box{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,0.3);width:100%;max-width:420px;margin:auto;animation:authPop 0.32s cubic-bezier(0.34,1.1,0.64,1);overflow:hidden;position:relative;}
 @keyframes authPop{from{opacity:0;transform:scale(0.92) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
-.auth-close-btn{position:absolute;top:13px;right:13px;width:30px;height:30px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;z-index:1;}
+.auth-close-btn{position:absolute;top:13px;right:13px;width:30px;height:30px;background:rgba(26,18,8,0.08,255,255,0.15);border:none;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#1A1208;z-index:1;}
 .auth-close-btn:hover{background:rgba(255,255,255,0.25);}
-.auth-hd{background:var(--text);padding:26px 24px 18px;text-align:center;}
-.auth-hd-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.4px;}
-.auth-hd-logo span{color:var(--brand);}
-.auth-hd-by{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
-.auth-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-top:14px;}
-.auth-hd-desc{font-size:12px;color:rgba(255,255,255,0.42);margin-top:3px;}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
-.auth-tab{padding:13px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
-.auth-tab.active{color:var(--text);border-bottom-color:var(--brand);background:var(--brand-lt);}
+.auth-hd{background:#fff;padding:24px 24px 16px;text-align:center;border-bottom:1px solid #f0ede8;}
+.auth-hd-logo-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:3px;
+  background:#1A1208;border-radius:14px;padding:10px 16px;margin-bottom:14px;}
+.auth-hd-by{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;margin-top:0;}
+.auth-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;color:#1A1208;margin-top:0;}
+.auth-hd-desc{font-size:12px;color:#7A6E65;margin-top:3px;}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e8e4e0;background:#fff;}
+.auth-tab{padding:13px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#9A9290;cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all 0.15s;}
+.auth-tab.active{color:#1A1208;border-bottom-color:#E8440A;background:#FEF0EB;}
 .auth-body{padding:20px 22px 22px;}
 .auth-panel{display:none;}
 .auth-panel.active{display:block;}
 .af-group{margin-bottom:11px;}
 .af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.af-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
-.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border 0.15s;}
+.af-label{font-size:10px;font-weight:600;color:#7A6E65;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:5px;}
+.af-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1.5px solid #e0dbd5;border-radius:var(--radius-sm);background:#f9f7f4;color:#1A1208;outline:none;transition:border 0.15s;}
 .af-input:focus{border-color:var(--brand);background:#fff;}
 .af-btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
 .af-btn:hover{background:var(--brand-dk);}
@@ -565,7 +591,7 @@ body{overflow-x:hidden;}
 .af-error.show{display:block;}
 .af-success{background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;margin-top:9px;display:none;line-height:1.5;}
 .af-success.show{display:block;}
-.af-hint{font-size:10px;color:var(--muted);margin-top:3px;}
+.af-hint{font-size:10px;color:#9A9290;margin-top:3px;}
 .af-terms{font-size:10px;color:var(--muted);margin-top:9px;text-align:center;line-height:1.6;}
 
 /* ═══ POS NAV ═══ */
@@ -1000,6 +1026,22 @@ body.landing #welcome-banner{display:none !important;}
 .lp-logo-wrap.solid .bite-logo-by{color:var(--faint);}
 .pos-logo-wrap .bite-logo-by{color:rgba(255,255,255,0.3);}
 .auth-logo-wrap .bite-logo-by{color:rgba(255,255,255,0.3);}
+
+.ss-share-btn.print{background:var(--surface);color:var(--text);border:1.5px solid var(--border-md);}
+.ss-share-btn.print:hover{border-color:var(--text);background:var(--text);color:#fff;}
+.ss-share-btn.bills{background:var(--blue-bg);color:var(--blue-text);border:1.5px solid rgba(26,95,168,0.2);}
+.ss-share-btn.bills:hover{background:var(--blue);color:#fff;}
+
+/* Zoom / viewport fixes */
+.lp-section-inner{max-width:1100px;margin:0 auto;}
+@media(max-width:1100px){
+  .lp-hero-title{font-size:clamp(28px,5vw,56px);}
+  .feat-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));}
+}
+@media(max-width:600px){
+  .feat-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:20px;}
+}
 </style>
 </head>
 <body>
@@ -1105,11 +1147,13 @@ body.landing #welcome-banner{display:none !important;}
   <div class="auth-box">
     <button class="auth-close-btn" onclick="closeAuth()">&#x2715;</button>
     <div class="auth-hd">
-      <div style="display:flex;justify-content:center;margin-bottom:4px"><svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="auth-hd-logo-wrap">
+        <div style="display:flex;justify-content:center"><svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="white"/>
 <path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236ZM28.7714 8.17732C28.8515 8.33552 28.8678 8.51792 28.8166 8.68439C28.7655 8.85087 28.6511 8.98779 28.4986 9.06503C28.3461 9.14227 28.168 9.1535 28.0035 9.09625C27.8391 9.03901 27.7016 8.91797 27.6215 8.75978C27.5414 8.60158 27.5251 8.41918 27.5763 8.2527C27.6274 8.08622 27.7418 7.94931 27.8943 7.87207C28.0468 7.79483 28.2249 7.7836 28.3893 7.84084C28.5538 7.89809 28.6912 8.01912 28.7714 8.17732ZM25.3563 9.99343C25.5088 9.91619 25.6869 9.90496 25.8513 9.96221C26.0158 10.0195 26.1532 10.1405 26.2334 10.2987C26.3135 10.4569 26.3298 10.6393 26.2786 10.8058C26.2275 10.9722 26.1131 11.1092 25.9606 11.1864C25.8081 11.2636 25.63 11.2749 25.4655 11.2176C25.3011 11.1604 25.1636 11.0393 25.0835 10.8811C25.0034 10.7229 24.9871 10.5405 25.0383 10.3741C25.0894 10.2076 25.2038 10.0707 25.3563 9.99343ZM28.6212 13.5863C28.7013 13.7445 28.7176 13.9269 28.6664 14.0934C28.6152 14.2599 28.5008 14.3968 28.3484 14.474C28.1959 14.5513 28.0178 14.5625 27.8533 14.5053C27.6888 14.448 27.5514 14.327 27.4713 14.1688C27.3912 14.0106 27.3749 13.8282 27.426 13.6617C27.4772 13.4952 27.5916 13.3583 27.7441 13.2811C27.8966 13.2038 28.0746 13.1926 28.2391 13.2499C28.4036 13.3071 28.541 13.4281 28.6212 13.5863Z" fill="#E8440A"/>
 </svg></div>
-      <div class="auth-hd-by">by Pay4</div>
+        <div class="auth-hd-by">by Pay4</div>
+      </div>
       <div class="auth-hd-title" id="auth-hd-title">Sign in to your POS</div>
       <div class="auth-hd-desc" id="auth-hd-desc">Access your kiosk and manage your restaurant.</div>
     </div>
@@ -2521,6 +2565,10 @@ function showSuccessModal(order, payStatus){
         onclick="sendReceiptEmail('${order.id}',${order.order_number},'${order.total.toFixed(2)}','${(order.customer_email||'')}','${(order.customer_name||'')}','${receiptURL}','${bizName}')">
         ✉️ ${order.customer_email?'Email':'No Email'}</button>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <a class="ss-share-btn print" href="${PRINT_BASE}?id=${order.id}" target="_blank">🖨️ Print Bill</a>
+      <a class="ss-share-btn bills" href="${window.location.origin}/bills.html?biz=${encodeURIComponent(bizName)}" target="_blank">📋 All Bills</a>
+    </div>
     <button class="ss-share-btn copy" style="width:100%;margin-bottom:12px" onclick="copyReceiptLink('${receiptURL}')">🔗 Copy Link</button>
     <button class="ss-new-btn" onclick="closeSuccessModal()">Start New Order</button>`;
   document.getElementById('success-overlay').classList.add('show');
@@ -2633,11 +2681,12 @@ async function openOrderDetail(orderId){
       <div class="share-panel-title">Share Receipt</div>
       <div class="share-qr-row"><div class="share-qr-box"><div id="od-qr-canvas"></div></div>
       <div class="share-qr-hint"><strong>Scan to open receipt</strong>Customer can view, download or print.</div></div>
-      <div class="share-btns">
+      <div class="share-btns" style="grid-template-columns:repeat(4,1fr)">
         <button class="share-btn wa" onclick="shareReceiptWhatsApp('${receiptURL}',${o.order_number},'${Number(o.total).toFixed(2)}','${(o.customer_phone||'')}')"><span class="sb-icon">💬</span>WhatsApp</button>
         <button class="share-btn mail" id="od-mail-btn" ${!o.customer_email?'disabled':''}
           onclick="sendReceiptEmail('${o.id}',${o.order_number},'${Number(o.total).toFixed(2)}','${o.customer_email||''}','${(o.customer_name||'').replace(/'/g,'')}','${receiptURL}','${bizName}')">
           <span class="sb-icon">✉️</span>${o.customer_email?'Email':'No Email'}</button>
+        <a class="share-btn" href="${PRINT_BASE}?id=${o.id}" target="_blank"><span class="sb-icon">🖨️</span>Print</a>
         <button class="share-btn" onclick="copyReceiptLink('${receiptURL}')"><span class="sb-icon">🔗</span>Copy</button>
       </div>
     </div>`;

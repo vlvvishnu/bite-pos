@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#0F0E0C"/>
+<title>My Bills — BITE.</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script>
+  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
+  const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
+  const PRINT_BASE    = 'https://bite.pay4.space/print.html';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0F0E0C;--surface:#161512;--card:#1C1A17;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#F2EEE8;--muted:#8A8278;--faint:#2A2722;
+  --brand:#E8440A;--brand-lt:rgba(232,68,10,0.12);
+  --green:#4ADE80;--green-bg:rgba(74,222,128,0.08);
+  --red:#F87171;--red-bg:rgba(248,113,113,0.08);
+  --r:14px;--rs:9px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);
+  font-family:'Instrument Sans',sans-serif;font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:420px;margin:0 auto;padding:0 16px 80px;}
+
+/* HEADER */
+.header{padding:28px 0 24px;display:flex;flex-direction:column;gap:4px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo svg{height:16px;width:auto;}
+.by{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;
+  color:var(--text);letter-spacing:-0.5px;margin-top:20px;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+.biz-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  background:var(--brand-lt);border:1px solid rgba(232,68,10,0.2);
+  border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--brand);}
+
+/* PHONE FORM */
+.form-card{background:var(--card);border:1px solid var(--border2);
+  border-radius:var(--r);padding:22px;margin-bottom:16px;}
+.form-label{font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px;}
+.phone-row{display:flex;gap:8px;}
+.cc{width:60px;background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:var(--rs);color:var(--muted);font-family:'Instrument Sans',sans-serif;
+  font-size:14px;padding:12px 8px;text-align:center;outline:none;flex-shrink:0;}
+.phone-input{flex:1;background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:var(--rs);color:var(--text);font-family:'Instrument Sans',sans-serif;
+  font-size:16px;padding:12px 14px;outline:none;transition:border 0.15s;
+  letter-spacing:0.5px;}
+.phone-input:focus{border-color:var(--brand);}
+.phone-input::placeholder{color:var(--muted);font-size:14px;}
+.lookup-btn{width:100%;background:var(--brand);color:#fff;border:none;
+  border-radius:var(--rs);padding:13px;font-family:'Syne',sans-serif;
+  font-weight:700;font-size:14px;cursor:pointer;margin-top:10px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background 0.15s;}
+.lookup-btn:hover{background:#d13d09;}
+.lookup-btn:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed;}
+.err{background:var(--red-bg);color:var(--red);border-radius:var(--rs);
+  padding:10px 12px;font-size:12px;margin-top:10px;display:none;}
+.err.show{display:block;}
+
+/* LOADING */
+.loading{text-align:center;padding:40px 20px;display:none;}
+.loading.show{display:block;}
+.spinner{width:24px;height:24px;border:2.5px solid var(--faint);
+  border-top-color:var(--brand);border-radius:50%;
+  animation:spin 0.7s linear infinite;display:inline-block;margin-bottom:12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;color:var(--muted);}
+
+/* RESULTS */
+.results{display:none;}
+.results.show{display:block;}
+.results-header{margin-bottom:14px;}
+.results-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.results-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.stat-card{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--rs);padding:14px;}
+.stat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--text);}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.stat-card.green .stat-val{color:var(--green);}
+
+/* ORDER CARDS */
+.order-card{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:10px;
+  animation:fadeUp 0.3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.order-top{display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:12px;}
+.order-num{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--brand);}
+.order-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.order-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.badge-paid{background:var(--green-bg);color:var(--green);}
+.badge-refunded{background:var(--red-bg);color:var(--red);}
+.order-items{margin-bottom:12px;}
+.order-item-row{display:flex;justify-content:space-between;
+  font-size:12px;color:var(--muted);padding:3px 0;
+  border-bottom:1px solid var(--border);}
+.order-item-row:last-child{border-bottom:none;}
+.order-item-name{flex:1;}
+.order-item-price{font-weight:500;color:var(--text);}
+.order-total-row{display:flex;justify-content:space-between;
+  padding-top:10px;border-top:1px solid var(--border2);}
+.order-total-lbl{font-size:13px;font-weight:600;}
+.order-total-val{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--text);}
+.order-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px;}
+.btn-receipt{display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px;border-radius:var(--rs);font-size:12px;font-weight:600;
+  cursor:pointer;border:none;transition:all 0.15s;text-decoration:none;}
+.btn-view{background:var(--surface);color:var(--text);border:1px solid var(--border2);}
+.btn-view:hover{border-color:var(--brand);color:var(--brand);}
+.btn-print{background:var(--brand-lt);color:var(--brand);border:1px solid rgba(232,68,10,0.2);}
+.btn-print:hover{background:var(--brand);color:#fff;}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;display:none;}
+.empty.show{display:block;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* DIVIDER */
+.section-divider{display:flex;align-items:center;gap:10px;margin:16px 0 12px;
+  font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.section-divider::before,.section-divider::after{content:'';flex:1;border-top:1px solid var(--border);}
+
+/* FOOTER */
+.page-footer{text-align:center;padding:24px 0;
+  font-size:11px;color:var(--muted);}
+.page-footer span{color:var(--brand);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">
+      <!-- BITE logo SVG -->
+      <svg width="33" height="20" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="white"/>
+        <path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236Z" fill="#E8440A"/>
+      </svg>
+      <div class="by">by Pay4</div>
+    </div>
+    <div class="page-title">My Bills</div>
+    <div class="page-sub">Enter your phone number to view all your orders.</div>
+    <div class="biz-pill" id="biz-pill" style="display:none">
+      🏪 <span id="biz-name-pill">Loading...</span>
+    </div>
+  </div>
+
+  <!-- LOOKUP FORM -->
+  <div class="form-card" id="form-card">
+    <label class="form-label">Your Phone Number</label>
+    <div class="phone-row">
+      <input class="cc" value="+91" readonly/>
+      <input class="phone-input" id="phone-input" type="tel"
+        placeholder="98765 43210" maxlength="10"
+        onkeydown="if(event.key==='Enter')doLookup()"
+        oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)"/>
+    </div>
+    <button class="lookup-btn" id="lookup-btn" onclick="doLookup()">
+      View My Bills →
+    </button>
+    <div class="err" id="lookup-err"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Finding your orders...</div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty" id="empty-state">
+    <div class="empty-icon">🧾</div>
+    <div class="empty-title">No orders found</div>
+    <div class="empty-sub">We couldn't find any orders linked to this number at <span id="empty-biz"></span>.<br>Try a different number or ask the staff.</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="results-title" id="results-title"></div>
+      <div class="results-sub" id="results-sub"></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card green">
+        <div class="stat-val" id="stat-total">₹0</div>
+        <div class="stat-lbl">Total spent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-orders">0</div>
+        <div class="stat-lbl">Orders</div>
+      </div>
+    </div>
+    <div class="section-divider">Order history</div>
+    <div id="orders-list"></div>
+  </div>
+
+  <div class="page-footer">
+    Powered by <span>BITE.</span> by Pay4
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let _tenant = null;
+
+// ── Init: read ?biz= from URL ────────────────────────────────
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const slug   = params.get('biz') || params.get('slug');
+
+  if (slug) {
+    const { data } = await sb.from('tenants')
+      .select('id,name,biz_name,phone')
+      .eq('slug', slug)
+      .single();
+    if (data) {
+      _tenant = data;
+      const name = data.biz_name || data.name;
+      document.getElementById('biz-name-pill').textContent = name;
+      document.getElementById('biz-pill').style.display = 'inline-flex';
+      document.getElementById('empty-biz').textContent = name;
+      document.title = `My Bills — ${name}`;
+    }
+  }
+
+  // Auto-lookup if phone in URL
+  const phone = params.get('phone');
+  if (phone) {
+    document.getElementById('phone-input').value = phone.replace(/^\+91/, '').replace(/\D/g,'');
+    doLookup();
+  }
+}
+
+// ── Lookup orders by phone ───────────────────────────────────
+async function doLookup() {
+  const raw   = document.getElementById('phone-input').value.trim();
+  const errEl = document.getElementById('lookup-err');
+  errEl.classList.remove('show');
+
+  if (raw.length < 10) {
+    errEl.textContent = 'Please enter a valid 10-digit phone number.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('lookup-btn');
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('empty-state').classList.remove('show');
+
+  // Build phone variants to search
+  const variants = [raw, '+91' + raw, '91' + raw, '0' + raw];
+
+  let query = sb.from('orders')
+    .select('id,order_number,subtotal,tax,total,status,created_at,kiosk_id,order_items(product_name,product_icon,qty,unit_price,line_total)')
+    .in('customer_phone', variants)
+    .order('created_at', { ascending: false });
+
+  if (_tenant) query = query.eq('tenant_id', _tenant.id);
+
+  const { data: orders, error } = await query;
+
+  document.getElementById('loading').classList.remove('show');
+  btn.disabled = false;
+  btn.textContent = 'View My Bills →';
+
+  if (error) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  if (!orders || orders.length === 0) {
+    document.getElementById('empty-state').classList.add('show');
+    return;
+  }
+
+  renderResults(orders, raw);
+}
+
+// ── Render results ───────────────────────────────────────────
+function renderResults(orders, phone) {
+  const bizName = _tenant ? (_tenant.biz_name || _tenant.name) : 'BITE.';
+  const paid    = orders.filter(o => o.status === 'paid');
+  const total   = paid.reduce((s, o) => s + Number(o.total), 0);
+
+  document.getElementById('results-title').textContent =
+    `${orders.length} order${orders.length > 1 ? 's' : ''} found`;
+  document.getElementById('results-sub').textContent =
+    `Showing orders at ${bizName} for +91 ${phone}`;
+  document.getElementById('stat-total').textContent = '₹' + total.toFixed(2);
+  document.getElementById('stat-orders').textContent = orders.length;
+
+  const list = document.getElementById('orders-list');
+  list.innerHTML = '';
+
+  orders.forEach((o, i) => {
+    const date = new Date(o.created_at);
+    const dateStr = date.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+    const timeStr = date.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+    const items   = o.order_items || [];
+    const isPaid  = o.status === 'paid';
+    const receiptUrl = `${RECEIPT_BASE}?id=${o.id}`;
+    const printUrl   = `${PRINT_BASE}?id=${o.id}`;
+
+    const itemsHtml = items.map(it =>
+      `<div class="order-item-row">
+        <span class="order-item-name">${it.product_icon||''} ${it.product_name} × ${it.qty}</span>
+        <span class="order-item-price">₹${Number(it.line_total).toFixed(2)}</span>
+      </div>`
+    ).join('');
+
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    card.style.animationDelay = (i * 0.06) + 's';
+    card.innerHTML = `
+      <div class="order-top">
+        <div>
+          <div class="order-num">#${o.order_number}</div>
+          <div class="order-meta">${dateStr} · ${timeStr}${o.kiosk_id ? ' · ' + o.kiosk_id : ''}</div>
+        </div>
+        <span class="order-badge ${isPaid ? 'badge-paid' : 'badge-refunded'}">
+          ${isPaid ? '✓ Paid' : '↩ Refunded'}
+        </span>
+      </div>
+      ${items.length ? `<div class="order-items">${itemsHtml}</div>` : ''}
+      <div class="order-total-row">
+        <span class="order-total-lbl">Total</span>
+        <span class="order-total-val">₹${Number(o.total).toFixed(2)}</span>
+      </div>
+      <div class="order-actions">
+        <a class="btn-receipt btn-view" href="${receiptUrl}" target="_blank">
+          🧾 View Receipt
+        </a>
+        <a class="btn-receipt btn-print" href="${printUrl}" target="_blank">
+          🖨️ Print Bill
+        </a>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  document.getElementById('results').classList.add('show');
+}
+
+init();
+</script>
+</body>
+</html>

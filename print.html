@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Print Bill — BITE.</title>
+<script>
+  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON = 'YOUR_ANON_PUBLIC_KEY';
+  const RECEIPT_BASE  = 'https://bite.pay4.space/receipt.html';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* ── SCREEN STYLES ─────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f0f0f0;font-family:'Courier New',Courier,monospace;
+  font-size:12px;display:flex;flex-direction:column;
+  align-items:center;min-height:100vh;padding:20px;}
+
+.screen-actions{display:flex;gap:10px;margin-bottom:16px;width:100%;max-width:320px;}
+.action-btn{flex:1;padding:11px;border:none;border-radius:8px;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.btn-print-now{background:#1A1208;color:#fff;}
+.btn-print-now:hover{background:#333;}
+.btn-close{background:#fff;color:#555;border:1px solid #ddd;}
+.btn-close:hover{border-color:#999;}
+
+/* ── RECEIPT PAPER ─────────────────────────────────────────── */
+.receipt{
+  width:302px;           /* 80mm thermal = ~302px at 96dpi */
+  background:#fff;
+  padding:14px 14px 20px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.15);
+  font-family:'Courier New',Courier,monospace;
+  font-size:11px;
+  line-height:1.6;
+  color:#000;
+}
+
+/* Loading / error */
+.receipt-loading{text-align:center;padding:30px;color:#888;font-family:sans-serif;font-size:13px;}
+
+/* Header */
+.r-logo{text-align:center;margin-bottom:4px;}
+.r-logo-svg{display:inline-block;}
+.r-biz{text-align:center;font-size:13px;font-weight:bold;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.r-tagline{text-align:center;font-size:10px;color:#555;margin-bottom:8px;}
+.r-divider{border:none;border-top:1px dashed #bbb;margin:6px 0;}
+.r-divider-solid{border:none;border-top:1px solid #888;margin:6px 0;}
+
+/* Order info */
+.r-order-num{text-align:center;font-size:16px;font-weight:bold;
+  letter-spacing:2px;margin:6px 0;}
+.r-meta{font-size:10px;color:#444;margin-bottom:6px;}
+.r-meta-row{display:flex;justify-content:space-between;}
+
+/* Items */
+.r-items-head{display:flex;justify-content:space-between;
+  font-weight:bold;font-size:10px;margin-bottom:4px;
+  border-bottom:1px solid #888;padding-bottom:3px;}
+.r-item{display:flex;justify-content:space-between;
+  padding:2px 0;font-size:11px;}
+.r-item-left{flex:1;}
+.r-item-name{font-weight:500;}
+.r-item-sub{font-size:10px;color:#666;}
+.r-item-price{text-align:right;min-width:60px;}
+
+/* Totals */
+.r-totals{margin-top:6px;}
+.r-total-row{display:flex;justify-content:space-between;
+  font-size:11px;padding:2px 0;}
+.r-total-row.grand{font-weight:bold;font-size:13px;
+  border-top:1px solid #888;padding-top:5px;margin-top:4px;}
+
+/* Payment */
+.r-payment{margin-top:6px;font-size:10px;}
+.r-payment-row{display:flex;justify-content:space-between;}
+
+/* QR */
+.r-qr-section{text-align:center;margin-top:10px;}
+.r-qr-label{font-size:10px;color:#555;margin-bottom:5px;}
+.r-qr-box{display:inline-block;}
+
+/* Footer */
+.r-footer{text-align:center;margin-top:10px;}
+.r-thank{font-size:12px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;}
+.r-footer-sub{font-size:10px;color:#555;line-height:1.5;}
+.r-powered{font-size:9px;color:#aaa;margin-top:8px;text-align:center;}
+
+/* ── PRINT STYLES ──────────────────────────────────────────── */
+@media print {
+  body{background:#fff;padding:0;margin:0;}
+  .screen-actions{display:none;}
+  .receipt{width:100%;box-shadow:none;padding:6px 8px 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="screen-actions" id="screen-actions">
+  <button class="action-btn btn-print-now" onclick="window.print()">🖨️ Print</button>
+  <button class="action-btn btn-close" onclick="window.close()">✕ Close</button>
+</div>
+
+<div class="receipt" id="receipt">
+  <div class="receipt-loading">Loading bill...</div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+async function loadAndRender() {
+  const params  = new URLSearchParams(window.location.search);
+  const orderId = params.get('id');
+
+  if (!orderId) {
+    document.getElementById('receipt').innerHTML =
+      '<div class="receipt-loading">No order ID provided.</div>';
+    return;
+  }
+
+  const { data: order, error } = await sb
+    .from('orders')
+    .select('*, order_items(product_name,product_icon,qty,unit_price,line_total), tenants(name,biz_name,upi_id,phone,city)')
+    .eq('id', orderId)
+    .single();
+
+  if (error || !order) {
+    document.getElementById('receipt').innerHTML =
+      '<div class="receipt-loading">Order not found.</div>';
+    return;
+  }
+
+  renderReceipt(order);
+}
+
+function pad(str, len) {
+  const s = String(str);
+  return s.length >= len ? s : s + ' '.repeat(len - s.length);
+}
+function padL(str, len) {
+  const s = String(str);
+  return s.length >= len ? s : ' '.repeat(len - s.length) + s;
+}
+
+function renderReceipt(order) {
+  const tenant  = order.tenants || {};
+  const bizName = tenant.biz_name || tenant.name || 'BITE.';
+  const items   = order.order_items || [];
+  const date    = new Date(order.created_at);
+  const dateStr = date.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const timeStr = date.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+  const receiptUrl = `${RECEIPT_BASE}?id=${order.id}`;
+
+  const itemsHtml = items.map(it => {
+    const name  = (it.product_icon ? it.product_icon + ' ' : '') + it.product_name;
+    const price = '₹' + Number(it.line_total).toFixed(2);
+    const sub   = `  ${it.qty} x ₹${Number(it.unit_price).toFixed(2)}`;
+    return `
+      <div class="r-item">
+        <div class="r-item-left">
+          <div class="r-item-name">${name}</div>
+          <div class="r-item-sub">${sub}</div>
+        </div>
+        <div class="r-item-price">${price}</div>
+      </div>`;
+  }).join('');
+
+  const html = `
+    <!-- LOGO -->
+    <div class="r-logo">
+      <svg class="r-logo-svg" width="66" height="40" viewBox="0 0 33 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.20716 16V3.7611H5.89236C6.77681 3.7611 7.51186 3.90054 8.09751 4.17942C8.68715 4.45432 9.12738 4.83081 9.41822 5.30889C9.71303 5.78697 9.86044 6.3288 9.86044 6.93437C9.86044 7.43237 9.76482 7.85866 9.57359 8.21324C9.38236 8.56383 9.12539 8.84869 8.80268 9.06781C8.47998 9.28693 8.11943 9.4443 7.72102 9.53992V9.65944C8.15528 9.68334 8.57161 9.81681 8.97001 10.0598C9.3724 10.2989 9.70108 10.6375 9.95606 11.0758C10.211 11.514 10.3385 12.0439 10.3385 12.6654C10.3385 13.2988 10.1851 13.8686 9.87837 14.3745C9.5716 14.8765 9.10945 15.2729 8.49193 15.5638C7.87441 15.8546 7.09753 16 6.16128 16H1.20716ZM3.42426 14.1474H5.8087C6.61347 14.1474 7.19314 13.994 7.54772 13.6873C7.90628 13.3765 8.08556 12.9781 8.08556 12.4921C8.08556 12.1295 7.99592 11.8028 7.81664 11.512C7.63736 11.2172 7.38238 10.9861 7.05171 10.8188C6.72104 10.6475 6.32662 10.5618 5.86846 10.5618H3.42426V14.1474ZM3.42426 8.96622H5.61746C5.99993 8.96622 6.34455 8.8965 6.65132 8.75706C6.95809 8.61363 7.19912 8.41244 7.37441 8.15348C7.5537 7.89053 7.64334 7.57978 7.64334 7.22122C7.64334 6.74712 7.47601 6.35669 7.14135 6.04992C6.81068 5.74315 6.31865 5.58976 5.66527 5.58976H3.42426V8.96622ZM12.1717 16V6.82083H14.335V16H12.1717ZM13.2593 5.51805C12.9167 5.51805 12.6219 5.40451 12.3749 5.17742C12.1278 4.94635 12.0043 4.66946 12.0043 4.34675C12.0043 4.02006 12.1278 3.74317 12.3749 3.51608C12.6219 3.28501 12.9167 3.16947 13.2593 3.16947C13.6059 3.16947 13.9007 3.28501 14.1438 3.51608C14.3908 3.74317 14.5143 4.02006 14.5143 4.34675C14.5143 4.66946 14.3908 4.94635 14.1438 5.17742C13.9007 5.40451 13.6059 5.51805 13.2593 5.51805ZM21.1432 6.82083V8.49411H15.8663V6.82083H21.1432ZM17.1691 4.62165H19.3324V13.2391C19.3324 13.5299 19.3763 13.753 19.4639 13.9084C19.5555 14.0598 19.6751 14.1634 19.8225 14.2191C19.9699 14.2749 20.1332 14.3028 20.3125 14.3028C20.448 14.3028 20.5715 14.2928 20.683 14.2729C20.7986 14.253 20.8862 14.2351 20.946 14.2191L21.3105 15.9104C21.195 15.9502 21.0296 15.994 20.8145 16.0418C20.6033 16.0896 20.3444 16.1175 20.0376 16.1255C19.4958 16.1414 19.0077 16.0598 18.5735 15.8805C18.1392 15.6972 17.7946 15.4143 17.5396 15.0319C17.2886 14.6494 17.1651 14.1713 17.1691 13.5976V4.62165Z" fill="black"/>
+        <path d="M31.9689 9.30236C32.0584 9.23831 32.0987 9.12184 32.0621 9.0139C31.9999 8.49949 30.2507 7.08207 30 7L29.8408 6.89736C29.4662 6.62571 29.0196 6.4795 28.5659 6.47975L26.8611 6.48369C26.4075 6.48395 25.9676 6.6318 25.6092 6.90471L24.2584 7.92855C23.8982 8.20237 23.6363 8.58566 23.508 9.02774L23.0281 10.6832C22.8998 11.1253 22.9137 11.5984 23.0667 12.0386L23.6402 13.6922C23.7931 14.1323 24.0774 14.5153 24.453 14.7889L25.8614 15.8087C26.2361 16.0804 26.6827 16.2266 27.1381 16.2254L28.8411 16.2224C29.2948 16.2221 29.7347 16.0743 30.0931 15.8014C30.53 15.5505 31.4413 15.5083 30.7417 13.8223C28.8773 13.3513 29.3084 12.0784 29.3084 11.7738C29.3084 10.6559 31.0636 9.95767 31.968 9.3005L31.9689 9.30236Z" fill="#E8440A"/>
+      </svg>
+    </div>
+
+    <div class="r-biz">${bizName}</div>
+    ${tenant.city ? `<div class="r-tagline">${tenant.city}</div>` : ''}
+    ${tenant.phone ? `<div class="r-tagline">📞 ${tenant.phone}</div>` : ''}
+
+    <hr class="r-divider-solid"/>
+
+    <div class="r-order-num">#${order.order_number}</div>
+    <div class="r-meta">
+      <div class="r-meta-row"><span>Date:</span><span>${dateStr}</span></div>
+      <div class="r-meta-row"><span>Time:</span><span>${timeStr}</span></div>
+      ${order.kiosk_id ? `<div class="r-meta-row"><span>Kiosk:</span><span>${order.kiosk_id}</span></div>` : ''}
+      ${order.customer_name ? `<div class="r-meta-row"><span>Name:</span><span>${order.customer_name}</span></div>` : ''}
+    </div>
+
+    <hr class="r-divider"/>
+
+    <div class="r-items-head">
+      <span>ITEM</span><span>AMOUNT</span>
+    </div>
+    ${itemsHtml}
+
+    <hr class="r-divider"/>
+
+    <div class="r-totals">
+      <div class="r-total-row">
+        <span>Subtotal</span>
+        <span>₹${Number(order.subtotal).toFixed(2)}</span>
+      </div>
+      <div class="r-total-row">
+        <span>Tax</span>
+        <span>₹${Number(order.tax).toFixed(2)}</span>
+      </div>
+      <div class="r-total-row grand">
+        <span>TOTAL</span>
+        <span>₹${Number(order.total).toFixed(2)}</span>
+      </div>
+    </div>
+
+    <hr class="r-divider"/>
+
+    <div class="r-payment">
+      <div class="r-payment-row">
+        <span>Status</span>
+        <span>${order.status === 'paid' ? '✓ PAID' : order.status.toUpperCase()}</span>
+      </div>
+      ${order.payment_method ? `<div class="r-payment-row"><span>Method</span><span>${order.payment_method.toUpperCase()}</span></div>` : ''}
+    </div>
+
+    <hr class="r-divider"/>
+
+    <div class="r-qr-section">
+      <div class="r-qr-label">Scan for digital receipt</div>
+      <div class="r-qr-box" id="print-qr"></div>
+      <div class="r-qr-label" style="margin-top:4px;font-size:9px">${receiptUrl}</div>
+    </div>
+
+    <hr class="r-divider"/>
+
+    <div class="r-footer">
+      <div class="r-thank">THANK YOU! ★</div>
+      <div class="r-footer-sub">
+        We hope you enjoyed your meal.<br>
+        Please visit us again soon!
+      </div>
+    </div>
+
+    <div class="r-powered">Powered by BITE. by Pay4 · bite.pay4.space</div>
+  `;
+
+  document.getElementById('receipt').innerHTML = html;
+
+  // Generate QR
+  setTimeout(() => {
+    const el = document.getElementById('print-qr');
+    if (el && typeof QRCode !== 'undefined') {
+      new QRCode(el, {
+        text: receiptUrl,
+        width: 90, height: 90,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+    // Auto-print if ?print=1
+    if (new URLSearchParams(window.location.search).get('print') === '1') {
+      setTimeout(() => window.print(), 500);
+    }
+  }, 200);
+
+  document.title = `Bill #${order.order_number} — ${bizName}`;
+}
+
+loadAndRender();
+</script>
+</body>
+</html>
