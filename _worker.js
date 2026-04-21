@@ -20,9 +20,13 @@ export default {
     if (url.pathname === '/' || url.pathname === '/index.html') {
       const response = await env.ASSETS.fetch(request);
       const html = await response.text();
-      const injected = html.replace(
+      let injected = html.replace(
         "window.__BREVO_KEY__ || ''",
         `'${env.BREVO_API_KEY || ''}'`
+      );
+      injected = injected.replace(
+        "window.__SUPABASE_ANON__ || 'YOUR_ANON_PUBLIC_KEY'",
+        `'${env.SUPABASE_ANON_KEY || ''}'`
       );
       return new Response(injected, {
         headers: { 'Content-Type': 'text/html;charset=UTF-8' }
