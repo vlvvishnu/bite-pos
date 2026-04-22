@@ -1228,8 +1228,8 @@ body.landing #welcome-banner{display:none !important;}
     <div class="pos-nav-right">
       <span class="pos-kiosk-pill" id="kiosk-pill-label">KIOSK #1</span>
       <span class="pos-clock" id="pos-clock">--:--</span>
-      <span class="pos-user" id="pos-user"></span>
-      <button class="pos-logout-btn" onclick="confirmLogout()">Sign out</button>
+      
+      
       <button class="pos-hamburger" onclick="togglePosMobNav()">&#x2630;</button>
     </div>
   </nav>
@@ -1239,8 +1239,7 @@ body.landing #welcome-banner{display:none !important;}
     <button class="pos-mob-item" onclick="posNavTo('products',this);closePosMobNav()">&#x1F37D; Products</button>
     <button class="pos-mob-item" onclick="posNavTo('categories',this);closePosMobNav()">&#x1F3F7; Categories</button>
     <button class="pos-mob-item" onclick="posNavTo('settings',this);closePosMobNav()">&#x2699; Settings</button>
-    <button class="pos-mob-item" style="color:rgba(255,255,255,0.4)" onclick="confirmLogout()">Sign out</button>
-  </div>
+    <button class="pos-mob-item" style="color:rgba(255,255,255,0.4)" style="display:none"></div>
 <div class="pos-content">
   <!-- ORDER PAGE -->
   <div class="pos-page active" id="pos-page-order">
@@ -1353,6 +1352,7 @@ body.landing #welcome-banner{display:none !important;}
         </div>
         <div class="settings-section" style="margin-top:16px">
             <h3>&#x1F4F1; WhatsApp Bill Sharing</h3>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Set a short code for your restaurant. Customers scan the QR at their table → WhatsApp opens → they get their bill automatically.</p>
             <div class="settings-row">
               <div>
                 <div class="sr-label">Pay4 WhatsApp Number</div>
@@ -1387,6 +1387,7 @@ body.landing #welcome-banner{display:none !important;}
             </button>
           </div>
         <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
+          <button class="save-settings-btn" onclick="confirmLogout()" style="background:var(--red-bg);color:var(--red);border:1.5px solid rgba(239,68,68,0.2);margin-top:8px">Sign Out</button>
           <div class="settings-section" style="margin-top:16px">
             <h3>&#x1F512; Change Password</h3>
             <form onsubmit="return false" autocomplete="off">
@@ -1439,13 +1440,13 @@ body.landing #welcome-banner{display:none !important;}
         <input class="form-input" id="co-name" placeholder="John Smith"/>
       </div>
       <div class="form-group">
-        <label class="form-label">Email <span style="color:var(--brand);font-weight:600;font-size:10px;text-transform:none">★ Receipt sent here</span></label>
+        <label class="form-label">Email <span style="color:var(--faint);font-weight:400;font-size:10px;text-transform:none">(optional)</span></label>
         <input class="form-input" id="co-email" type="email" placeholder="customer@email.com" autocomplete="off"/>
-        <div class="field-hint" id="co-email-hint">Receipt will be auto-sent here after payment. ★</div>
+        
       </div>
       <div class="form-group">
-        <label class="form-label">Phone <span style="color:var(--faint);font-weight:400;text-transform:none">(optional)</span></label>
-        <input class="form-input" id="co-phone" type="tel" placeholder="+91 98765 43210"/>
+        <label class="form-label">Phone <span style="color:var(--red);font-weight:600;font-size:10px;text-transform:none">* required</span></label>
+        <input class="form-input" id="co-phone" type="tel" placeholder="+91 98765 43210" required/>
       </div>
     </div>
     <div class="co-foot">
@@ -2256,6 +2257,61 @@ function initWASystem() {
 // WA receipt triggered directly from confirmPaymentYes()
 
 
+
+// ══ PRODUCTS PAGE: Category filter + Bulk Select ══════════════
+let _selectedProds = new Set();
+let _prodCatFilter = 'all';
+
+function renderProdCatFilter() {
+  const el = document.getElementById('prod-cat-filter');
+  if (!el) return;
+  const cats = [{id:'all', name:'All'}].concat(categories);
+  el.innerHTML = cats.map(cat =>
+    `<button onclick="setProdCatFilter('${cat.id}')"
+      style="font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;border:1.5px solid ${_prodCatFilter===String(cat.id)?'var(--brand)':'var(--border)'};background:${_prodCatFilter===String(cat.id)?'var(--brand-lt)':'var(--card)'};color:${_prodCatFilter===String(cat.id)?'var(--brand)':'var(--muted)'};transition:all 0.15s">
+      ${cat.icon||''} ${cat.name}
+    </button>`
+  ).join('');
+}
+
+function setProdCatFilter(catId) {
+  _prodCatFilter = String(catId);
+  renderProdCatFilter();
+  loadProducts();
+}
+
+function toggleProdSelect(prodId, cb) {
+  if (cb.checked) {
+    _selectedProds.add(prodId);
+  } else {
+    _selectedProds.delete(prodId);
+  }
+  const bar = document.getElementById('bulk-bar');
+  const cnt = document.getElementById('bulk-count');
+  if (bar) bar.style.display = _selectedProds.size > 0 ? 'flex' : 'none';
+  if (cnt) cnt.textContent = _selectedProds.size + ' selected';
+}
+
+function clearBulkSelect() {
+  _selectedProds.clear();
+  const bar = document.getElementById('bulk-bar');
+  if (bar) bar.style.display = 'none';
+  // Uncheck all
+  document.querySelectorAll('.prod-select-cb').forEach(cb => cb.checked = false);
+}
+
+async function deleteSelectedProducts() {
+  if (_selectedProds.size === 0) return;
+  if (!confirm(`Delete ${_selectedProds.size} product(s)? This cannot be undone.`)) return;
+  const ids = Array.from(_selectedProds);
+  const { error } = await sb.from('products').delete().in('id', ids).eq('tenant_id', window._tenantId);
+  if (error) { showToast('Error deleting products'); return; }
+  showToast(`${ids.length} product(s) deleted`);
+  clearBulkSelect();
+  await loadProducts();
+}
+
+
 // ══ INIT ══
 async function init(){
   const { data:{ session } }=await sb.auth.getSession();
@@ -2331,6 +2387,8 @@ async function loadCategories(){
   if(!error&&data) categories=data;
 }
 async function loadProducts(){
+  renderProdCatFilter();
+
   let q=sb.from('products').select('*, categories(name,icon)').order('sort_order',{ascending:true});
   if(window._tenantId) q=q.eq('tenant_id',window._tenantId);
   const {data,error}=await q;
@@ -2418,6 +2476,9 @@ function closeCheckout(){ document.getElementById('checkout-overlay').classList.
 
 // ══ PLACE ORDER ══
 async function placeOrder(){
+  const phoneVal = document.getElementById('co-phone')?.value?.trim();
+  if(!phoneVal){const el=document.getElementById('co-phone');if(el){el.style.borderColor='var(--red)';el.focus();showToast('Phone number is required');return;}}
+  
   const entries=Object.values(cart); if(!entries.length) return;
   const btn=document.getElementById('co-place-btn');
   btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
@@ -2562,8 +2623,7 @@ function showSuccessModal(order, payStatus){
         ✉️ ${order.customer_email?'Email':'No Email'}</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <a class="ss-share-btn print" href="${PRINT_BASE}?id=${order.id}" target="_blank">🖨️ Print Bill</a>
-      <a class="ss-share-btn bills" href="${window.location.origin}/bills.html?biz=${encodeURIComponent(bizName)}" target="_blank">📋 All Bills</a>
+      <button class="ss-share-btn print" onclick="window.open(PRINT_BASE+'?id=${order.id}','_blank')">🖨️ Print Bill</button>
     </div>
     <button class="ss-share-btn copy" style="width:100%;margin-bottom:12px" onclick="copyReceiptLink('${receiptURL}')">🔗 Copy Link</button>
     <button class="ss-new-btn" onclick="closeSuccessModal()">Start New Order</button>`;
@@ -2682,7 +2742,7 @@ async function openOrderDetail(orderId){
         <button class="share-btn mail" id="od-mail-btn" ${!o.customer_email?'disabled':''}
           onclick="sendReceiptEmail('${o.id}',${o.order_number},'${Number(o.total).toFixed(2)}','${o.customer_email||''}','${(o.customer_name||'').replace(/'/g,'')}','${receiptURL}','${bizName}')">
           <span class="sb-icon">✉️</span>${o.customer_email?'Email':'No Email'}</button>
-        <a class="share-btn" href="${PRINT_BASE}?id=${o.id}" target="_blank"><span class="sb-icon">🖨️</span>Print</a>
+        <button class="share-btn" onclick="window.open(PRINT_BASE+'?id=${o.id}','_blank')"><span class="sb-icon">🖨️</span>Print</button>
         <button class="share-btn" onclick="copyReceiptLink('${receiptURL}')"><span class="sb-icon">🔗</span>Copy</button>
       </div>
     </div>`;
