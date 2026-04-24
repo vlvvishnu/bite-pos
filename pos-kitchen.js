@@ -66,8 +66,6 @@ function updateWaPreview() {
 }
 
 // ══ PRODUCTS PAGE: Category filter + Bulk Select ══════════════
-let _selectedProds = new Set();
-let _prodCatFilter = 'all';
 
 function renderProdCatFilter() {
   const el = document.getElementById('prod-cat-filter');

@@ -136,15 +136,3 @@ function showQRGridModal(title, cards) {
 }
 
 
-async function init(){
-  const { data:{ session } } = await sb.auth.getSession();
-  if(!session){
-    window.location.href = '/';
-    return;
-  }
-  currentUser = session.user;
-  await launchPOS();
-  sb.auth.onAuthStateChange((_,sess)=>{
-    if(!sess && currentUser) { currentUser=null; window.location.href='/'; }
-  });
-}

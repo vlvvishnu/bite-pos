@@ -103,11 +103,11 @@ async function sendWelcomeEmail(email, name, bizName){
 
 // ══ LAUNCH POS ══
 async function launchPOS(){
-  document.getElementById('view-landing').style.display='none';
+  const vlEl=document.getElementById('view-landing'); if(vlEl) vlEl.style.display='none';
   const posEl=document.getElementById('view-pos');
   posEl.classList.add('active');
   document.body.className='pos-active'; document.body.classList.remove('pos-loading');
-  document.getElementById('pos-user').textContent=currentUser.email;
+  const puEl=document.getElementById('pos-user'); if(puEl) puEl.textContent=currentUser.email;
   // Load tenant_id from profiles so we only show this user's data
   const {data:prof}=await sb.from('profiles').select('tenant_id').eq('id',currentUser.id).single();
   if(prof?.tenant_id) window._tenantId=prof.tenant_id;
@@ -692,8 +692,17 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').cat
 
 init();
 
-
-
-
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){
+    window.location.href = '/';
+    return;
+  }
+  currentUser = session.user;
+  await launchPOS();
+  sb.auth.onAuthStateChange((_,sess)=>{
+    if(!sess && currentUser) { currentUser=null; window.location.href='/'; }
+  });
+}
 
 init();
