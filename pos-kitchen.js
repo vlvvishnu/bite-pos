@@ -1,132 +1,219 @@
-// pos-kitchen.js — KOT, KDS, waiter alerts
-// ══ KOT ══════════════════════════════════════════════════════════
-function showKOT(order) {
-  const s = loadSettings();
-  const bizName = s.bizName || 'Restaurant';
-  const now = new Date();
-  if (document.getElementById('kot-biz')) document.getElementById('kot-biz').textContent = bizName;
-  if (document.getElementById('kot-num')) document.getElementById('kot-num').textContent = '#' + order.order_number;
-  if (document.getElementById('kot-badge')) document.getElementById('kot-badge').textContent = 'KOT #' + order.order_number;
-  if (document.getElementById('kot-time')) document.getElementById('kot-time').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) + ' · ' + now.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
-  const metaEl = document.getElementById('kot-meta');
-  if (metaEl) {
-    let html = '<span class="kot-pill">' + (_orderType==='dine'?'🍽 Dine In':'_orderType'==='take'?'🛍 Takeaway':'🏪 Stall') + '</span>';
-    if (_orderType==='dine'&&_tableNumber) html += '<span class="kot-pill table">Table ' + _tableNumber + '</span>';
-    if (order.customer_name) html += '<span class="kot-pill">' + order.customer_name + '</span>';
-    metaEl.innerHTML = html;
-  }
-  const itemsEl = document.getElementById('kot-items');
-  if (itemsEl) {
-    const entries = Object.values(cart).length > 0 ? Object.values(cart) : (order.items || []);
-    itemsEl.innerHTML = entries.map(it => '<div class="kot-item"><span class="kot-item-name">' + (it.icon||it.product_icon||'') + ' ' + (it.name||it.product_name) + '</span><span class="kot-item-qty">× ' + (it.qty) + '</span></div>').join('');
-  }
-  document.getElementById('kot-overlay')?.classList.add('show');
+// pos-kitchen.js — KOT, KDS (Kitchen Display System)
+
+// ── KDS State ─────────────────────────────────────────────────────
+let _kdsOrders = [];
+let _kdsRejections = {};
+let _kdsTimers = {};
+let _kdsSubscription = null;
+
+// ── Load KDS orders from Supabase ────────────────────────────────
+async function loadKDS() {
+  if (!window._tenantId) return;
+  const { data } = await sb
+    .from('orders')
+    .select('*, order_items(id,product_name,product_icon,qty,unit_price,line_total)')
+    .eq('tenant_id', window._tenantId)
+    .in('status', ['pending','preparing','ready'])
+    .order('created_at', { ascending: true });
+  _kdsOrders = data || [];
+  renderKDS();
+  updateKDSBadge();
 }
 
-function closeKOT() { document.getElementById('kot-overlay')?.classList.remove('show'); }
-
-function printKOT() {
-  const body = document.querySelector('.kot-modal')?.innerHTML || '';
-  const win = window.open('','_blank','width=320,height=500');
-  if (!win) return;
-  win.document.write('<html><head><title>KOT</title><style>body{font-family:monospace;padding:10px;font-size:12px;}.kot-head{background:#1A1208;color:#fff;padding:8px;display:flex;justify-content:space-between;margin:-10px -10px 10px;}.kot-badge{background:#E8440A;padding:2px 6px;border-radius:4px;font-size:10px;}.kot-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed #ddd;}.kot-item-qty{font-weight:bold;color:#E8440A;}.kot-pill{display:inline-block;background:#f0ede8;padding:2px 8px;border-radius:10px;font-size:10px;margin-right:3px;}.kot-pill.table{background:#FEF0EB;color:#E8440A;}.kot-biz{text-align:center;font-size:10px;text-transform:uppercase;color:#666;margin-bottom:2px;}.kot-num{text-align:center;font-size:20px;font-weight:bold;margin-bottom:8px;}.kot-divider{border-top:1px dashed #999;margin:6px 0;}.kot-meta{margin:5px 0;text-align:center;}.kot-foot,.screen-actions{display:none;}</style></head><body onload="window.print()">');
-  win.document.write(body);
-  win.document.write('</body></html>');
-  win.document.close();
+// ── Render KDS columns ───────────────────────────────────────────
+function renderKDS() {
+  const pending   = _kdsOrders.filter(o => o.status === 'pending');
+  const preparing = _kdsOrders.filter(o => o.status === 'preparing');
+  const ready     = _kdsOrders.filter(o => o.status === 'ready');
+  const empty = msg => '<div class="kds-empty">' + msg + '</div>';
+  const pEl  = document.getElementById('kds-pending');
+  const prEl = document.getElementById('kds-preparing');
+  const rEl  = document.getElementById('kds-ready');
+  if (pEl)  pEl.innerHTML  = pending.length   ? pending.map(kdsCardHTML).join('')   : empty('✅ No pending orders');
+  if (prEl) prEl.innerHTML = preparing.length ? preparing.map(kdsCardHTML).join('') : empty('🍳 Nothing preparing');
+  if (rEl)  rEl.innerHTML  = ready.length     ? ready.map(kdsCardHTML).join('')     : empty('🔔 Nothing ready yet');
+  _kdsOrders.forEach(o => { if (!_kdsTimers[o.id]) _kdsTimers[o.id] = new Date(o.created_at).getTime(); });
 }
 
-// ══ WA SETTINGS HELPERS ══════════════════════════════════════════
+// ── Build single KDS card HTML ───────────────────────────────────
+function kdsCardHTML(order) {
+  const items    = order.order_items || [];
+  const rejected = _kdsRejections[order.id] || [];
+  const ot       = order.order_type || 'take';
+  const typeLabel = ot === 'dine' ? ('🍽 Table ' + (order.table_number || '?'))
+                  : ot === 'take' ? '🛍 Takeaway' : '🏪 Stall';
+  let itemsHTML = '';
+  items.forEach(function(item) {
+    var isRej  = rejected.indexOf(item.id) >= 0;
+    var style  = isRej ? ' style="opacity:0.45;text-decoration:line-through"' : '';
+    var actBtn = '';
+    if (order.status !== 'ready') {
+      actBtn = isRej
+        ? '<button class="kds-item-restore-btn" onclick="kdsRestoreItem(this)" data-order="' + order.id + '" data-item="' + item.id + '">Restore</button>'
+        : '<button class="kds-item-reject-btn" onclick="kdsRejectItem(this)" data-order="' + order.id + '" data-item="' + item.id + '" data-name="' + (item.product_name||'').replace(/"/g,'') + '">Unavail</button>';
+    }
+    itemsHTML += '<div class="kds-item-row"' + style + '><span class="kds-item-qty">' + item.qty + 'x</span>'
+      + '<span class="kds-item-name">' + (item.product_icon||'') + ' ' + (item.product_name||'') + '</span>' + actBtn + '</div>';
+  });
+  const rejWarn = rejected.length
+    ? '<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:5px 8px;font-size:11px;color:#DC2626;font-weight:600;margin-top:6px">&#9888; ' + rejected.length + ' item(s) unavailable</div>' : '';
+  var oid = order.id;
+  var actions = '';
+  if (order.status === 'pending') {
+    actions = '<button class="kds-btn prepare" onclick="kdsUpdateStatus(this.dataset.id, this.dataset.st)" data-id="' + oid + '" data-st="preparing">&#x1F525; Start</button>'
+            + '<button class="kds-btn reprint" onclick="reprintKOT(this.dataset.id)" data-id="' + oid + '">KOT</button>';
+  } else if (order.status === 'preparing') {
+    actions = '<button class="kds-btn ready" onclick="kdsUpdateStatus(this.dataset.id, this.dataset.st)" data-id="' + oid + '" data-st="ready">&#x2705; Ready</button>'
+            + '<button class="kds-btn notify" onclick="kdsNotifyWaiter(this.dataset.id)" data-id="' + oid + '">&#x1F514;</button>'
+            + '<button class="kds-btn reprint" onclick="reprintKOT(this.dataset.id)" data-id="' + oid + '">KOT</button>';
+  } else {
+    actions = '<button class="kds-btn ready" onclick="this.closest(' + "'" + '.kds-card' + "'" + ')?.remove()" style="background:#166534">&#x1F37D; Served</button>';
+            + '<button class="kds-btn notify" onclick="kdsNotifyWaiter(this.dataset.id)" data-id="' + oid + '">&#x1F514;</button>';
+  }
+  return '<div class="kds-card ' + order.status + '" id="kds-card-' + oid + '">'
+    + '<div class="kds-card-head"><div><div class="kds-card-num">#' + order.order_number + '</div>'
+    + '<div class="kds-card-meta">' + typeLabel + '</div></div>'
+    + '<span class="kds-card-timer" id="kds-timer-' + oid + '">0m</span></div>'
+    + '<div class="kds-card-body">' + itemsHTML + rejWarn + '</div>'
+    + '<div class="kds-card-actions">' + actions + '</div></div>';
+}
+
+// ── Update order status ──────────────────────────────────────────
+async function kdsUpdateStatus(orderId, newStatus) {
+  var st = newStatus || (typeof orderId === 'object' ? orderId.dataset.st : newStatus);
+  var id = typeof orderId === 'string' ? orderId : orderId.dataset.id;
+  await sb.from('orders').update({ status: st }).eq('id', id);
+  newStatus = st; orderId = id;
+  showToast(newStatus === 'preparing' ? 'Order started 🔥' : 'Order ready ✅');
+  await loadKDS();
+}
+
+// ── Reject/restore item ──────────────────────────────────────────
+function kdsRejectItem(btn) {
+  var orderId  = btn.dataset.order;
+  var itemId   = btn.dataset.item;
+  var itemName = btn.dataset.name;
+  if (!_kdsRejections[orderId]) _kdsRejections[orderId] = [];
+  if (_kdsRejections[orderId].indexOf(itemId) < 0) _kdsRejections[orderId].push(itemId);
+  showToast('"' + itemName + '" marked unavailable');
+  renderKDS();
+  kdsShowWaiterAlert(orderId, itemName);
+}
+
+function kdsRestoreItem(btn) {
+  var orderId = btn.dataset.order;
+  var itemId  = btn.dataset.item;
+  if (_kdsRejections[orderId]) {
+    _kdsRejections[orderId] = _kdsRejections[orderId].filter(function(id){ return id !== itemId; });
+  }
+  renderKDS();
+}
+
+// ── Notify waiter ────────────────────────────────────────────────
+function kdsNotifyWaiter(idOrBtn) {
+  var orderId = typeof idOrBtn === 'string' ? idOrBtn : idOrBtn.dataset ? idOrBtn.dataset.id : idOrBtn;
+  var order   = _kdsOrders.find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  showToast('🔔 Waiter notified for Order #' + order.order_number);
+  kdsShowWaiterAlert(orderId, null, 'ready');
+}
+
+// ── Show waiter alert on order screen ───────────────────────────
+function kdsShowWaiterAlert(orderId, itemName, type) {
+  var order   = _kdsOrders.find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  var alertEl = document.getElementById('waiter-alerts');
+  if (!alertEl) return;
+  var id      = 'alert-' + Date.now();
+  var isReady = type === 'ready';
+  var msg     = isReady
+    ? 'Order #' + order.order_number + ' is READY 🍽'
+    : '"' + (itemName||'Item') + '" unavailable in #' + order.order_number;
+  var loc = order.order_type === 'dine' ? 'Table ' + (order.table_number||'?') : 'Takeaway';
+  var div = document.createElement('div');
+  div.id        = id;
+  div.className = 'waiter-alert ' + (isReady ? 'alert-ready' : 'alert-unavail');
+  var icon = document.createElement('span');
+  icon.className   = 'wa-alert-icon';
+  icon.textContent = isReady ? '✅' : '⚠️';
+  var body = document.createElement('div');
+  body.className = 'wa-alert-body';
+  body.innerHTML = '<div class="wa-alert-title">' + msg + '</div><div class="wa-alert-sub">' + loc + '</div>';
+  var btn = document.createElement('button');
+  btn.className   = 'wa-alert-dismiss';
+  btn.textContent = '✕';
+  btn.onclick     = function(){ dismissAlert(id); };
+  div.appendChild(icon); div.appendChild(body); div.appendChild(btn);
+  alertEl.appendChild(div);
+  alertEl.style.display = 'flex';
+  setTimeout(function(){ dismissAlert(id); }, 30000);
+}
+
+function dismissAlert(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+  var al = document.getElementById('waiter-alerts');
+  if (al && !al.children.length) al.style.display = 'none';
+}
+
+// ── Reprint KOT ─────────────────────────────────────────────────
+function reprintKOT(idOrBtn) {
+  var orderId = typeof idOrBtn === 'string' ? idOrBtn : idOrBtn.dataset ? idOrBtn.dataset.id : idOrBtn;
+  var order   = _kdsOrders.find(function(o){ return o.id === orderId; });
+  if (!order) return;
+  _orderType    = order.order_type || 'take';
+  _tableNumber  = order.table_number || null;
+  showKOT(order);
+}
+
+// ── Update KDS badge on nav ──────────────────────────────────────
+function updateKDSBadge() {
+  var pending = _kdsOrders.filter(function(o){ return o.status === 'pending'; }).length;
+  var badge   = document.getElementById('kds-badge');
+  if (!badge) return;
+  badge.textContent = pending;
+  badge.classList.toggle('show', pending > 0);
+}
+
+// ── Auto-refresh KDS timer ───────────────────────────────────────
+setInterval(function() {
+  Object.keys(_kdsTimers).forEach(function(id) {
+    var el = document.getElementById('kds-timer-' + id);
+    if (!el) return;
+    var mins  = Math.floor((Date.now() - _kdsTimers[id]) / 60000);
+    el.textContent  = mins + 'm';
+    el.style.color  = mins > 20 ? '#DC2626' : mins > 10 ? '#D97706' : 'inherit';
+  });
+}, 30000);
+
+// ── WA Settings Helpers ──────────────────────────────────────────
 function getWASettings() {
-  return { waCode: localStorage.getItem('bite_wa_code')||'', tableCount: parseInt(localStorage.getItem('bite_table_count')||'10') };
+  return {
+    waCode:     localStorage.getItem('bite_wa_code') || '',
+    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
+  };
 }
 function populateWASettingsForm() {
-  const wa = getWASettings();
-  const w = document.getElementById('set-wa-code'); if(w) w.value = wa.waCode||'';
-  const t = document.getElementById('set-table-count'); if(t) t.value = wa.tableCount||10;
-  const p = document.getElementById('set-pay4-wa'); if(p) p.value = localStorage.getItem('bite_pay4_wa_number')||'';
+  var wa = getWASettings();
+  var w  = document.getElementById('set-wa-code');    if(w) w.value = wa.waCode || '';
+  var t  = document.getElementById('set-table-count'); if(t) t.value = wa.tableCount || 10;
+  var p  = document.getElementById('set-pay4-wa');    if(p) p.value = localStorage.getItem('bite_pay4_wa_number') || '';
 }
 function saveWASettings() {
-  const waCode = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
-  const tableCount = parseInt(document.getElementById('set-table-count')?.value)||10;
-  localStorage.setItem('bite_wa_code', waCode||'');
+  var waCode     = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+  var tableCount = parseInt(document.getElementById('set-table-count')?.value) || 10;
+  localStorage.setItem('bite_wa_code', waCode || '');
   localStorage.setItem('bite_table_count', tableCount);
-  buildTableNumBtns();
 }
 function initWASystem() {
-  const wa = getWASettings();
+  var wa = getWASettings();
   if (wa.waCode) buildTableNumBtns();
 }
 function updateWaPreview() {
-  const code = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
-  const prev = document.getElementById('wa-settings-preview');
-  const codeEl = document.getElementById('wa-code-preview');
-  if (!prev||!codeEl) return;
-  if (code) { codeEl.textContent = code+'-T1'; prev.style.display='block'; }
-  else prev.style.display='none';
-}
-
-// ══ PRODUCTS PAGE: Category filter + Bulk Select ══════════════
-
-function renderProdCatFilter() {
-  const el = document.getElementById('prod-cat-filter');
-  if (!el) return;
-  const cats = [{id:'all', name:'All', icon:''}].concat(categories||[]);
-  el.innerHTML = '';
-  cats.forEach(function(cat) {
-    const btn = document.createElement('button');
-    const isActive = _prodCatFilter === String(cat.id);
-    btn.textContent = (cat.icon ? cat.icon + ' ' : '') + cat.name;
-    btn.style.cssText = 'font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;margin:2px;border:1.5px solid ' + (isActive ? 'var(--brand)' : 'var(--border)') + ';background:' + (isActive ? 'var(--brand-lt)' : 'var(--card)') + ';color:' + (isActive ? 'var(--brand)' : 'var(--muted)') + ';';
-    btn.onclick = function() { setProdCatFilter(cat.id); };
-    el.appendChild(btn);
-  });
-}
-function setProdCatFilter(catId) {
-  _prodCatFilter = String(catId);
-  renderProdCatFilter();
-  renderProductList();
-}
-function selectAllInGroup(masterCb, groupName, items) {
-  if (items) {
-    items.forEach(p => {
-      if (masterCb.checked) _selectedProds.add(p.id);
-      else _selectedProds.delete(p.id);
-    });
-    // Check/uncheck rendered checkboxes
-    document.querySelectorAll('.prod-select-cb').forEach(cb => {
-      const item = cb.closest('.prod-item');
-      if (!item) return;
-      let prev = item.previousElementSibling;
-      while (prev && !prev.classList.contains('prod-group-head')) prev = prev.previousElementSibling;
-      if (prev && prev.dataset.groupname === groupName) cb.checked = masterCb.checked;
-    });
-  }
-  const bar = document.getElementById('bulk-bar');
-  const cnt = document.getElementById('bulk-count');
-  if (bar) bar.style.display = _selectedProds.size > 0 ? 'flex' : 'none';
-  if (cnt) cnt.textContent = _selectedProds.size + ' selected';
-}
-
-function toggleProdSelect(prodId, cb) {
-  if (cb.checked) _selectedProds.add(prodId); else _selectedProds.delete(prodId);
-  const bar = document.getElementById('bulk-bar');
-  const cnt = document.getElementById('bulk-count');
-  if (bar) bar.style.display = _selectedProds.size > 0 ? 'flex' : 'none';
-  if (cnt) cnt.textContent = _selectedProds.size + ' selected';
-}
-function clearBulkSelect() {
-  _selectedProds.clear();
-  const bar = document.getElementById('bulk-bar');
-  if (bar) bar.style.display = 'none';
-  document.querySelectorAll('.prod-select-cb').forEach(cb => cb.checked = false);
-}
-async function deleteSelectedProducts() {
-  if (_selectedProds.size === 0) return;
-  if (!confirm('Delete ' + _selectedProds.size + ' product(s)? Cannot be undone.')) return;
-  const ids = Array.from(_selectedProds);
-  const { error } = await sb.from('products').delete().in('id', ids).eq('tenant_id', window._tenantId);
-  if (error) { showToast('Error deleting'); return; }
-  showToast(ids.length + ' product(s) deleted');
-  clearBulkSelect();
-  await loadProducts();
+  var code   = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+  var prev   = document.getElementById('wa-settings-preview');
+  var codeEl = document.getElementById('wa-code-preview');
+  if (!prev || !codeEl) return;
+  if (code) { codeEl.textContent = code + '-T1'; prev.style.display = 'block'; }
+  else prev.style.display = 'none';
 }

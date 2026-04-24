@@ -1043,6 +1043,16 @@ body.landing #welcome-banner{display:none !important;}
 
 body.pos-loading .pos-content { opacity: 0; }
 body { transition: none; }
+
+.tot-group{display:flex;align-items:stretch;border-radius:var(--radius-sm);overflow:hidden;}
+.tot-group .tot-btn{border-radius:0;border-right:none;}
+.tot-group .tot-btn.active{border-radius:0;}
+.tot-table-btn{display:flex;align-items:center;gap:3px;padding:5px 8px;
+  background:var(--brand);border:1.5px solid var(--brand);
+  color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;
+  border-left:1px solid rgba(255,255,255,0.3);}
+.tot-table-btn:hover{background:var(--brand-dk);}
+.tot-chevron{font-size:9px;opacity:0.7;}
 </style>
 </head>
 <body class="pos-loading">
@@ -1066,17 +1076,18 @@ body { transition: none; }
     </div>
     <div class="pos-nav-right">
       <div class="top-order-type" id="top-order-type">
-        <button class="tot-btn" id="tot-dine" onclick="setOrderType('dine')">🍽 Dine In</button>
+        <div class="tot-group" id="tot-group-dine">
+          <button class="tot-btn" id="tot-dine" onclick="setOrderType('dine')">🍽 Dine In</button>
+          <button class="tot-table-btn" id="tot-table-btn" onclick="openTablePicker()" style="display:none">
+            <span id="top-table-label">T?</span><span class="tot-chevron">▾</span>
+          </button>
+        </div>
         <button class="tot-btn active" id="tot-take" onclick="setOrderType('take')">🛍 Takeaway</button>
         <button class="tot-btn" id="tot-stall" onclick="setOrderType('stall')">🏪 Stall</button>
       </div>
-      <div class="top-table-pill" id="top-table-pill" style="display:none" onclick="openTablePicker()">
-        <span id="top-table-label">Select table</span>
-        <span style="opacity:0.5;font-size:10px;margin-left:2px">▼</span>
-      </div>
       <!-- Table picker dropdown -->
       <div class="table-picker-drop" id="table-picker-drop" style="display:none">
-        <div class="tpd-head">Select Table</div>
+        <div class="tpd-head">Select Table — Dine In</div>
         <div class="tpd-grid" id="tpd-grid"></div>
         <button class="tpd-close" onclick="closeTablePicker()">Done</button>
       </div>

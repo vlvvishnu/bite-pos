@@ -7,23 +7,19 @@ let _selectedPayMethod = 'upi';
 function setOrderType(type) {
   _orderType = type;
   _tableNumber = null;
+  _tableName = null;
   // Update top bar buttons
   ['dine','take','stall'].forEach(t => {
-    const top = document.getElementById('tot-' + t);
-    if (top) top.classList.toggle('active', t === type);
-    const cart = document.getElementById('ot-' + t);
-    if (cart) cart.classList.toggle('active', t === type);
+    const btn = document.getElementById('tot-' + t);
+    if (btn) btn.classList.toggle('active', t === type);
   });
-  // Show/hide table picker in top bar
-  const topTablePill = document.getElementById('top-table-pill');
-  if (topTablePill) topTablePill.style.display = type === 'dine' ? 'flex' : 'none';
+  // Show table button only for Dine In (embedded in button group)
+  const tableBtn = document.getElementById('tot-table-btn');
+  if (tableBtn) tableBtn.style.display = type === 'dine' ? 'flex' : 'none';
   closeTablePicker();
   if (type === 'dine') buildTableNumBtns();
-  // Old cart pane table row
-  const tr = document.getElementById('table-num-row');
-  if (tr) tr.classList.toggle('show', type === 'dine');
-  if (type === 'dine') buildTableNumBtns();
   updateCartTitle();
+  updateTablePill();
 }
 
 function buildTableNumBtns() {
@@ -78,15 +74,15 @@ function closeTablePicker() {
   if (drop) drop.style.display = 'none';
 }
 function updateTablePill() {
-  const pill = document.getElementById('top-table-pill');
   const label = document.getElementById('top-table-label');
-  if (!pill || !label) return;
+  const tableBtn = document.getElementById('tot-table-btn');
+  if (!label) return;
   if (_tableNumber) {
     label.textContent = _tableName || ('T' + _tableNumber);
-    pill.classList.add('selected');
+    if (tableBtn) tableBtn.style.background = 'var(--brand)';
   } else {
-    label.textContent = 'Table';
-    pill.classList.remove('selected');
+    label.textContent = 'T?';
+    if (tableBtn) tableBtn.style.background = 'rgba(255,255,255,0.15)';
   }
 }
 
@@ -288,7 +284,10 @@ async function placeOrder(){
     .insert({ subtotal:sub.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),status:'pending',
               tenant_id:window._tenantId||null,
               customer_name:custName||null,customer_email:custEmail||null,customer_phone:custPhone||null,
-              kiosk_id:loadSettings().kioskId })
+              kiosk_id:loadSettings().kioskId,
+              payment_method:_selectedPayMethod||'upi',
+              order_type:_orderType||'take',
+              table_number:_tableNumber?String(_tableNumber):null })
     .select('id,order_number').single();
   if(orderErr){ showToast('Error: '+orderErr.message); btn.disabled=false; btn.textContent='Place Order & Pay →'; return; }
   await sb.from('order_items').insert(entries.map(i=>({
