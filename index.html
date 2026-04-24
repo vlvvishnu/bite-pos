@@ -76,7 +76,7 @@ body{overflow-x:hidden;}
 .hero-stats{display:flex;gap:44px;justify-content:center;flex-wrap:wrap;}
 .hstat-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;color:#fff;line-height:1;}
 .hstat-lbl{font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;}
-.lp-section{padding:72px 5%;}
+.lp-section{padding:72px 5%;max-width:1100px;margin-left:auto;margin-right:auto;width:100%;}
 .bg-surface{background:var(--surface);}
 .lp-tag{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
 .lp-h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(24px,3.5vw,38px);color:var(--text);line-height:1.2;letter-spacing:-0.8px;margin-bottom:12px;}
@@ -180,8 +180,8 @@ body{overflow-x:hidden;}
 .pos-logout-btn{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .pos-logout-btn:hover{background:rgba(255,255,255,0.16);color:#fff;}
 .pos-hamburger{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;}
-.pos-mob-nav{position:fixed;top:60px;left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-110%);transition:transform 0.28s ease;border-bottom:1px solid rgba(255,255,255,0.08);}
-.pos-mob-nav.open{transform:translateY(0);}
+.pos-mob-nav{position:fixed;top:60px;left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-200%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);border-bottom:1px solid rgba(255,255,255,0.08);pointer-events:none;}
+.pos-mob-nav.open{transform:translateY(0);pointer-events:all;}
 .pos-mob-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;}
 .pos-mob-item:hover,.pos-mob-item.active{color:#fff;background:rgba(255,255,255,0.1);}
 
@@ -619,8 +619,8 @@ body{overflow-x:hidden;}
 .pos-logout-btn{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .pos-logout-btn:hover{background:rgba(255,255,255,0.16);color:#fff;}
 .pos-hamburger{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;}
-.pos-mob-nav{position:fixed;top:60px;left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-110%);transition:transform 0.28s ease;border-bottom:1px solid rgba(255,255,255,0.08);}
-.pos-mob-nav.open{transform:translateY(0);}
+.pos-mob-nav{position:fixed;top:60px;left:0;right:0;background:var(--text);z-index:89;display:flex;flex-direction:column;padding:8px 10px 16px;transform:translateY(-200%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);border-bottom:1px solid rgba(255,255,255,0.08);pointer-events:none;}
+.pos-mob-nav.open{transform:translateY(0);pointer-events:all;}
 .pos-mob-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;}
 .pos-mob-item:hover,.pos-mob-item.active{color:#fff;background:rgba(255,255,255,0.1);}
 
@@ -1049,173 +1049,127 @@ body.landing #welcome-banner{display:none !important;}
   .hero-stats{gap:20px;}
 }
 
-/* Full-width section backgrounds */
-.lp-section-outer{width:100%;}
-.lp-section-outer.bg-surface{background:var(--surface);}
-.lp-section{padding:72px 5%;max-width:1100px;margin:0 auto;}
+.lp-section{padding:72px 5%;}
+.lp-section-inner{max-width:1060px;margin:0 auto;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;}
+@media(max-width:860px){.feat-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:540px){.feat-grid{grid-template-columns:1fr;}}
 
+/* 2-step checkout */
+.co-steps-bar{display:flex;gap:0;border-bottom:1px solid #f0ede8;background:#fff;}
+.co-step-tab{flex:1;padding:12px;text-align:center;font-size:12px;font-weight:600;
+  color:#9A9290;border-bottom:2px solid transparent;}
+.co-step-tab.done{color:#22C55E;}
+.co-step-tab.active{color:#1A1208;border-bottom-color:#1A1208;}
+.co-step{display:none;}
+.co-step.active{display:block;}
+.co-summary-compact{background:#f9f7f4;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;}
+.co-sum-row{display:flex;justify-content:space-between;padding:2px 0;}
+.co-sum-total{font-weight:700;font-size:15px;border-top:1px solid #e8e4e0;margin-top:6px;padding-top:6px;}
+.pay-method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.pay-method-btn{padding:14px 10px;border-radius:10px;border:2px solid #e8e4e0;
+  background:var(--card);cursor:pointer;text-align:center;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.pay-method-btn:hover,.pay-method-btn.selected{border-color:var(--brand);background:var(--brand-lt);}
+.pay-method-btn .pm-icon{font-size:22px;margin-bottom:4px;}
+.pay-method-btn .pm-label{font-size:12px;font-weight:700;color:var(--text);}
+.pay-method-btn .pm-sub{font-size:10px;color:var(--muted);margin-top:2px;}
 /* Order type bar */
 .order-type-bar{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .ot-btn{flex:1;padding:7px 4px;border-radius:var(--radius-sm);border:1.5px solid var(--border);
   background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;
   transition:all 0.15s;font-family:'DM Sans',sans-serif;}
 .ot-btn.active{background:var(--brand-lt);border-color:rgba(232,68,10,0.3);color:var(--brand);}
-.ot-btn:hover:not(.active){border-color:var(--brand);color:var(--brand);}
-
-/* Table number picker */
-.table-num-row{display:none;align-items:center;gap:8px;padding:8px 12px;
-  border-bottom:1px solid var(--border);flex-shrink:0;}
+.table-num-row{display:none;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .table-num-row.show{display:flex;}
-.table-num-label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;}
-.table-num-btns{display:flex;flex-wrap:wrap;gap:4px;flex:1;}
 .tnum-btn{min-width:32px;height:28px;border-radius:6px;border:1.5px solid var(--border);
-  background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;
-  padding:0 6px;transition:all 0.12s;font-family:'DM Sans',sans-serif;}
+  background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;padding:0 6px;}
 .tnum-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;}
-.tnum-btn:hover:not(.active){border-color:var(--brand);color:var(--brand);}
-
-/* KOT (Kitchen Order Ticket) */
+/* KOT */
 .kot-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
   display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
 .kot-overlay.show{opacity:1;pointer-events:all;}
-.kot-modal{background:#fff;border-radius:16px;width:320px;max-width:92vw;overflow:hidden;
-  animation:popIn 0.25s ease;}
-.kot-head{background:#1A1208;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;}
-.kot-title{color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;}
-.kot-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:700;
-  padding:3px 8px;border-radius:10px;}
-.kot-body{padding:16px 18px;background:#fff;}
-.kot-biz{text-align:center;font-size:11px;color:#7A6E65;margin-bottom:2px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
-.kot-num{text-align:center;font-size:22px;font-weight:800;color:#1A1208;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:12px;}
-.kot-meta{display:flex;gap:8px;justify-content:center;margin-bottom:12px;}
-.kot-pill{background:#f5f3f0;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:#7A6E65;}
+.kot-modal{background:#fff;border-radius:16px;width:320px;max-width:92vw;overflow:hidden;}
+.kot-head{background:#1A1208;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+.kot-title{color:#fff;font-weight:700;font-size:15px;}
+.kot-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;}
+.kot-body{padding:14px 18px;background:#fff;}
+.kot-biz{text-align:center;font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.kot-num{text-align:center;font-size:22px;font-weight:800;color:#1A1208;margin-bottom:10px;}
+.kot-meta{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+.kot-pill{background:#f5f3f0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:#7A6E65;}
 .kot-pill.table{background:#FEF0EB;color:var(--brand);}
-.kot-divider{border:none;border-top:1px dashed #ddd;margin:10px 0;}
-.kot-item{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#1A1208;border-bottom:1px solid #f5f3f0;}
+.kot-divider{border:none;border-top:1px dashed #ddd;margin:8px 0;}
+.kot-item{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid #f5f3f0;}
 .kot-item:last-child{border-bottom:none;}
-.kot-item-name{font-weight:500;}
-.kot-item-qty{font-weight:700;color:var(--brand);min-width:30px;text-align:right;}
-.kot-foot{padding:14px 18px;background:#f9f7f4;display:flex;gap:8px;}
-.kot-print-btn{flex:1;background:#1A1208;color:#fff;border:none;border-radius:8px;
-  padding:11px;font-weight:700;font-size:13px;cursor:pointer;}
-.kot-send-btn{flex:1;background:var(--brand);color:#fff;border:none;border-radius:8px;
-  padding:11px;font-weight:700;font-size:13px;cursor:pointer;}
-
-/* New 2-step checkout */
-.co-step{display:none;}
-.co-step.active{display:block;}
-.co-steps-bar{display:flex;gap:0;border-bottom:1px solid #f0ede8;background:#fff;}
-.co-step-tab{flex:1;padding:12px;text-align:center;font-size:12px;font-weight:600;
-  color:#9A9290;border-bottom:2px solid transparent;cursor:default;}
-.co-step-tab.done{color:var(--green);}
-.co-step-tab.active{color:#1A1208;border-bottom-color:#1A1208;}
-.pay-method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
-.pay-method-btn{padding:16px 10px;border-radius:10px;border:2px solid #e8e4e0;
-  background:#fff;cursor:pointer;text-align:center;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
-.pay-method-btn:hover,.pay-method-btn.selected{border-color:var(--brand);background:var(--brand-lt);}
-.pay-method-btn .pm-icon{font-size:24px;margin-bottom:6px;}
-.pay-method-btn .pm-label{font-size:12px;font-weight:700;color:#1A1208;}
-.pay-method-btn .pm-sub{font-size:10px;color:#9A9290;margin-top:2px;}
-.co-summary-compact{background:#f9f7f4;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;}
-.co-sum-row{display:flex;justify-content:space-between;padding:2px 0;}
-.co-sum-total{font-weight:700;font-size:15px;border-top:1px solid #e8e4e0;margin-top:6px;padding-top:6px;}
-
-/* ── KDS (Kitchen Display System) ───────────────── */
-.kds-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden;}
-.kds-header{display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;gap:12px;flex-wrap:wrap;}
-.kds-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16px;}
-.kds-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.kds-refresh-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);
-  border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;}
-.kds-refresh-btn:hover{border-color:var(--brand);color:var(--brand);}
-.kds-legend{display:flex;align-items:center;font-size:11px;color:var(--muted);gap:4px;}
-.kds-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
-.kds-dot.yellow{background:#F59E0B;}
-.kds-dot.orange{background:#F97316;}
-.kds-dot.green{background:#22C55E;}
-.kds-dot.red{background:#EF4444;}
-
-.kds-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
-  padding:12px;overflow-y:auto;flex:1;}
-@media(max-width:700px){.kds-columns{grid-template-columns:1fr;}}
-
-.kds-col-head{padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;
-  margin-bottom:8px;letter-spacing:0.3px;}
-.kds-col-head.yellow{background:#FEF9C3;color:#854D0E;}
-.kds-col-head.orange{background:#FFEDD5;color:#9A3412;}
-.kds-col-head.green{background:#DCFCE7;color:#166534;}
-
-.kds-cards{display:flex;flex-direction:column;gap:8px;}
-
-/* KDS order card */
-.kds-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
-  overflow:hidden;transition:all 0.2s;}
-.kds-card-head{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);}
-.kds-card.pending .kds-card-head{background:#FFFBEB;border-bottom-color:#FDE68A;}
-.kds-card.preparing .kds-card-head{background:#FFF7ED;border-bottom-color:#FED7AA;}
-.kds-card.ready .kds-card-head{background:#F0FDF4;border-bottom-color:#BBF7D0;}
-.kds-card.rejected .kds-card-head{background:#FEF2F2;border-bottom-color:#FECACA;}
-.kds-card-num{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;}
-.kds-card.pending .kds-card-num{color:#92400E;}
-.kds-card.preparing .kds-card-num{color:#9A3412;}
-.kds-card.ready .kds-card-num{color:#166534;}
-.kds-card-meta{font-size:10px;font-weight:600;color:var(--muted);}
-.kds-card-timer{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(0,0,0,0.06);}
-.kds-card-body{padding:10px 12px;}
-
-/* KDS items */
-.kds-item-row{display:flex;align-items:center;gap:6px;padding:5px 0;
-  border-bottom:1px solid var(--border);}
-.kds-item-row:last-child{border-bottom:none;}
-.kds-item-row.rejected-item{opacity:0.4;text-decoration:line-through;}
-.kds-item-row.unavail-item{background:#FEF2F2;border-radius:6px;padding:5px 8px;margin:2px 0;opacity:1;text-decoration:none;}
-.kds-item-qty{font-weight:800;font-size:13px;color:var(--brand);min-width:24px;}
-.kds-item-name{flex:1;font-size:13px;font-weight:500;}
-.kds-item-reject-btn{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;
-  border:1px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer;white-space:nowrap;}
-.kds-item-reject-btn:hover{background:#DC2626;color:#fff;}
-.kds-item-restore-btn{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;
-  border:1px solid #BBF7D0;background:#F0FDF4;color:#166534;cursor:pointer;white-space:nowrap;}
-
-/* KDS action buttons */
-.kds-card-actions{padding:8px 12px;display:flex;gap:6px;border-top:1px solid var(--border);flex-wrap:wrap;}
-.kds-btn{flex:1;padding:8px 6px;border-radius:8px;font-size:11px;font-weight:700;
-  cursor:pointer;border:none;min-width:80px;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
-.kds-btn.prepare{background:#FF6B35;color:#fff;}
-.kds-btn.prepare:hover{background:#E8440A;}
-.kds-btn.ready{background:#22C55E;color:#fff;}
-.kds-btn.ready:hover{background:#16A34A;}
-.kds-btn.reprint{background:var(--surface);color:var(--text);border:1px solid var(--border);}
-.kds-btn.notify{background:var(--blue-bg);color:var(--blue-text);border:1px solid rgba(96,165,250,0.3);}
-.kds-btn.notify:hover{background:var(--blue);color:#fff;}
-
-/* KDS empty state */
-.kds-empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px;}
-.kds-empty-icon{font-size:36px;margin-bottom:8px;}
-
-/* Notification dot on Kitchen nav */
-.kds-badge{background:var(--brand);color:#fff;font-size:9px;font-weight:800;
-  padding:1px 5px;border-radius:8px;margin-left:4px;display:none;}
-.kds-badge.show{display:inline;}
-
+.kot-item-qty{font-weight:700;color:var(--brand);}
+.kot-foot{padding:12px 18px;background:#f9f7f4;display:flex;gap:8px;}
+.kot-print-btn{flex:1;background:#1A1208;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;}
+.kot-send-btn{flex:1;background:var(--brand);color:#fff;border:none;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;}
 /* Waiter alerts */
-.waiter-alerts-wrap{flex-shrink:0;}
-.waiter-alerts{display:flex;flex-direction:column;gap:6px;padding:8px 12px;
-  border-bottom:1px solid var(--border);background:var(--surface);}
-.waiter-alert{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:8px;animation:slideDown 0.3s ease;}
+.waiter-alerts{display:flex;flex-direction:column;gap:6px;padding:6px 12px;border-bottom:1px solid var(--border);}
+.waiter-alert{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;}
 .waiter-alert.alert-ready{background:#F0FDF4;border:1px solid #BBF7D0;}
 .waiter-alert.alert-unavail{background:#FEF2F2;border:1px solid #FECACA;}
-.wa-alert-icon{font-size:18px;flex-shrink:0;}
+.wa-alert-icon{font-size:16px;}
 .wa-alert-body{flex:1;}
 .wa-alert-title{font-size:12px;font-weight:700;color:#1A1208;}
-.wa-alert-sub{font-size:10px;color:var(--muted);margin-top:1px;}
-.wa-alert-dismiss{background:none;border:none;color:var(--muted);cursor:pointer;
-  font-size:14px;padding:4px;flex-shrink:0;}
-.wa-alert-dismiss:hover{color:var(--text);}
-@keyframes slideDown{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.wa-alert-sub{font-size:10px;color:var(--muted);}
+.wa-alert-dismiss{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;}
+/* KDS */
+.kds-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.kds-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;gap:8px;}
+.kds-title{font-weight:800;font-size:15px;}
+.kds-refresh-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;}
+.kds-legend{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.kds-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.kds-dot.yellow{background:#F59E0B;}.kds-dot.orange{background:#F97316;}.kds-dot.green{background:#22C55E;}.kds-dot.red{background:#EF4444;}
+.kds-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px;overflow-y:auto;flex:1;}
+@media(max-width:700px){.kds-columns{grid-template-columns:1fr;}}
+.kds-col-head{padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;margin-bottom:6px;}
+.kds-col-head.yellow{background:#FEF9C3;color:#854D0E;}.kds-col-head.orange{background:#FFEDD5;color:#9A3412;}.kds-col-head.green{background:#DCFCE7;color:#166534;}
+.kds-cards{display:flex;flex-direction:column;gap:8px;}
+.kds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.kds-card-head{padding:8px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.kds-card.pending .kds-card-head{background:#FFFBEB;}.kds-card.preparing .kds-card-head{background:#FFF7ED;}.kds-card.ready .kds-card-head{background:#F0FDF4;}
+.kds-card-num{font-weight:800;font-size:13px;}
+.kds-card.pending .kds-card-num{color:#92400E;}.kds-card.preparing .kds-card-num{color:#9A3412;}.kds-card.ready .kds-card-num{color:#166534;}
+.kds-card-meta{font-size:10px;color:var(--muted);}
+.kds-card-timer{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,0.06);}
+.kds-card-body{padding:8px 10px;}
+.kds-item-row{display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid var(--border);}
+.kds-item-row:last-child{border-bottom:none;}
+.kds-item-qty{font-weight:800;font-size:12px;color:var(--brand);min-width:22px;}
+.kds-item-name{flex:1;font-size:12px;}
+.kds-item-reject-btn{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;border:1px solid #FCA5A5;background:#FEF2F2;color:#DC2626;cursor:pointer;}
+.kds-item-restore-btn{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;border:1px solid #BBF7D0;background:#F0FDF4;color:#166534;cursor:pointer;}
+.kds-card-actions{padding:7px 10px;display:flex;gap:5px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.kds-btn{flex:1;padding:7px 5px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;min-width:70px;font-family:'DM Sans',sans-serif;}
+.kds-btn.prepare{background:#FF6B35;color:#fff;}.kds-btn.ready{background:#22C55E;color:#fff;}.kds-btn.reprint{background:var(--surface);color:var(--text);border:1px solid var(--border);}.kds-btn.notify{background:var(--blue-bg);color:var(--blue-text);border:1px solid rgba(96,165,250,0.2);}
+.kds-empty{text-align:center;padding:24px;color:var(--muted);font-size:13px;}
+.kds-badge{background:var(--brand);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:8px;margin-left:4px;display:none;}
+.kds-badge.show{display:inline;}
+
+/* Top order type selector */
+.top-order-type{display:flex;gap:4px;align-items:center;}
+.tot-btn{padding:5px 10px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);
+  font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s;
+  font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.tot-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+.tot-btn:hover:not(.active){background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);}
+/* Table selector in top bar (for dine in) */
+.top-table-sel{display:none;align-items:center;gap:6px;margin-left:6px;}
+.top-table-sel.show{display:flex;}
+.top-table-sel-label{font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;}
+.tts-btn{width:28px;height:24px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);
+  font-size:11px;font-weight:700;cursor:pointer;transition:all 0.12s;}
+.tts-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+
+.prod-group-head{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 4px 6px;font-size:13px;font-weight:700;color:var(--text);
+  border-bottom:1.5px solid var(--border);margin-bottom:4px;margin-top:14px;}
+.prod-group-head:first-child{margin-top:0;}
 </style>
 </head>
 <body>
@@ -1251,8 +1205,7 @@ body.landing #welcome-banner{display:none !important;}
     </div>
   </section>
 
-  <div class="lp-section-outer bg-surface" id="features-outer"><section class="lp-section" id="features">
-    <div class="lp-center">
+  <section class="bg-surface" id="features-outer"><div class="lp-section"><div class="lp-center">
       <div class="lp-tag">Features</div>
       <div class="lp-h2">Everything your restaurant needs</div>
       <p class="lp-sub">Built for Indian restaurants &mdash; from street food stalls to full-service dining. No complicated setup.</p>
@@ -1267,7 +1220,7 @@ body.landing #welcome-banner{display:none !important;}
     </div>
   </section>
 
-  </section></div><section class="lp-section" id="how-it-works">
+  </div></div></section><section class="lp-section" id="how-it-works">
     <div class="lp-center" style="margin-bottom:0">
       <div class="lp-tag">How it works</div>
       <div class="lp-h2">Up and running in minutes</div>
@@ -1390,7 +1343,15 @@ body.landing #welcome-banner{display:none !important;}
       <button class="pos-nav-link" onclick="posNavTo('settings',this)">&#x2699;&#xFE0F; Settings</button>
     </div>
     <div class="pos-nav-right">
-      <span class="pos-kiosk-pill" id="kiosk-pill-label">KIOSK #1</span>
+      <div class="top-order-type" id="top-order-type">
+        <button class="tot-btn" id="tot-dine" onclick="setOrderType('dine')">🍽 Dine In</button>
+        <button class="tot-btn active" id="tot-take" onclick="setOrderType('take')">🛍 Takeaway</button>
+        <button class="tot-btn" id="tot-stall" onclick="setOrderType('stall')">🏪 Stall</button>
+      </div>
+      <div class="top-table-sel" id="top-table-sel">
+        <span class="top-table-sel-label">Table:</span>
+        <div id="top-table-btns" style="display:flex;flex-wrap:wrap;gap:3px;max-width:200px"></div>
+      </div>
       <span class="pos-clock" id="pos-clock">--:--</span>
       
       
@@ -1403,14 +1364,23 @@ body.landing #welcome-banner{display:none !important;}
     <button class="pos-mob-item" onclick="posNavTo('products',this);closePosMobNav()">&#x1F37D; Products</button>
     <button class="pos-mob-item" onclick="posNavTo('categories',this);closePosMobNav()">&#x1F3F7; Categories</button>
     <button class="pos-mob-item" onclick="posNavTo('settings',this);closePosMobNav()">&#x2699; Settings</button>
-    <button class="pos-mob-item" style="color:rgba(255,255,255,0.4)" style="display:none"></div>
+  </div>
 <div class="pos-content">
   <!-- ORDER PAGE -->
   <div class="pos-page active" id="pos-page-order">
-      <div class="waiter-alerts-wrap">
-      <div class="waiter-alerts" id="waiter-alerts" style="display:none"></div>
-    </div>
-    <div class="order-layout">
+    
+      <div class="table-selector-wrap" id="table-selector-wrap" style="display:none">
+        <span class="table-selector-label">🪑 Table:</span>
+        <select class="table-selector" id="table-selector" onchange="onTableChange(this.value)">
+          <option value="">— Select table —</option>
+        </select>
+        <div class="wa-status none" id="wa-status-indicator">
+          <span class="wa-status-dot"></span>
+          <span id="wa-status-text">No WhatsApp</span>
+        </div>
+      </div>
+      <div id="waiter-alerts" class="waiter-alerts" style="display:none"></div>
+      <div class="order-layout">
       <div class="menu-pane">
         <div class="cat-strip" id="cat-strip-order"></div>
         <div id="menu-sections-order"></div>
@@ -1420,15 +1390,8 @@ body.landing #welcome-banner{display:none !important;}
           <div class="cart-title">Current Order</div>
           <span class="cart-count" id="cart-count-desk">0</span>
         </div>
-        <div class="order-type-bar" id="order-type-bar">
-          <button class="ot-btn active" id="ot-dine" onclick="setOrderType('dine')">🍽 Dine In</button>
-          <button class="ot-btn" id="ot-take" onclick="setOrderType('take')">🛍 Takeaway</button>
-          <button class="ot-btn" id="ot-stall" onclick="setOrderType('stall')">🏪 Stall</button>
-        </div>
-        <div class="table-num-row" id="table-num-row">
-          <span class="table-num-label">Table</span>
-          <div class="table-num-btns" id="table-num-btns"></div>
-        </div>
+        
+        <div class="table-num-row" id="table-num-row"><span style="font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap">Table</span><div class="table-num-btns" id="table-num-btns" style="display:flex;flex-wrap:wrap;gap:4px;flex:1"></div></div>
         <div class="cart-items" id="cart-items-desk"><div class="cart-empty"><span style="font-size:26px">🛒</span>Tap items to add</div></div>
         <div class="cart-foot">
           <div class="tot-row"><span>Subtotal</span><span id="subtotal-d">$0.00</span></div>
@@ -1447,35 +1410,40 @@ body.landing #welcome-banner{display:none !important;}
     </div>
   </div>
 
-  
+  <!-- KOT MODAL -->
+<div class="kot-overlay" id="kot-overlay">
+  <div class="kot-modal">
+    <div class="kot-head"><div class="kot-title">Kitchen Order Ticket</div><span class="kot-badge" id="kot-badge">KOT #1</span></div>
+    <div class="kot-body">
+      <div class="kot-biz" id="kot-biz"></div>
+      <div class="kot-num" id="kot-num">#101</div>
+      <div class="kot-meta" id="kot-meta"></div>
+      <hr class="kot-divider"/>
+      <div id="kot-items"></div>
+      <hr class="kot-divider"/>
+      <div style="font-size:10px;color:#999;text-align:center" id="kot-time"></div>
+    </div>
+    <div class="kot-foot">
+      <button class="kot-print-btn" onclick="printKOT()">🖨️ Print KOT</button>
+      <button class="kot-send-btn" onclick="closeKOT()">✓ Sent to Kitchen</button>
+    </div>
+  </div>
+</div>
+
 <!-- KDS PAGE -->
 <div class="pos-page" id="pos-page-kds">
   <div class="kds-wrap">
     <div class="kds-header">
       <div class="kds-title">🍳 Kitchen Display</div>
-      <div class="kds-actions">
+      <div class="kds-actions" style="display:flex;align-items:center;gap:10px">
         <button class="kds-refresh-btn" onclick="loadKDS()">↻ Refresh</button>
-        <div class="kds-legend">
-          <span class="kds-dot yellow"></span>Pending
-          <span class="kds-dot orange" style="margin-left:8px"></span>Preparing
-          <span class="kds-dot green" style="margin-left:8px"></span>Ready
-          <span class="kds-dot red" style="margin-left:8px"></span>Rejected
-        </div>
+        <div class="kds-legend"><span class="kds-dot yellow"></span> Pending <span class="kds-dot orange" style="margin-left:6px"></span> Preparing <span class="kds-dot green" style="margin-left:6px"></span> Ready</div>
       </div>
     </div>
-    <div class="kds-columns" id="kds-columns">
-      <div class="kds-col">
-        <div class="kds-col-head yellow">⏳ Pending</div>
-        <div class="kds-cards" id="kds-pending"></div>
-      </div>
-      <div class="kds-col">
-        <div class="kds-col-head orange">🔥 Preparing</div>
-        <div class="kds-cards" id="kds-preparing"></div>
-      </div>
-      <div class="kds-col">
-        <div class="kds-col-head green">✅ Ready</div>
-        <div class="kds-cards" id="kds-ready"></div>
-      </div>
+    <div class="kds-columns">
+      <div><div class="kds-col-head yellow">⏳ Pending</div><div class="kds-cards" id="kds-pending"></div></div>
+      <div><div class="kds-col-head orange">🔥 Preparing</div><div class="kds-cards" id="kds-preparing"></div></div>
+      <div><div class="kds-col-head green">✅ Ready</div><div class="kds-cards" id="kds-ready"></div></div>
     </div>
   </div>
 </div>
@@ -1504,6 +1472,12 @@ body.landing #welcome-banner{display:none !important;}
   <div class="pos-page" id="pos-page-products">
     <div class="mgmt-wrap">
       <div class="section-hd"><h2>Products</h2><button class="add-new-btn" onclick="newProduct()">+ Add Product</button></div>
+      <div class="cat-filter-bar" id="prod-cat-filter" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;padding:0 2px"></div>
+      <div class="bulk-action-bar" id="bulk-bar" style="display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--brand-lt);border:1px solid rgba(232,68,10,0.2);border-radius:var(--radius-sm);margin-bottom:10px">
+        <span id="bulk-count" style="font-size:12px;font-weight:600;color:var(--brand)">0 selected</span>
+        <button onclick="deleteSelectedProducts()" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">🗑 Delete Selected</button>
+        <button onclick="clearBulkSelect()" style="background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer">Cancel</button>
+      </div>
       <div class="prod-list" id="prod-list"></div>
     </div>
   </div>
@@ -1550,7 +1524,6 @@ body.landing #welcome-banner{display:none !important;}
         </div>
         <div class="settings-section" style="margin-top:16px">
             <h3>&#x1F4F1; WhatsApp Bill Sharing</h3>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Set a short code for your restaurant. Customers scan the QR at their table → WhatsApp opens → they get their bill automatically.</p>
             <div class="settings-row">
               <div>
                 <div class="sr-label">Pay4 WhatsApp Number</div>
@@ -1583,12 +1556,32 @@ body.landing #welcome-banner{display:none !important;}
               style="background:var(--blue);margin-top:16px">
               &#x1F4F2; Generate Table QR Cards
             </button>
+
+          <div class="settings-section" style="margin-top:16px">
+            <h3>🪑 Manage Tables</h3>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">Set table names and count. Generate individual or all-table QR codes.</p>
+            <div class="settings-row" style="margin-bottom:10px">
+              <div><div class="sr-label">Number of Tables</div><div class="sr-sub">Dine In only</div></div>
+              <input class="sr-input" id="set-table-count-main" type="number" min="1" max="100" placeholder="10" style="width:80px"
+                onchange="saveTableCount(this.value)"/>
+            </div>
+            <div id="table-names-editor" style="max-height:260px;overflow-y:auto;margin-bottom:10px"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <button class="save-settings-btn" onclick="generateAllTableQRs()" style="background:var(--blue);flex:1">
+                📲 QR — All Tables
+              </button>
+              <button class="save-settings-btn" onclick="generateTakeawayQR()" style="background:var(--green);flex:1">
+                🛍 QR — Takeaway
+              </button>
+              <button class="save-settings-btn" onclick="generateStallQR()" style="background:var(--green);flex:1">
+                🏪 QR — Stall
+              </button>
+            </div>
+          </div>
           </div>
         <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
-          <button class="save-settings-btn" onclick="confirmLogout()" style="background:var(--red-bg);color:var(--red);border:1.5px solid rgba(239,68,68,0.2);margin-top:8px">Sign Out</button>
           <div class="settings-section" style="margin-top:16px">
             <h3>&#x1F512; Change Password</h3>
-            <form onsubmit="return false" autocomplete="off">
             <div class="settings-row">
               <div><div class="sr-label">New Password</div><div class="sr-sub">Min 8 characters</div></div>
               <input class="sr-input" id="set-new-password" type="password" placeholder="New password"/>
@@ -1628,29 +1621,68 @@ body.landing #welcome-banner{display:none !important;}
 <div class="editor-overlay" id="checkout-overlay">
   <div class="checkout-modal">
     <div class="co-head">
-      <div class="co-title">Checkout</div>
+      <div class="co-title" id="co-title">Checkout</div>
       <button class="em-close" onclick="closeCheckout()">✕</button>
     </div>
-    <div class="co-body">
-      <div class="co-summary" id="co-summary"></div>
-      <div class="form-group">
-        <label class="form-label">Customer Name <span style="color:var(--faint);font-weight:400;text-transform:none">(optional)</span></label>
-        <input class="form-input" id="co-name" placeholder="John Smith"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email <span style="color:var(--faint);font-weight:400;font-size:10px;text-transform:none">(optional)</span></label>
-        <input class="form-input" id="co-email" type="email" placeholder="customer@email.com" autocomplete="off"/>
-        
-      </div>
-      <div class="form-group">
-        <label class="form-label">Phone <span style="color:var(--red);font-weight:600;font-size:10px;text-transform:none">* required</span></label>
-        <input class="form-input" id="co-phone" type="tel" placeholder="+91 98765 43210" required/>
-      </div>
+    <div class="co-steps-bar">
+      <div class="co-step-tab active" id="co-tab-1">1 · Customer</div>
+      <div class="co-step-tab" id="co-tab-2">2 · Payment</div>
     </div>
-    <div class="co-foot">
-      <button class="co-place-btn" id="co-place-btn" onclick="placeOrder()">
-        Place Order &amp; Pay →
-      </button>
+    <div class="co-body" id="co-body">
+      <div class="co-step active" id="co-step-1">
+        <div class="co-summary-compact" id="co-summary"></div>
+        <div class="form-group">
+          <label class="form-label">Phone <span style="color:var(--red);font-weight:600;font-size:10px">* required</span></label>
+          <input class="form-input" id="co-phone" type="tel" placeholder="+91 98765 43210" required oninput="this.style.borderColor=''"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Name <span style="color:var(--faint);font-weight:400;font-size:10px">(optional)</span></label>
+          <input class="form-input" id="co-name" placeholder="Customer name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email <span style="color:var(--faint);font-weight:400;font-size:10px">(optional)</span></label>
+          <input class="form-input" id="co-email" type="email" placeholder="email (optional)" autocomplete="off"/>
+        </div>
+        <div class="co-foot">
+          <button class="co-place-btn" onclick="goToPaymentStep()">Next: Payment →</button>
+        </div>
+      </div>
+      <div class="co-step" id="co-step-2">
+        <div class="co-summary-compact" id="co-summary-2"></div>
+        <div class="pay-method-grid">
+          <button class="pay-method-btn selected" id="pm-upi" onclick="selectPayMethod('upi')">
+            <div class="pm-icon">📱</div><div class="pm-label">UPI / QR</div>
+            <div class="pm-sub">GPay, PhonePe, Paytm</div>
+          </button>
+          <button class="pay-method-btn" id="pm-cash" onclick="selectPayMethod('cash')">
+            <div class="pm-icon">💵</div><div class="pm-label">Cash</div>
+            <div class="pm-sub">Collect from customer</div>
+          </button>
+          <button class="pay-method-btn" id="pm-card" onclick="selectPayMethod('card')">
+            <div class="pm-icon">💳</div><div class="pm-label">Card</div>
+            <div class="pm-sub">Debit / Credit</div>
+          </button>
+          <button class="pay-method-btn" id="pm-other" onclick="selectPayMethod('other')">
+            <div class="pm-icon">🔖</div><div class="pm-label">Other</div>
+            <div class="pm-sub">Voucher, wallet</div>
+          </button>
+        </div>
+        <div id="upi-warn-row" style="display:none;align-items:center;gap:8px;background:#FFFBEB;border:1.5px solid var(--amber);border-radius:8px;padding:10px 12px;margin-top:8px">
+          <span style="font-size:18px">⚠️</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:#92400E">UPI ID not configured</div>
+            <div style="font-size:11px;color:#B45309;margin-top:2px">Order will be marked as Cash, or configure UPI first.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <button onclick="closeCheckout();posNavTo('settings',null)" style="background:#E8440A;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Set UPI →</button>
+            <button onclick="selectPayMethod('cash')" style="background:#fff;color:#92400E;border:1px solid var(--amber);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Use Cash</button>
+          </div>
+        </div>
+        <div class="co-foot" style="margin-top:14px;display:flex;gap:8px">
+          <button class="co-place-btn" style="background:var(--surface);color:var(--text);border:1.5px solid var(--border);flex:0 0 80px" onclick="goToStep1()">← Back</button>
+          <button class="co-place-btn" id="co-place-btn" onclick="placeOrder()" style="flex:1">Place Order →</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1663,29 +1695,6 @@ body.landing #welcome-banner{display:none !important;}
       <button class="em-close" onclick="closeUpiModal()">✕</button>
     </div>
     <div class="upi-body" id="upi-body"></div>
-  </div>
-</div>
-
-<!-- KOT MODAL -->
-<div class="kot-overlay" id="kot-overlay">
-  <div class="kot-modal">
-    <div class="kot-head">
-      <div class="kot-title">Kitchen Order Ticket</div>
-      <span class="kot-badge" id="kot-badge">KOT #1</span>
-    </div>
-    <div class="kot-body">
-      <div class="kot-biz" id="kot-biz"></div>
-      <div class="kot-num" id="kot-num">#101</div>
-      <div class="kot-meta" id="kot-meta"></div>
-      <hr class="kot-divider"/>
-      <div id="kot-items"></div>
-      <hr class="kot-divider"/>
-      <div style="font-size:11px;color:#9A9290;text-align:center" id="kot-time"></div>
-    </div>
-    <div class="kot-foot">
-      <button class="kot-print-btn" onclick="printKOT()">🖨️ Print KOT</button>
-      <button class="kot-send-btn" onclick="closeKOT()">✓ Sent to Kitchen</button>
-    </div>
   </div>
 </div>
 
@@ -2209,31 +2218,43 @@ let _selectedTable = null;   // currently selected table number
 let _waPollingInterval = null;
 
 // ── Load settings into form ──────────────────────────────────────
-// ── WA extra settings helpers (no override pattern — avoids recursion) ──
-function getWASettings() {
-  return {
-    waCode:     localStorage.getItem('bite_wa_code') || '',
-    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
-  };
-}
-
-function populateWASettingsForm() {
-  const wa = getWASettings();
-  const waCodeEl     = document.getElementById('set-wa-code');
+const _origPopulateSettings = populateSettingsForm;
+function populateSettingsForm() {
+  _origPopulateSettings();
+  const s = loadSettings();
+  const waCodeEl = document.getElementById('set-wa-code');
   const tableCountEl = document.getElementById('set-table-count');
-  const pay4WaEl     = document.getElementById('set-pay4-wa');
-  if (waCodeEl)     waCodeEl.value     = wa.waCode || '';
-  if (tableCountEl) tableCountEl.value = wa.tableCount || 10;
-  if (pay4WaEl)     pay4WaEl.value     = localStorage.getItem('bite_pay4_wa_number') || '';
+  const pay4WaEl = document.getElementById('set-pay4-wa');
+  if (waCodeEl) waCodeEl.value = s.waCode || '';
+  if (tableCountEl) tableCountEl.value = s.tableCount || 10;
+  if (pay4WaEl) pay4WaEl.value = localStorage.getItem('bite_pay4_wa_number') || '';
+  updateWaPreview();
+  buildTableSelector(s.tableCount || 10);
+  populateWASettingsForm();
+  populateTableSettings();
 }
 
-function saveWASettings() {
-  const waCode     = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+// ── Save settings ────────────────────────────────────────────────
+const _origSaveSettings = saveSettings;
+function saveSettings() {
+  _origSaveSettings();
+  const waCode = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
   const tableCount = parseInt(document.getElementById('set-table-count')?.value) || 10;
   localStorage.setItem('bite_wa_code', waCode || '');
   localStorage.setItem('bite_table_count', tableCount);
   buildTableSelector(tableCount);
   if (waCode) startWAPolling();
+}
+
+// ── Load extra settings ──────────────────────────────────────────
+const _origLoadSettings = loadSettings;
+function loadSettings() {
+  const base = _origLoadSettings();
+  return {
+    ...base,
+    waCode: localStorage.getItem('bite_wa_code') || '',
+    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
+  };
 }
 
 function updateWaPreview() {
@@ -2466,138 +2487,110 @@ function printQRCards() {
   win.document.close();
 }
 
-// ── Init WA system when POS launches (called from initWASystem) ──
-function initWASystem() {
-  const wa = getWASettings();
-  if (wa.waCode) {
-    buildTableSelector(wa.tableCount || 10);
+// ── Start polling when POS launches ──────────────────────────────
+const _origLaunchPOS = launchPOS;
+async function launchPOS() {
+  await _origLaunchPOS();
+  const s = loadSettings();
+  if (s.waCode) {
+    buildTableSelector(s.tableCount || 10);
     startWAPolling();
   }
 }
 
-// WA receipt triggered directly from confirmPaymentYes()
-
-
-
-// ══ PRODUCTS PAGE: Category filter + Bulk Select ══════════════
-let _selectedProds = new Set();
-let _prodCatFilter = 'all';
-
-function renderProdCatFilter() {
-  const el = document.getElementById('prod-cat-filter');
-  if (!el) return;
-  const cats = [{id:'all', name:'All'}].concat(categories);
-  el.innerHTML = cats.map(cat =>
-    `<button onclick="setProdCatFilter('${cat.id}')"
-      style="font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;border:1.5px solid ${_prodCatFilter===String(cat.id)?'var(--brand)':'var(--border)'};background:${_prodCatFilter===String(cat.id)?'var(--brand-lt)':'var(--card)'};color:${_prodCatFilter===String(cat.id)?'var(--brand)':'var(--muted)'};transition:all 0.15s">
-      ${cat.icon||''} ${cat.name}
-    </button>`
-  ).join('');
-}
-
-function setProdCatFilter(catId) {
-  _prodCatFilter = String(catId);
-  renderProdCatFilter();
-  loadProducts();
-}
-
-function toggleProdSelect(prodId, cb) {
-  if (cb.checked) {
-    _selectedProds.add(prodId);
-  } else {
-    _selectedProds.delete(prodId);
+// ── Hook into confirmPaymentYes to also send WA receipt ──────────
+const _origConfirmPaymentYes = confirmPaymentYes;
+async function confirmPaymentYes() {
+  await _origConfirmPaymentYes();
+  // Also try WhatsApp receipt (non-blocking)
+  if (window._pendingOrder) {
+    sendWhatsAppReceipt(window._pendingOrder).catch(() => {});
   }
-  const bar = document.getElementById('bulk-bar');
-  const cnt = document.getElementById('bulk-count');
-  if (bar) bar.style.display = _selectedProds.size > 0 ? 'flex' : 'none';
-  if (cnt) cnt.textContent = _selectedProds.size + ' selected';
-}
-
-function clearBulkSelect() {
-  _selectedProds.clear();
-  const bar = document.getElementById('bulk-bar');
-  if (bar) bar.style.display = 'none';
-  // Uncheck all
-  document.querySelectorAll('.prod-select-cb').forEach(cb => cb.checked = false);
-}
-
-async function deleteSelectedProducts() {
-  if (_selectedProds.size === 0) return;
-  if (!confirm(`Delete ${_selectedProds.size} product(s)? This cannot be undone.`)) return;
-  const ids = Array.from(_selectedProds);
-  const { error } = await sb.from('products').delete().in('id', ids).eq('tenant_id', window._tenantId);
-  if (error) { showToast('Error deleting products'); return; }
-  showToast(`${ids.length} product(s) deleted`);
-  clearBulkSelect();
-  await loadProducts();
 }
 
 
+// ══ INIT ══
 
-// ══ ORDER TYPE SYSTEM ═══════════════════════════════════════════
-let _orderType = 'take';  // 'dine' | 'take' | 'stall'
+// ══ ORDER TYPE SYSTEM ════════════════════════════════════════════
+let _orderType = 'take';
 let _tableNumber = null;
 let _selectedPayMethod = 'upi';
-let _kotOrderId = null;
 
 function setOrderType(type) {
   _orderType = type;
   _tableNumber = null;
+  // Update top bar buttons
   ['dine','take','stall'].forEach(t => {
-    const btn = document.getElementById('ot-' + t);
-    if (btn) btn.classList.toggle('active', t === type);
+    const top = document.getElementById('tot-' + t);
+    if (top) top.classList.toggle('active', t === type);
+    const cart = document.getElementById('ot-' + t);
+    if (cart) cart.classList.toggle('active', t === type);
   });
-  const tableRow = document.getElementById('table-num-row');
-  if (tableRow) {
-    tableRow.classList.toggle('show', type === 'dine');
-  }
+  // Show/hide table picker in top bar
+  const topTableSel = document.getElementById('top-table-sel');
+  if (topTableSel) topTableSel.classList.toggle('show', type === 'dine');
+  // Old cart pane table row
+  const tr = document.getElementById('table-num-row');
+  if (tr) tr.classList.toggle('show', type === 'dine');
   if (type === 'dine') buildTableNumBtns();
   updateCartTitle();
 }
 
 function buildTableNumBtns() {
-  const wa = getWASettings();
-  const count = wa.tableCount || 10;
-  const container = document.getElementById('table-num-btns');
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 1; i <= count; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'tnum-btn' + (_tableNumber == i ? ' active' : '');
-    btn.textContent = i;
-    btn.onclick = () => selectTable(i);
-    container.appendChild(btn);
-  }
+  const tables = loadTableConfig();
+  // Top bar buttons
+  const topContainer = document.getElementById('top-table-btns');
+  // Cart pane buttons
+  const cartContainer = document.getElementById('table-num-btns');
+  [topContainer, cartContainer].forEach(container => {
+    if (!container) return;
+    container.innerHTML = '';
+    tables.forEach((tbl, i) => {
+      const n = i + 1;
+      const btn = document.createElement('button');
+      btn.className = (container === topContainer ? 'tts-btn' : 'tnum-btn') + (_tableNumber == n ? ' active' : '');
+      btn.textContent = tbl.name || n;
+      btn.title = tbl.name || ('Table ' + n);
+      btn.onclick = function() {
+        _tableNumber = n;
+        _tableName = tbl.name || ('Table ' + n);
+        document.querySelectorAll('.tts-btn, .tnum-btn').forEach(b => {
+          b.classList.toggle('active', b === btn || b.textContent === btn.textContent);
+        });
+        updateCartTitle();
+      };
+      container.appendChild(btn);
+    });
+  });
 }
 
-function selectTable(n) {
-  _tableNumber = n;
-  document.querySelectorAll('.tnum-btn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.textContent) === n);
-  });
-  updateCartTitle();
+function loadTableConfig() {
+  try {
+    const saved = localStorage.getItem('bite_tables_config');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  const count = parseInt(localStorage.getItem('bite_table_count') || '10');
+  return Array.from({length: count}, (_, i) => ({ name: 'T' + (i+1) }));
 }
 
 function updateCartTitle() {
   const el = document.querySelector('.cart-title');
   if (!el) return;
   if (_orderType === 'dine' && _tableNumber) {
-    el.textContent = 'Table ' + _tableNumber;
-  } else if (_orderType === 'dine') {
-    el.textContent = 'Dine In';
-  } else if (_orderType === 'take') {
-    el.textContent = 'Takeaway';
-  } else {
-    el.textContent = 'Stall Order';
-  }
+    el.textContent = _tableName || ('Table ' + _tableNumber);
+  } else if (_orderType === 'dine') el.textContent = 'Dine In';
+  else if (_orderType === 'take') el.textContent = 'Takeaway';
+  else el.textContent = 'Stall Order';
 }
 
-// ══ 2-STEP CHECKOUT ═════════════════════════════════════════════
+let _tableName = null;
+
+// ══ 2-STEP CHECKOUT ══════════════════════════════════════════════
 function goToStep1() {
-  document.getElementById('co-step-1').classList.add('active');
-  document.getElementById('co-step-2').classList.remove('active');
-  document.getElementById('co-tab-1').className = 'co-step-tab active';
-  document.getElementById('co-tab-2').className = 'co-step-tab';
+  document.getElementById('co-step-1')?.classList.add('active');
+  document.getElementById('co-step-2')?.classList.remove('active');
+  if (document.getElementById('co-tab-1')) document.getElementById('co-tab-1').className = 'co-step-tab active';
+  if (document.getElementById('co-tab-2')) document.getElementById('co-tab-2').className = 'co-step-tab';
 }
 
 function goToPaymentStep() {
@@ -2608,404 +2601,505 @@ function goToPaymentStep() {
     showToast('Phone number is required');
     return;
   }
-  // Populate step 2 summary
-  const s2 = document.getElementById('co-summary-2');
+  // Copy summary to step 2
   const s1 = document.getElementById('co-summary');
+  const s2 = document.getElementById('co-summary-2');
   if (s2 && s1) s2.innerHTML = s1.innerHTML;
-  // Show UPI as default selected
   selectPayMethod(_selectedPayMethod || 'upi');
-  document.getElementById('co-step-1').classList.remove('active');
-  document.getElementById('co-step-2').classList.add('active');
-  document.getElementById('co-tab-1').className = 'co-step-tab done';
-  document.getElementById('co-tab-2').className = 'co-step-tab active';
+  document.getElementById('co-step-1')?.classList.remove('active');
+  document.getElementById('co-step-2')?.classList.add('active');
+  if (document.getElementById('co-tab-1')) document.getElementById('co-tab-1').className = 'co-step-tab done';
+  if (document.getElementById('co-tab-2')) document.getElementById('co-tab-2').className = 'co-step-tab active';
 }
 
 function selectPayMethod(method) {
   _selectedPayMethod = method;
   ['upi','cash','card','other'].forEach(m => {
     const btn = document.getElementById('pm-' + m);
-    if (btn) {
-      btn.classList.toggle('selected', m === method);
-      btn.style.borderColor = '';
-    }
+    if (btn) { btn.classList.toggle('selected', m === method); btn.style.borderColor = ''; }
   });
-  // UPI not configured — show inline warning with action buttons
-  const s = loadSettings();
   const upiWarn = document.getElementById('upi-warn-row');
+  const s = loadSettings();
   if (method === 'upi' && !s.upiId) {
-    document.getElementById('pm-upi').style.borderColor = 'var(--amber)';
+    if (document.getElementById('pm-upi')) document.getElementById('pm-upi').style.borderColor = 'var(--amber)';
     if (upiWarn) upiWarn.style.display = 'flex';
   } else {
     if (upiWarn) upiWarn.style.display = 'none';
   }
 }
 
-// ══ KOT SYSTEM ══════════════════════════════════════════════════
-function showKOT(order) {
-  const s = loadSettings();
-  const bizName = s.bizName || 'Restaurant';
-  const now = new Date();
-  document.getElementById('kot-biz').textContent = bizName;
-  document.getElementById('kot-num').textContent = '#' + order.order_number;
-  document.getElementById('kot-badge').textContent = 'KOT #' + order.order_number;
-  document.getElementById('kot-time').textContent =
-    now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',hour12:true}) +
-    ' · ' + now.toLocaleDateString('en-IN', {day:'numeric',month:'short'});
-
-  const metaEl = document.getElementById('kot-meta');
-  let metaHtml = '<span class="kot-pill">' +
-    (_orderType === 'dine' ? '🍽 Dine In' : _orderType === 'take' ? '🛍 Takeaway' : '🏪 Stall') +
-    '</span>';
-  if (_orderType === 'dine' && _tableNumber) {
-    metaHtml += '<span class="kot-pill table">Table ' + _tableNumber + '</span>';
-  }
-  if (order.customer_name) {
-    metaHtml += '<span class="kot-pill">' + order.customer_name + '</span>';
-  }
-  metaEl.innerHTML = metaHtml;
-
-  const itemsEl = document.getElementById('kot-items');
-  const entries = Object.values(cart);
-  itemsEl.innerHTML = entries.map(it =>
-    '<div class="kot-item"><span class="kot-item-name">' +
-    (it.icon ? it.icon + ' ' : '') + it.name +
-    '</span><span class="kot-item-qty">× ' + it.qty + '</span></div>'
-  ).join('');
-
-  _kotOrderId = order.id;
-  document.getElementById('kot-overlay').classList.add('show');
-}
-
-function closeKOT() {
-  document.getElementById('kot-overlay').classList.remove('show');
-}
-
-function printKOT() {
-  const kotBody = document.querySelector('.kot-modal').innerHTML;
-  const win = window.open('', '_blank', 'width=320,height=500');
-  win.document.write('<html><head><title>KOT</title><style>body{font-family:monospace;padding:12px;width:280px;font-size:12px;}.kot-head{background:#1A1208;color:#fff;padding:10px;display:flex;justify-content:space-between;margin:-12px -12px 12px;}.kot-badge{background:#E8440A;padding:2px 6px;border-radius:4px;font-size:10px;}.kot-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #ddd;}.kot-item-qty{font-weight:bold;color:#E8440A;}.kot-divider{border-top:1px dashed #999;margin:8px 0;}.kot-pill{display:inline-block;background:#f0ede8;padding:2px 8px;border-radius:10px;font-size:10px;margin-right:4px;}.kot-pill.table{background:#FEF0EB;color:#E8440A;}.kot-meta{margin:6px 0;}.kot-biz{text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#666;}.kot-num{text-align:center;font-size:20px;font-weight:bold;margin:4px 0 8px;}.screen-actions,.kot-foot{display:none}</style></head><body onload="window.print()">');
-  win.document.write(kotBody);
-  win.document.write('</body></html>');
-  win.document.close();
-}
-
-// ══ OVERRIDE openCheckout to populate summary neatly ════════════
+// ══ OVERRIDE openCheckout ════════════════════════════════════════
 const _origOpenCheckout = openCheckout;
 function openCheckout() {
-  // Validate dine in has table
   if (_orderType === 'dine' && !_tableNumber) {
     showToast('Please select a table number first');
+    document.getElementById('table-num-row')?.classList.add('show');
     buildTableNumBtns();
-    document.getElementById('table-num-row').classList.add('show');
     return;
   }
   _origOpenCheckout();
-
   // Build compact summary
   const entries = Object.values(cart);
   const sub = entries.reduce((s,i) => s + i.price * i.qty, 0);
   const tax = sub * getTax();
   const total = sub + tax;
-
-  const orderLabel = _orderType === 'dine'
-    ? '🍽 Dine In — Table ' + _tableNumber
+  const orderLabel = _orderType === 'dine' ? '🍽 Dine In — Table ' + _tableNumber
     : _orderType === 'take' ? '🛍 Takeaway' : '🏪 Stall';
-
-  const summaryHtml =
-    '<div style="font-size:11px;font-weight:700;color:var(--brand);margin-bottom:6px">' +
-    orderLabel + ' · ' + entries.length + ' item' + (entries.length > 1 ? 's' : '') + '</div>' +
-    entries.map(i =>
-      '<div class="co-sum-row"><span>' + (i.icon||'') + ' ' + i.name + ' ×' + i.qty + '</span>' +
-      '<span>₹' + (i.price * i.qty).toFixed(2) + '</span></div>'
-    ).join('') +
-    '<div class="co-sum-row co-sum-total"><span>Total</span><span>₹' + total.toFixed(2) + '</span></div>';
-
+  const summaryHtml = '<div style="font-size:11px;font-weight:700;color:var(--brand);margin-bottom:6px">' + orderLabel + ' · ' + entries.length + ' item' + (entries.length > 1 ? 's' : '') + '</div>'
+    + entries.map(i => '<div class="co-sum-row"><span>' + (i.icon||'') + ' ' + i.name + ' ×' + i.qty + '</span><span>₹' + (i.price * i.qty).toFixed(2) + '</span></div>').join('')
+    + '<div class="co-sum-row co-sum-total"><span>Total</span><span>₹' + total.toFixed(2) + '</span></div>';
   const s1 = document.getElementById('co-summary');
   if (s1) s1.innerHTML = summaryHtml;
-
-  // Reset to step 1
   goToStep1();
   _selectedPayMethod = 'upi';
 }
 
+// ══ KOT ══════════════════════════════════════════════════════════
+function showKOT(order) {
+  const s = loadSettings();
+  const bizName = s.bizName || 'Restaurant';
+  const now = new Date();
+  if (document.getElementById('kot-biz')) document.getElementById('kot-biz').textContent = bizName;
+  if (document.getElementById('kot-num')) document.getElementById('kot-num').textContent = '#' + order.order_number;
+  if (document.getElementById('kot-badge')) document.getElementById('kot-badge').textContent = 'KOT #' + order.order_number;
+  if (document.getElementById('kot-time')) document.getElementById('kot-time').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}) + ' · ' + now.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+  const metaEl = document.getElementById('kot-meta');
+  if (metaEl) {
+    let html = '<span class="kot-pill">' + (_orderType==='dine'?'🍽 Dine In':'_orderType'==='take'?'🛍 Takeaway':'🏪 Stall') + '</span>';
+    if (_orderType==='dine'&&_tableNumber) html += '<span class="kot-pill table">Table ' + _tableNumber + '</span>';
+    if (order.customer_name) html += '<span class="kot-pill">' + order.customer_name + '</span>';
+    metaEl.innerHTML = html;
+  }
+  const itemsEl = document.getElementById('kot-items');
+  if (itemsEl) {
+    const entries = Object.values(cart).length > 0 ? Object.values(cart) : (order.items || []);
+    itemsEl.innerHTML = entries.map(it => '<div class="kot-item"><span class="kot-item-name">' + (it.icon||it.product_icon||'') + ' ' + (it.name||it.product_name) + '</span><span class="kot-item-qty">× ' + (it.qty) + '</span></div>').join('');
+  }
+  document.getElementById('kot-overlay')?.classList.add('show');
+}
 
+function closeKOT() { document.getElementById('kot-overlay')?.classList.remove('show'); }
 
-// ══════════════════════════════════════════════════════════════════
-// KDS — Kitchen Display System
-// ══════════════════════════════════════════════════════════════════
+function printKOT() {
+  const body = document.querySelector('.kot-modal')?.innerHTML || '';
+  const win = window.open('','_blank','width=320,height=500');
+  if (!win) return;
+  win.document.write('<html><head><title>KOT</title><style>body{font-family:monospace;padding:10px;font-size:12px;}.kot-head{background:#1A1208;color:#fff;padding:8px;display:flex;justify-content:space-between;margin:-10px -10px 10px;}.kot-badge{background:#E8440A;padding:2px 6px;border-radius:4px;font-size:10px;}.kot-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed #ddd;}.kot-item-qty{font-weight:bold;color:#E8440A;}.kot-pill{display:inline-block;background:#f0ede8;padding:2px 8px;border-radius:10px;font-size:10px;margin-right:3px;}.kot-pill.table{background:#FEF0EB;color:#E8440A;}.kot-biz{text-align:center;font-size:10px;text-transform:uppercase;color:#666;margin-bottom:2px;}.kot-num{text-align:center;font-size:20px;font-weight:bold;margin-bottom:8px;}.kot-divider{border-top:1px dashed #999;margin:6px 0;}.kot-meta{margin:5px 0;text-align:center;}.kot-foot,.screen-actions{display:none;}</style></head><body onload="window.print()">');
+  win.document.write(body);
+  win.document.write('</body></html>');
+  win.document.close();
+}
 
+// ══ WA SETTINGS HELPERS ══════════════════════════════════════════
+function getWASettings() {
+  return { waCode: localStorage.getItem('bite_wa_code')||'', tableCount: parseInt(localStorage.getItem('bite_table_count')||'10') };
+}
+function populateWASettingsForm() {
+  const wa = getWASettings();
+  const w = document.getElementById('set-wa-code'); if(w) w.value = wa.waCode||'';
+  const t = document.getElementById('set-table-count'); if(t) t.value = wa.tableCount||10;
+  const p = document.getElementById('set-pay4-wa'); if(p) p.value = localStorage.getItem('bite_pay4_wa_number')||'';
+}
+function saveWASettings() {
+  const waCode = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+  const tableCount = parseInt(document.getElementById('set-table-count')?.value)||10;
+  localStorage.setItem('bite_wa_code', waCode||'');
+  localStorage.setItem('bite_table_count', tableCount);
+  buildTableNumBtns();
+}
+function initWASystem() {
+  const wa = getWASettings();
+  if (wa.waCode) buildTableNumBtns();
+}
+function updateWaPreview() {
+  const code = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
+  const prev = document.getElementById('wa-settings-preview');
+  const codeEl = document.getElementById('wa-code-preview');
+  if (!prev||!codeEl) return;
+  if (code) { codeEl.textContent = code+'-T1'; prev.style.display='block'; }
+  else prev.style.display='none';
+}
+
+// ══ PRODUCTS PAGE: Category filter + Bulk Select ══════════════
+let _selectedProds = new Set();
+let _prodCatFilter = 'all';
+
+function renderProdCatFilter() {
+  const el = document.getElementById('prod-cat-filter');
+  if (!el) return;
+  const cats = [{id:'all', name:'All', icon:''}].concat(categories||[]);
+  el.innerHTML = '';
+  cats.forEach(function(cat) {
+    const btn = document.createElement('button');
+    const isActive = _prodCatFilter === String(cat.id);
+    btn.textContent = (cat.icon ? cat.icon + ' ' : '') + cat.name;
+    btn.style.cssText = 'font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;margin:2px;border:1.5px solid ' + (isActive ? 'var(--brand)' : 'var(--border)') + ';background:' + (isActive ? 'var(--brand-lt)' : 'var(--card)') + ';color:' + (isActive ? 'var(--brand)' : 'var(--muted)') + ';';
+    btn.onclick = function() { setProdCatFilter(cat.id); };
+    el.appendChild(btn);
+  });
+}
+function setProdCatFilter(catId) {
+  _prodCatFilter = String(catId);
+  renderProdCatFilter();
+  renderProductList();
+}
+function selectAllInGroup(masterCb, groupName, items) {
+  if (items) {
+    items.forEach(p => {
+      if (masterCb.checked) _selectedProds.add(p.id);
+      else _selectedProds.delete(p.id);
+    });
+    // Check/uncheck rendered checkboxes
+    document.querySelectorAll('.prod-select-cb').forEach(cb => {
+      const item = cb.closest('.prod-item');
+      if (!item) return;
+      let prev = item.previousElementSibling;
+      while (prev && !prev.classList.contains('prod-group-head')) prev = prev.previousElementSibling;
+      if (prev && prev.dataset.groupname === groupName) cb.checked = masterCb.checked;
+    });
+  }
+  const bar = document.getElementById('bulk-bar');
+  const cnt = document.getElementById('bulk-count');
+  if (bar) bar.style.display = _selectedProds.size > 0 ? 'flex' : 'none';
+  if (cnt) cnt.textContent = _selectedProds.size + ' selected';
+}
+
+function toggleProdSelect(prodId, cb) {
+  if (cb.checked) _selectedProds.add(prodId); else _selectedProds.delete(prodId);
+  const bar = document.getElementById('bulk-bar');
+  const cnt = document.getElementById('bulk-count');
+  if (bar) bar.style.display = _selectedProds.size > 0 ? 'flex' : 'none';
+  if (cnt) cnt.textContent = _selectedProds.size + ' selected';
+}
+function clearBulkSelect() {
+  _selectedProds.clear();
+  const bar = document.getElementById('bulk-bar');
+  if (bar) bar.style.display = 'none';
+  document.querySelectorAll('.prod-select-cb').forEach(cb => cb.checked = false);
+}
+async function deleteSelectedProducts() {
+  if (_selectedProds.size === 0) return;
+  if (!confirm('Delete ' + _selectedProds.size + ' product(s)? Cannot be undone.')) return;
+  const ids = Array.from(_selectedProds);
+  const { error } = await sb.from('products').delete().in('id', ids).eq('tenant_id', window._tenantId);
+  if (error) { showToast('Error deleting'); return; }
+  showToast(ids.length + ' product(s) deleted');
+  clearBulkSelect();
+  await loadProducts();
+}
+
+// ══ KDS ═══════════════════════════════════════════════════════════
 let _kdsOrders = [];
-let _kdsRejections = {};  // { orderId: [itemIds rejected] }
-let _kdsSubscription = null;
-let _kdsTimers = {};      // { orderId: startTimestamp }
+let _kdsRejections = {};
+let _kdsTimers = {};
 
-// ── Load KDS orders ──────────────────────────────────────────────
 async function loadKDS() {
   if (!window._tenantId) return;
-  const { data, error } = await sb
-    .from('orders')
+  const { data } = await sb.from('orders')
     .select('*, order_items(id,product_name,product_icon,qty,unit_price,line_total)')
     .eq('tenant_id', window._tenantId)
     .in('status', ['pending','preparing','ready'])
     .order('created_at', { ascending: true });
-
-  if (error) { console.error('KDS load error:', error); return; }
   _kdsOrders = data || [];
   renderKDS();
   updateKDSBadge();
 }
 
-// ── Subscribe to real-time order updates ─────────────────────────
-function subscribeKDS() {
-  if (_kdsSubscription) return;
-  _kdsSubscription = sb
-    .channel('kds-orders')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'orders',
-      filter: 'tenant_id=eq.' + window._tenantId
-    }, () => { loadKDS(); })
-    .subscribe();
-}
-
-// ── Render all KDS columns ───────────────────────────────────────
 function renderKDS() {
-  const pending  = _kdsOrders.filter(o => o.status === 'pending');
-  const preparing= _kdsOrders.filter(o => o.status === 'preparing');
-  const ready    = _kdsOrders.filter(o => o.status === 'ready');
-
-  document.getElementById('kds-pending').innerHTML   = pending.length
-    ? pending.map(o => kdsCardHTML(o)).join('')
-    : '<div class="kds-empty"><div class="kds-empty-icon">✅</div>No pending orders</div>';
-
-  document.getElementById('kds-preparing').innerHTML = preparing.length
-    ? preparing.map(o => kdsCardHTML(o)).join('')
-    : '<div class="kds-empty"><div class="kds-empty-icon">🍳</div>Nothing preparing</div>';
-
-  document.getElementById('kds-ready').innerHTML     = ready.length
-    ? ready.map(o => kdsCardHTML(o)).join('')
-    : '<div class="kds-empty"><div class="kds-empty-icon">🔔</div>Nothing ready yet</div>';
-
-  // Start timers
-  _kdsOrders.forEach(o => {
-    if (!_kdsTimers[o.id]) _kdsTimers[o.id] = new Date(o.created_at).getTime();
-  });
-  updateKDSTimers();
+  const pend = _kdsOrders.filter(o=>o.status==='pending');
+  const prep = _kdsOrders.filter(o=>o.status==='preparing');
+  const rdy  = _kdsOrders.filter(o=>o.status==='ready');
+  const emptyHTML = (msg) => '<div class="kds-empty">' + msg + '</div>';
+  const pEl = document.getElementById('kds-pending');
+  const prEl = document.getElementById('kds-preparing');
+  const rEl = document.getElementById('kds-ready');
+  if (pEl)  pEl.innerHTML  = pend.length  ? pend.map(kdsCardHTML).join('')  : emptyHTML('✅ No pending orders');
+  if (prEl) prEl.innerHTML = prep.length  ? prep.map(kdsCardHTML).join('')  : emptyHTML('🍳 Nothing preparing');
+  if (rEl)  rEl.innerHTML  = rdy.length   ? rdy.map(kdsCardHTML).join('')   : emptyHTML('🔔 Nothing ready');
+  _kdsOrders.forEach(o => { if (!_kdsTimers[o.id]) _kdsTimers[o.id] = new Date(o.created_at).getTime(); });
 }
 
-// ── Single KDS card HTML ─────────────────────────────────────────
 function kdsCardHTML(order) {
-  const items = order.order_items || [];
-  const rejected = _kdsRejections[order.id] || [];
-  const orderType = order.order_type || 'take';
-  const tableNum  = order.table_number;
+  var items = order.order_items || [];
+  var rejected = _kdsRejections[order.id] || [];
+  var ot = order.order_type || 'take';
+  var typeLabel = ot === 'dine' ? ('Table ' + (order.table_number||'?')) : ot === 'take' ? 'Takeaway' : 'Stall';
 
-  const typeLabel = orderType === 'dine'
-    ? '🍽 Table ' + (tableNum || '?')
-    : orderType === 'take' ? '🛍 Takeaway' : '🏪 Stall';
-
-  const itemsHTML = items.map(item => {
-    const isRejected = rejected.includes(item.id);
-    return `<div class="kds-item-row ${isRejected ? 'unavail-item' : ''}" id="kds-item-${item.id}">
-      <span class="kds-item-qty">${item.qty}×</span>
-      <span class="kds-item-name">${item.product_icon || ''} ${item.product_name}</span>
-      ${isRejected
-        ? `<button class="kds-item-restore-btn" onclick="kdsRestoreItem('${order.id}','${item.id}')">Restore</button>
-           <span style="font-size:10px;color:#DC2626;font-weight:600">Unavailable</span>`
-        : order.status === 'ready'
-          ? ''
-          : `<button class="kds-item-reject-btn" onclick="kdsRejectItem('${order.id}','${item.id}','${item.product_name.replace(/'/g,"\'")}')">Unavailable</button>`
+  var itemsHTML = '';
+  items.forEach(function(item) {
+    var isRej = rejected.indexOf(item.id) >= 0;
+    var style = isRej ? ' style="opacity:0.5;text-decoration:line-through"' : '';
+    var actionBtn = '';
+    if (order.status !== 'ready') {
+      if (isRej) {
+        actionBtn = '<button class="kds-item-restore-btn" onclick="kdsRestoreItem(this)" data-order="' + order.id + '" data-item="' + item.id + '">Restore</button>';
+      } else {
+        var safeName = (item.product_name||'').replace(/['"]/g,'');
+        actionBtn = '<button class="kds-item-reject-btn" onclick="kdsRejectItem(this)" data-order="' + order.id + '" data-item="' + item.id + '" data-name="' + safeName + '">Unavail</button>';
       }
-    </div>`;
-  }).join('');
+    }
+    itemsHTML += '<div class="kds-item-row"' + style + '><span class="kds-item-qty">' + item.qty + 'x</span><span class="kds-item-name">' + (item.product_icon||'') + ' ' + (item.product_name||'') + '</span>' + actionBtn + '</div>';
+  });
 
-  const rejectedCount = rejected.length;
-  const rejectionWarning = rejectedCount > 0
-    ? `<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;font-size:11px;color:#DC2626;font-weight:600;margin-top:8px">
-        ⚠️ ${rejectedCount} item${rejectedCount>1?'s':''} unavailable — waiter notified
-       </div>` : '';
+  var rejCount = rejected.length;
+  var rejWarn = rejCount ? '<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:5px 8px;font-size:11px;color:#DC2626;font-weight:600;margin-top:6px">&#9888;&#65039; ' + rejCount + ' item(s) unavailable</div>' : '';
 
-  let actionButtons = '';
+  var oid = order.id;
+  var onum = order.order_number;
+  var actions = '';
   if (order.status === 'pending') {
-    actionButtons = `
-      <button class="kds-btn prepare" onclick="kdsUpdateStatus('${order.id}','preparing')">🔥 Start Preparing</button>
-      <button class="kds-btn reprint" onclick="reprintKOT('${order.id}')">🖨️ KOT</button>`;
+    actions = '<button class="kds-btn prepare" onclick="kdsUpdateStatus(this.dataset.id,this.dataset.st)" data-id="' + oid + '" data-st="preparing">&#x1F525; Start</button>' +
+              '<button class="kds-btn reprint" onclick="reprintKOT(this.dataset.id)" data-id="' + oid + '">KOT</button>';
   } else if (order.status === 'preparing') {
-    actionButtons = `
-      <button class="kds-btn ready" onclick="kdsUpdateStatus('${order.id}','ready')">✅ Order Ready</button>
-      <button class="kds-btn notify" onclick="kdsNotifyWaiter('${order.id}')">🔔 Notify Waiter</button>
-      <button class="kds-btn reprint" onclick="reprintKOT('${order.id}')">🖨️ KOT</button>`;
-  } else if (order.status === 'ready') {
-    actionButtons = `
-      <button class="kds-btn ready" onclick="kdsMarkServed('${order.id}')" style="background:#166534">🍽 Mark Served</button>
-      <button class="kds-btn notify" onclick="kdsNotifyWaiter('${order.id}')">🔔 Notify Waiter</button>`;
+    actions = '<button class="kds-btn ready" onclick="kdsUpdateStatus(this.dataset.id,this.dataset.st)" data-id="' + oid + '" data-st="ready">&#x2705; Ready</button>' +
+              '<button class="kds-btn notify" onclick="kdsNotifyWaiter(this.dataset.id)" data-id="' + oid + '">&#x1F514; Notify</button>' +
+              '<button class="kds-btn reprint" onclick="reprintKOT(this.dataset.id)" data-id="' + oid + '">KOT</button>';
+  } else {
+    actions = '<button class="kds-btn ready" onclick="document.getElementById(this.dataset.card)?.remove()" data-card="kds-card-' + oid + '" style="background:#166534">&#x1F37D;&#xFE0F; Served</button>' +
+              '<button class="kds-btn notify" onclick="kdsNotifyWaiter(this.dataset.id)" data-id="' + oid + '">&#x1F514; Notify</button>';
   }
 
-  return `<div class="kds-card ${order.status}" id="kds-card-${order.id}">
-    <div class="kds-card-head">
-      <div>
-        <div class="kds-card-num">#${order.order_number}</div>
-        <div class="kds-card-meta">${typeLabel} · ${order.customer_name || 'Guest'}</div>
-      </div>
-      <span class="kds-card-timer" id="kds-timer-${order.id}">0m</span>
-    </div>
-    <div class="kds-card-body">
-      ${itemsHTML}
-      ${rejectionWarning}
-    </div>
-    <div class="kds-card-actions">${actionButtons}</div>
-  </div>`;
+  return '<div class="kds-card ' + order.status + '" id="kds-card-' + oid + '">' +
+    '<div class="kds-card-head"><div><div class="kds-card-num">#' + onum + '</div><div class="kds-card-meta">' + typeLabel + '</div></div><span class="kds-card-timer" id="kds-timer-' + oid + '">0m</span></div>' +
+    '<div class="kds-card-body">' + itemsHTML + rejWarn + '</div>' +
+    '<div class="kds-card-actions">' + actions + '</div></div>';
 }
 
-// ── Update order status ──────────────────────────────────────────
-async function kdsUpdateStatus(orderId, newStatus) {
-  const { error } = await sb.from('orders')
-    .update({ status: newStatus, [`${newStatus}_at`]: new Date().toISOString() })
-    .eq('id', orderId);
-  if (error) { showToast('Error updating order'); return; }
-  if (newStatus === 'preparing') showToast('Order started 🔥');
-  if (newStatus === 'ready')     showToast('Order ready! ✅');
+async function kdsUpdateStatus(idOrBtn, newStatus) {
+  var orderId = typeof idOrBtn === 'string' ? idOrBtn : idOrBtn.dataset.id;
+  var st = newStatus || (typeof idOrBtn !== 'string' ? idOrBtn.dataset.st : newStatus);
+  await sb.from('orders').update({ status: st }).eq('id', orderId);
+  showToast(newStatus==='preparing' ? 'Order started 🔥' : 'Order ready ✅');
   await loadKDS();
 }
 
-// ── Mark as served (goes to paid/served) ────────────────────────
-async function kdsMarkServed(orderId) {
-  // Find order
-  const order = _kdsOrders.find(o => o.id === orderId);
-  if (!order) return;
-  document.getElementById('kds-card-' + orderId)?.remove();
-  showToast('Order served 🍽');
-  // Keep in DB as 'ready' — payment handled separately at POS
-}
-
-// ── Reject/restore item ──────────────────────────────────────────
-async function kdsRejectItem(orderId, itemId, itemName) {
+function kdsRejectItem(btn) {
+  var orderId = btn.getAttribute('data-order');
+  var itemId = btn.getAttribute('data-item');
+  var itemName = btn.getAttribute('data-name');
   if (!_kdsRejections[orderId]) _kdsRejections[orderId] = [];
-  if (!_kdsRejections[orderId].includes(itemId)) {
-    _kdsRejections[orderId].push(itemId);
-  }
-  // Save rejection to DB
-  await sb.from('kot_rejections').insert({
-    order_id:    orderId,
-    item_id:     itemId,
-    item_name:   itemName,
-    rejected_at: new Date().toISOString(),
-    tenant_id:   window._tenantId,
-    reason:      'unavailable'
-  }).then(({error}) => { if (error) console.warn('Rejection log error:', error); });
-
-  showToast('⚠️ "' + itemName + '" marked unavailable — notifying waiter');
+  if (_kdsRejections[orderId].indexOf(itemId) < 0) _kdsRejections[orderId].push(itemId);
+  showToast('"' + itemName + '" marked unavailable');
   renderKDS();
-  // Show notification on POS order page
   kdsShowWaiterAlert(orderId, itemName);
 }
 
-async function kdsRestoreItem(orderId, itemId) {
-  if (_kdsRejections[orderId]) {
-    _kdsRejections[orderId] = _kdsRejections[orderId].filter(id => id !== itemId);
-  }
+function kdsRestoreItem(btn) {
+  var orderId = btn.getAttribute('data-order');
+  var itemId = btn.getAttribute('data-item');
+  if (_kdsRejections[orderId]) _kdsRejections[orderId] = _kdsRejections[orderId].filter(function(id){ return id !== itemId; });
   renderKDS();
-  showToast('Item restored ✓');
 }
 
-// ── Notify waiter ────────────────────────────────────────────────
-function kdsNotifyWaiter(orderId) {
-  const order = _kdsOrders.find(o => o.id === orderId);
+function kdsNotifyWaiter(idOrBtn) {
+  var orderId = typeof idOrBtn === 'string' ? idOrBtn : idOrBtn.dataset.id;
+  const order = _kdsOrders.find(o=>o.id===orderId);
   if (!order) return;
-  const label = order.order_type === 'dine'
-    ? 'Table ' + (order.table_number || '?')
-    : 'Takeaway';
-  showToast('🔔 Waiter notified for Order #' + order.order_number + ' (' + label + ')');
+  showToast('🔔 Waiter notified for Order #' + order.order_number);
   kdsShowWaiterAlert(orderId, null, 'ready');
 }
 
-// ── Show waiter alert on Order page ─────────────────────────────
 function kdsShowWaiterAlert(orderId, itemName, type) {
-  const order = _kdsOrders.find(o => o.id === orderId);
+  var order = _kdsOrders.find(function(o){ return o.id===orderId; });
   if (!order) return;
-  const alertEl = document.getElementById('waiter-alerts');
+  var alertEl = document.getElementById('waiter-alerts');
   if (!alertEl) return;
-
-  const id = 'alert-' + Date.now();
-  const isReady = type === 'ready';
-  const msg = isReady
-    ? `Order #${order.order_number} is READY 🍽`
-    : `"${itemName}" unavailable in Order #${order.order_number}`;
-
-  const div = document.createElement('div');
+  var id = 'alert-' + Date.now();
+  var isReady = type === 'ready';
+  var msg = isReady ? 'Order #' + order.order_number + ' is READY' : (itemName||'Item') + ' unavailable in #' + order.order_number;
+  var loc = order.order_type === 'dine' ? 'Table ' + (order.table_number||'?') : 'Takeaway';
+  var div = document.createElement('div');
   div.id = id;
   div.className = 'waiter-alert ' + (isReady ? 'alert-ready' : 'alert-unavail');
-  div.innerHTML = `
-    <span class="wa-alert-icon">${isReady ? '✅' : '⚠️'}</span>
-    <div class="wa-alert-body">
-      <div class="wa-alert-title">${msg}</div>
-      <div class="wa-alert-sub">${order.order_type === 'dine' ? 'Table ' + (order.table_number||'?') : 'Takeaway'}</div>
-    </div>
-    <button onclick="dismissAlert('${id}')" class="wa-alert-dismiss">✕</button>`;
-
+  var icon = document.createElement('span');
+  icon.className = 'wa-alert-icon';
+  icon.textContent = isReady ? '✅' : '⚠️';
+  var body = document.createElement('div');
+  body.className = 'wa-alert-body';
+  body.innerHTML = '<div class="wa-alert-title">' + msg + '</div><div class="wa-alert-sub">' + loc + '</div>';
+  var dismiss = document.createElement('button');
+  dismiss.className = 'wa-alert-dismiss';
+  dismiss.textContent = '✕';
+  dismiss.onclick = function(){ dismissAlert(id); };
+  div.appendChild(icon);
+  div.appendChild(body);
+  div.appendChild(dismiss);
   alertEl.appendChild(div);
   alertEl.style.display = 'flex';
-
-  // Auto-dismiss after 30s
-  setTimeout(() => dismissAlert(id), 30000);
+  setTimeout(function(){ dismissAlert(id); }, 30000);
 }
 
 function dismissAlert(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
-  const alertEl = document.getElementById('waiter-alerts');
-  if (alertEl && !alertEl.children.length) alertEl.style.display = 'none';
+  document.getElementById(id)?.remove();
+  const el = document.getElementById('waiter-alerts');
+  if (el && !el.children.length) el.style.display = 'none';
 }
 
-// ── Reprint KOT ──────────────────────────────────────────────────
-async function reprintKOT(orderId) {
-  const order = _kdsOrders.find(o => o.id === orderId);
+async function reprintKOT(idOrBtn) {
+  var orderId = typeof idOrBtn === 'string' ? idOrBtn : idOrBtn.dataset.id;
+  const order = _kdsOrders.find(o=>o.id===orderId);
   if (!order) return;
-  window._pendingOrder = order;
-  _orderType = order.order_type || 'take';
-  _tableNumber = order.table_number || null;
+  _orderType = order.order_type||'take';
+  _tableNumber = order.table_number||null;
   showKOT(order);
 }
 
-// ── KDS Timers ───────────────────────────────────────────────────
-function updateKDSTimers() {
-  const now = Date.now();
-  Object.entries(_kdsTimers).forEach(([orderId, startTime]) => {
-    const el = document.getElementById('kds-timer-' + orderId);
-    if (!el) return;
-    const mins = Math.floor((now - startTime) / 60000);
-    el.textContent = mins + 'm';
-    // Color based on urgency
-    el.style.background = mins > 20 ? '#FEF2F2' :
-                          mins > 10 ? '#FFFBEB' : 'rgba(0,0,0,0.06)';
-    el.style.color = mins > 20 ? '#DC2626' :
-                     mins > 10 ? '#D97706' : 'inherit';
-  });
-}
-setInterval(updateKDSTimers, 30000);
-
-// ── Update KDS badge on nav ───────────────────────────────────────
 function updateKDSBadge() {
-  const pending = _kdsOrders.filter(o => o.status === 'pending').length;
+  const pending = _kdsOrders.filter(o=>o.status==='pending').length;
   const badge = document.getElementById('kds-badge');
   if (!badge) return;
   badge.textContent = pending;
   badge.classList.toggle('show', pending > 0);
 }
+setInterval(() => {
+  Object.entries(_kdsTimers).forEach(([id, start]) => {
+    const el = document.getElementById('kds-timer-' + id);
+    if (!el) return;
+    const mins = Math.floor((Date.now()-start)/60000);
+    el.textContent = mins + 'm';
+    el.style.color = mins>20?'#DC2626':mins>10?'#D97706':'inherit';
+  });
+}, 30000);
 
-// ── Load KDS when navigating to kitchen tab ───────────────────────
-const _origPosNavTo = posNavTo;
-function posNavTo(page, btn) {
-  _origPosNavTo(page, btn);
-  if (page === 'kds') {
-    loadKDS();
-    subscribeKDS();
+
+
+// ══ TABLE MANAGEMENT ════════════════════════════════════════════
+function saveTableCount(val) {
+  const n = Math.max(1, Math.min(100, parseInt(val)||10));
+  const existing = loadTableConfig();
+  const tables = Array.from({length: n}, (_, i) => ({
+    name: (existing[i] && existing[i].name) || ('T' + (i+1))
+  }));
+  localStorage.setItem('bite_tables_config', JSON.stringify(tables));
+  localStorage.setItem('bite_table_count', n);
+  renderTableNamesEditor();
+  buildTableNumBtns();
+}
+
+function renderTableNamesEditor() {
+  const el = document.getElementById('table-names-editor');
+  if (!el) return;
+  const tables = loadTableConfig();
+  el.innerHTML = '';
+  tables.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)';
+    const numSpan = document.createElement('span');
+    numSpan.textContent = (i+1);
+    numSpan.style.cssText = 'font-size:11px;font-weight:700;color:var(--muted);min-width:20px';
+    const input = document.createElement('input');
+    input.className = 'sr-input';
+    input.value = t.name || ('T' + (i+1));
+    input.placeholder = 'Table ' + (i+1);
+    input.style.cssText = 'flex:1;padding:5px 8px;font-size:12px';
+    input.addEventListener('change', (function(idx){ return function(e) {
+      const tables = loadTableConfig();
+      if (tables[idx]) tables[idx].name = e.target.value.trim() || ('T' + (idx+1));
+      localStorage.setItem('bite_tables_config', JSON.stringify(tables));
+      buildTableNumBtns();
+    }; })(i));
+    const qrBtn = document.createElement('button');
+    qrBtn.className = 'icon-btn';
+    qrBtn.textContent = '📲';
+    qrBtn.title = 'Generate QR for this table';
+    qrBtn.addEventListener('click', (function(idx){ return function() { generateSingleTableQR(idx+1); }; })(i));
+    row.appendChild(numSpan);
+    row.appendChild(input);
+    row.appendChild(qrBtn);
+    el.appendChild(row);
+  });
+}
+
+function populateTableSettings() {
+  const count = loadTableConfig().length;
+  const el = document.getElementById('set-table-count-main');
+  if (el) el.value = count;
+  renderTableNamesEditor();
+}
+
+// ══ QR GENERATION ═══════════════════════════════════════════════
+function generateSingleTableQR(tableNum) {
+  const s = loadSettings();
+  const waNum = localStorage.getItem('bite_pay4_wa_number') || '919000000000';
+  const tableName = loadTableConfig()[tableNum-1]?.name || ('T' + tableNum);
+  const code = (s.waCode || 'REST') + '-T' + tableNum;
+  const waLink = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(code);
+  showSingleQRModal('Table ' + tableName, waLink, code);
+}
+
+function generateAllTableQRs() {
+  const s = loadSettings();
+  if (!s.waCode) { showToast('Set WhatsApp Code in WA settings first'); return; }
+  const waNum = localStorage.getItem('bite_pay4_wa_number') || '919000000000';
+  const tables = loadTableConfig();
+  const cards = tables.map((t, i) => ({
+    label: 'Table ' + (t.name || (i+1)),
+    link: 'https://wa.me/' + waNum + '?text=' + encodeURIComponent((s.waCode||'R') + '-T' + (i+1)),
+    code: (s.waCode||'R') + '-T' + (i+1)
+  }));
+  showQRGridModal('All Table QR Codes', cards);
+}
+
+function generateTakeawayQR() {
+  const s = loadSettings();
+  const waNum = localStorage.getItem('bite_pay4_wa_number') || '919000000000';
+  const code = (s.waCode || 'REST') + '-TAKE';
+  const link = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(code);
+  showSingleQRModal('Takeaway Counter', link, code);
+}
+
+function generateStallQR() {
+  const s = loadSettings();
+  const waNum = localStorage.getItem('bite_pay4_wa_number') || '919000000000';
+  const code = (s.waCode || 'REST') + '-STALL';
+  const link = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(code);
+  showSingleQRModal('Stall Counter', link, code);
+}
+
+function showSingleQRModal(label, link, code) {
+  const grid = document.getElementById('qr-cards-grid');
+  if (grid) {
+    grid.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = 'qr-card-preview';
+    card.style.cssText = 'max-width:200px;margin:0 auto;text-align:center';
+    card.innerHTML = '<div style="font-weight:700;margin-bottom:6px">' + label + '</div>' +
+      '<div id="single-qr-box" style="width:140px;height:140px;margin:0 auto 8px"></div>' +
+      '<div style="font-size:10px;color:var(--muted)">' + code + '</div>';
+    grid.appendChild(card);
+    document.getElementById('qr-modal-overlay')?.classList.add('show');
+    setTimeout(() => {
+      const el = document.getElementById('single-qr-box');
+      if (el && typeof QRCode !== 'undefined') {
+        new QRCode(el, { text: link, width:140, height:140, colorDark:'#1A1208', colorLight:'#fff', correctLevel: QRCode.CorrectLevel.M });
+      }
+    }, 100);
   }
 }
 
+function showQRGridModal(title, cards) {
+  const grid = document.getElementById('qr-cards-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  cards.forEach((card, i) => {
+    const div = document.createElement('div');
+    div.className = 'qr-card-preview';
+    div.style.textAlign = 'center';
+    div.innerHTML = '<div style="font-weight:700;font-size:12px;margin-bottom:6px">' + card.label + '</div>' +
+      '<div id="qr-card-' + i + '" style="width:90px;height:90px;margin:0 auto 5px"></div>' +
+      '<div style="font-size:9px;color:var(--muted)">' + card.code + '</div>';
+    grid.appendChild(div);
+    setTimeout(() => {
+      const el = document.getElementById('qr-card-' + i);
+      if (el && typeof QRCode !== 'undefined') {
+        new QRCode(el, { text: card.link, width:90, height:90, colorDark:'#1A1208', colorLight:'#fff', correctLevel: QRCode.CorrectLevel.M });
+      }
+    }, 80 * (i+1));
+  });
+  document.getElementById('qr-modal-overlay')?.classList.add('show');
+}
 
-// ══ INIT ══
+
 async function init(){
   const { data:{ session } }=await sb.auth.getSession();
   if(session){ currentUser=session.user; await launchPOS(); return; }
@@ -3023,6 +3117,7 @@ function posNavTo(page,btn){
   if(page==='products')   renderProductList();
   if(page==='categories') renderCatList();
   if(page==='settings')   populateSettingsForm();
+  if(page==='kds') loadKDS();
 }
 function togglePosMobNav(){ document.getElementById('pos-mob-nav').classList.toggle('open'); }
 function closePosMobNav(){ document.getElementById('pos-mob-nav').classList.remove('open'); }
@@ -3040,7 +3135,6 @@ function saveSettings(){
   localStorage.setItem('bite_kiosk_id',kiosk||'Kiosk #1'); localStorage.setItem('bite_tax_rate',tax);
   document.getElementById('kiosk-pill-label').textContent=kiosk||'Kiosk #1';
   showToast('Settings saved ✓'); updateCart();
-  saveWASettings();
 }
 function populateSettingsForm(){
   const s=loadSettings();
@@ -3049,7 +3143,6 @@ function populateSettingsForm(){
   document.getElementById('set-kiosk-id').value=s.kioskId;
   document.getElementById('set-tax').value=s.taxRate;
   updateUpiPreview();
-  populateWASettingsForm();
 }
 function updateUpiPreview(){
   const val=document.getElementById('set-upi').value.trim();
@@ -3086,6 +3179,7 @@ async function loadProducts(){
   if(window._tenantId) q=q.eq('tenant_id',window._tenantId);
   const {data,error}=await q;
   if(!error&&data) products=data.map(p=>({...p,catId:p.category_id,catName:p.categories?.name||'',catIcon:p.categories?.icon||'',outOfStock:p.out_of_stock}));
+  if(document.getElementById('prod-list')) renderProductList();
 }
 
 // ══ ORDER ══
@@ -3169,9 +3263,6 @@ function closeCheckout(){ document.getElementById('checkout-overlay').classList.
 
 // ══ PLACE ORDER ══
 async function placeOrder(){
-  const phoneVal = document.getElementById('co-phone')?.value?.trim();
-  if(!phoneVal){const el=document.getElementById('co-phone');if(el){el.style.borderColor='var(--red)';el.focus();showToast('Phone number is required');goToStep1();return;}}
-  
   const entries=Object.values(cart); if(!entries.length) return;
   const btn=document.getElementById('co-place-btn');
   btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
@@ -3184,7 +3275,7 @@ async function placeOrder(){
     .insert({ subtotal:sub.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),status:'pending',
               tenant_id:window._tenantId||null,
               customer_name:custName||null,customer_email:custEmail||null,customer_phone:custPhone||null,
-              kiosk_id:loadSettings().kioskId, payment_method:_selectedPayMethod||'upi', order_type:_orderType||'take', table_number:_tableNumber?String(_tableNumber):null })
+              kiosk_id:loadSettings().kioskId })
     .select('id,order_number').single();
   if(orderErr){ showToast('Error: '+orderErr.message); btn.disabled=false; btn.textContent='Place Order & Pay →'; return; }
   await sb.from('order_items').insert(entries.map(i=>({
@@ -3193,23 +3284,12 @@ async function placeOrder(){
   })));
   btn.disabled=false; btn.textContent='Place Order & Pay →';
   closeCheckout();
+    try {
+    await sb.from('orders').update({ payment_method:_selectedPayMethod||'upi', order_type:_orderType||'take', table_number:_tableNumber?String(_tableNumber):null }).eq('id', orderData.id);
+  } catch(e) {}
   const fullOrder={id:orderData.id,order_number:orderData.order_number,total,subtotal:sub,tax,
     customer_name:custName,customer_email:custEmail,customer_phone:custPhone,items:entries};
-  clearCart();
-  // Show KOT for ALL dine-in orders (goes to KDS)
-  if (_orderType === 'dine') {
-    showKOT(fullOrder);
-    // Refresh KDS if on that page
-    setTimeout(() => loadKDS(), 1000);
-  }
-  // Only show UPI modal if UPI selected; otherwise go straight to cash confirm
-  if (_selectedPayMethod === 'upi') {
-    showUpiModal(fullOrder);
-  } else {
-    window._pendingOrder = fullOrder;
-    window._pendingPayMethod = _selectedPayMethod;
-    openPayConfirm(_selectedPayMethod);
-  }
+  clearCart(); showUpiModal(fullOrder);
 }
 
 // ══ UPI ══
@@ -3291,12 +3371,11 @@ async function confirmPaymentYes(){
   const order=window._pendingOrder;
   const method=window._pendingPayMethod||'upi';
   // Update order with payment method
-  await sb.from('orders').update({payment_method:method, status:'paid'}).eq('id',order.id);
+  await sb.from('orders').update({payment_method:method}).eq('id',order.id);
   const finalOrder={...order, payment_method:method};
   showSuccessModal(finalOrder,'paid');
   // Auto-send receipt email the moment payment is confirmed
   autoSendReceipt(finalOrder);
-  if (window._pendingOrder) sendWhatsAppReceipt(window._pendingOrder).catch(()=>{});
 }
 
 // ══ SUCCESS ══
@@ -3330,7 +3409,8 @@ function showSuccessModal(order, payStatus){
         ✉️ ${order.customer_email?'Email':'No Email'}</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <button class="ss-share-btn print" onclick="window.open(PRINT_BASE+'?id=${order.id}','_blank')">🖨️ Print Bill</button>
+      <a class="ss-share-btn print" href="${PRINT_BASE}?id=${order.id}" target="_blank">🖨️ Print Bill</a>
+      <a class="ss-share-btn bills" href="${window.location.origin}/bills.html?biz=${encodeURIComponent(bizName)}" target="_blank">📋 All Bills</a>
     </div>
     <button class="ss-share-btn copy" style="width:100%;margin-bottom:12px" onclick="copyReceiptLink('${receiptURL}')">🔗 Copy Link</button>
     <button class="ss-new-btn" onclick="closeSuccessModal()">Start New Order</button>`;
@@ -3449,7 +3529,7 @@ async function openOrderDetail(orderId){
         <button class="share-btn mail" id="od-mail-btn" ${!o.customer_email?'disabled':''}
           onclick="sendReceiptEmail('${o.id}',${o.order_number},'${Number(o.total).toFixed(2)}','${o.customer_email||''}','${(o.customer_name||'').replace(/'/g,'')}','${receiptURL}','${bizName}')">
           <span class="sb-icon">✉️</span>${o.customer_email?'Email':'No Email'}</button>
-        <button class="share-btn" onclick="window.open(PRINT_BASE+'?id=${o.id}','_blank')"><span class="sb-icon">🖨️</span>Print</button>
+        <a class="share-btn" href="${PRINT_BASE}?id=${o.id}" target="_blank"><span class="sb-icon">🖨️</span>Print</a>
         <button class="share-btn" onclick="copyReceiptLink('${receiptURL}')"><span class="sb-icon">🔗</span>Copy</button>
       </div>
     </div>`;
@@ -3468,15 +3548,81 @@ async function confirmRefund(){
 
 // ══ PRODUCTS ══
 async function renderProductList(){
-  await loadProducts();
-  const list=document.getElementById('prod-list');
-  if(!products.length){ list.innerHTML='<div class="empty-state"><div class="es-ic">🍽️</div><p>No products yet.</p></div>'; return; }
-  list.innerHTML=products.map(p=>`<div class="prod-item${p.out_of_stock?' oos':''}">
-    <div class="pi-icon">${p.icon}</div>
-    <div class="pi-info"><div class="pi-name">${p.name}${p.out_of_stock?'<span class="oos-tag">OOS</span>':''}</div><div class="pi-meta">${p.catIcon} ${p.catName} · ₹${Number(p.price).toFixed(2)}</div></div>
-    <div class="pi-price">₹${Number(p.price).toFixed(2)}</div>
-    <div class="pi-actions"><button class="icon-btn" onclick="editProduct('${p.id}')">✏️</button><button class="icon-btn del" onclick="deleteProduct('${p.id}')">🗑</button></div>
-  </div>`).join('');
+  const list = document.getElementById('prod-list');
+  if (!list) return;
+  const filter = _prodCatFilter || 'all';
+  const filtered = filter === 'all' ? products : products.filter(p => String(p.catId) === filter);
+  list.innerHTML = '';
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-ic">🍽️</div><p>No products found.</p></div>';
+    return;
+  }
+  // Group by category
+  const groupMap = {};
+  filtered.forEach(p => {
+    const key = p.catId || 'none';
+    if (!groupMap[key]) groupMap[key] = { name: p.catName||'Uncategorised', icon: p.catIcon||'', items: [] };
+    groupMap[key].items.push(p);
+  });
+  Object.values(groupMap).forEach(grp => {
+    // Group header
+    const hd = document.createElement('div');
+    hd.className = 'prod-group-head';
+    hd.dataset.groupname = grp.name;
+    const hdSpan = document.createElement('span');
+    hdSpan.textContent = (grp.icon ? grp.icon + ' ' : '') + grp.name;
+    const hdLabel = document.createElement('label');
+    hdLabel.style.cssText = 'font-size:11px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px';
+    const hdCb = document.createElement('input');
+    hdCb.type = 'checkbox';
+    hdCb.style.accentColor = 'var(--brand)';
+    hdCb.addEventListener('change', (function(g){ return function(e){ selectAllInGroup(e.target, g.name, g.items); }; })(grp));
+    hdLabel.appendChild(hdCb);
+    hdLabel.appendChild(document.createTextNode(' Select all'));
+    hd.appendChild(hdSpan);
+    hd.appendChild(hdLabel);
+    list.appendChild(hd);
+    // Product items
+    grp.items.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'prod-item' + (p.out_of_stock ? ' oos' : '');
+      row.dataset.prodid = p.id;
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'prod-select-cb';
+      cb.style.cssText = 'accent-color:var(--brand);margin-right:8px;flex-shrink:0';
+      cb.checked = _selectedProds.has(p.id);
+      cb.addEventListener('change', (function(pid){ return function(){ toggleProdSelect(pid, this); }; })(p.id));
+      const icon = document.createElement('div');
+      icon.className = 'pi-icon';
+      icon.textContent = p.icon || '';
+      const info = document.createElement('div');
+      info.className = 'pi-info';
+      info.innerHTML = '<div class="pi-name">' + p.name + (p.out_of_stock ? '<span class="oos-tag">OOS</span>' : '') + '</div>' +
+        '<div class="pi-meta">' + (p.catIcon||'') + ' ' + (p.catName||'') + ' · ₹' + Number(p.price).toFixed(2) + '</div>';
+      const price = document.createElement('div');
+      price.className = 'pi-price';
+      price.textContent = '₹' + Number(p.price).toFixed(2);
+      const actions = document.createElement('div');
+      actions.className = 'pi-actions';
+      const editBtn = document.createElement('button');
+      editBtn.className = 'icon-btn';
+      editBtn.textContent = '✏️';
+      editBtn.addEventListener('click', (function(pid){ return function(){ editProduct(pid); }; })(p.id));
+      const delBtn = document.createElement('button');
+      delBtn.className = 'icon-btn del';
+      delBtn.textContent = '🗑';
+      delBtn.addEventListener('click', (function(pid){ return function(){ deleteProduct(pid); }; })(p.id));
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      row.appendChild(cb);
+      row.appendChild(icon);
+      row.appendChild(info);
+      row.appendChild(price);
+      row.appendChild(actions);
+      list.appendChild(row);
+    });
+  });
 }
 function newProduct(){ editingProductId=null; editingIngredients=[]; editingIcon='🍔'; document.getElementById('prod-modal-title').textContent='Add Product'; renderProdModalBody(null); document.getElementById('prod-editor-overlay').classList.add('show'); }
 function editProduct(id){ const p=products.find(x=>x.id===id); if(!p) return; editingProductId=id; editingIngredients=[...(p.ingredients||[])]; editingIcon=p.icon; document.getElementById('prod-modal-title').textContent='Edit Product'; renderProdModalBody(p); document.getElementById('prod-editor-overlay').classList.add('show'); }
@@ -3558,76 +3704,4 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').cat
 init();
 </script>
 </body>
-</html<div id="checkout-overlay">
-  <div class="checkout-modal">
-    <div class="co-head">
-      <div class="co-title" id="co-title">Checkout</div>
-      <button class="em-close" onclick="closeCheckout()">✕</button>
-    </div>
-    <div class="co-steps-bar">
-      <div class="co-step-tab active" id="co-tab-1">1 · Customer</div>
-      <div class="co-step-tab" id="co-tab-2">2 · Payment</div>
-    </div>
-    <div class="co-body" id="co-body">
-      <div class="co-step active" id="co-step-1">
-        <div class="co-summary-compact" id="co-summary"></div>
-        <div class="form-group">
-          <label class="form-label">Phone <span style="color:var(--red);font-weight:600;font-size:10px">* required</span></label>
-          <input class="form-input" id="co-phone" type="tel" placeholder="+91 98765 43210" required
-            oninput="this.style.borderColor=''"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Name <span style="color:var(--faint);font-weight:400;font-size:10px">(optional)</span></label>
-          <input class="form-input" id="co-name" placeholder="Customer name"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email <span style="color:var(--faint);font-weight:400;font-size:10px">(optional)</span></label>
-          <input class="form-input" id="co-email" type="email" placeholder="email (optional)" autocomplete="off"/>
-        </div>
-        <div class="co-foot">
-          <button class="co-place-btn" onclick="goToPaymentStep()">Next: Payment →</button>
-        </div>
-      </div>
-      <div class="co-step" id="co-step-2">
-        <div class="co-summary-compact" id="co-summary-2"></div>
-        <div class="pay-method-grid">
-          <button class="pay-method-btn selected" id="pm-upi" onclick="selectPayMethod('upi')">
-            <div class="pm-icon">📱</div>
-            <div class="pm-label">UPI / QR</div>
-            <div class="pm-sub">GPay, PhonePe, Paytm</div>
-          </button>
-          <button class="pay-method-btn" id="pm-cash" onclick="selectPayMethod('cash')">
-            <div class="pm-icon">💵</div>
-            <div class="pm-label">Cash</div>
-            <div class="pm-sub">Collect from customer</div>
-          </button>
-          <button class="pay-method-btn" id="pm-card" onclick="selectPayMethod('card')">
-            <div class="pm-icon">💳</div>
-            <div class="pm-label">Card</div>
-            <div class="pm-sub">Debit / Credit</div>
-          </button>
-          <button class="pay-method-btn" id="pm-other" onclick="selectPayMethod('other')">
-            <div class="pm-icon">🔖</div>
-            <div class="pm-label">Other</div>
-            <div class="pm-sub">Voucher, wallet</div>
-          </button>
-        </div>
-        <div id="upi-warn-row" style="display:none;align-items:center;gap:8px;background:#FFFBEB;border:1.5px solid var(--amber);border-radius:8px;padding:10px 12px;margin-top:8px">
-          <span style="font-size:18px">⚠️</span>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:700;color:#92400E">UPI ID not configured</div>
-            <div style="font-size:11px;color:#B45309;margin-top:2px">Order will be marked as Cash, or configure UPI first.</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <button onclick="closeCheckout();posNavTo('settings',null)" style="background:#E8440A;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Set UPI →</button>
-            <button onclick="selectPayMethod('cash')" style="background:#fff;color:#92400E;border:1px solid var(--amber);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Use Cash</button>
-          </div>
-        </div>
-        <div class="co-foot" style="margin-top:14px;display:flex;gap:8px">
-          <button class="co-place-btn" style="background:var(--surface);color:var(--text);border:1.5px solid var(--border);flex:0 0 80px" onclick="goToStep1()">← Back</button>
-          <button class="co-place-btn" id="co-place-btn" onclick="placeOrder()" style="flex:1">Place Order →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>>
+</html>
