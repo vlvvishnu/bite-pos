@@ -1582,6 +1582,7 @@ body.landing #welcome-banner{display:none !important;}
         <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
           <div class="settings-section" style="margin-top:16px">
             <h3>&#x1F512; Change Password</h3>
+            <form onsubmit="return false" autocomplete="off">
             <div class="settings-row">
               <div><div class="sr-label">New Password</div><div class="sr-sub">Min 8 characters</div></div>
               <input class="sr-input" id="set-new-password" type="password" placeholder="New password"/>
@@ -1591,6 +1592,7 @@ body.landing #welcome-banner{display:none !important;}
               <input class="sr-input" id="set-confirm-password" type="password" placeholder="Confirm password"/>
             </div>
             <button class="save-settings-btn" onclick="changePassword()" style="background:var(--blue);margin-top:16px">Update Password</button>
+            </form>
           </div>
         </div>
       </div>
@@ -2218,44 +2220,13 @@ let _selectedTable = null;   // currently selected table number
 let _waPollingInterval = null;
 
 // ── Load settings into form ──────────────────────────────────────
-const _origPopulateSettings = populateSettingsForm;
-function populateSettingsForm() {
-  _origPopulateSettings();
-  const s = loadSettings();
-  const waCodeEl = document.getElementById('set-wa-code');
-  const tableCountEl = document.getElementById('set-table-count');
-  const pay4WaEl = document.getElementById('set-pay4-wa');
-  if (waCodeEl) waCodeEl.value = s.waCode || '';
-  if (tableCountEl) tableCountEl.value = s.tableCount || 10;
-  if (pay4WaEl) pay4WaEl.value = localStorage.getItem('bite_pay4_wa_number') || '';
-  updateWaPreview();
-  buildTableSelector(s.tableCount || 10);
-  populateWASettingsForm();
-  populateTableSettings();
-}
+/* _origPopulateSettings removed */
 
 // ── Save settings ────────────────────────────────────────────────
-const _origSaveSettings = saveSettings;
-function saveSettings() {
-  _origSaveSettings();
-  const waCode = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
-  const tableCount = parseInt(document.getElementById('set-table-count')?.value) || 10;
-  localStorage.setItem('bite_wa_code', waCode || '');
-  localStorage.setItem('bite_table_count', tableCount);
-  buildTableSelector(tableCount);
-  if (waCode) startWAPolling();
-}
+/* _origSaveSettings removed */
 
 // ── Load extra settings ──────────────────────────────────────────
-const _origLoadSettings = loadSettings;
-function loadSettings() {
-  const base = _origLoadSettings();
-  return {
-    ...base,
-    waCode: localStorage.getItem('bite_wa_code') || '',
-    tableCount: parseInt(localStorage.getItem('bite_table_count') || '10')
-  };
-}
+/* _origLoadSettings removed */
 
 function updateWaPreview() {
   const code = document.getElementById('set-wa-code')?.value?.trim()?.toUpperCase();
@@ -2488,25 +2459,10 @@ function printQRCards() {
 }
 
 // ── Start polling when POS launches ──────────────────────────────
-const _origLaunchPOS = launchPOS;
-async function launchPOS() {
-  await _origLaunchPOS();
-  const s = loadSettings();
-  if (s.waCode) {
-    buildTableSelector(s.tableCount || 10);
-    startWAPolling();
-  }
-}
+/* _origLaunchPOS removed */
 
 // ── Hook into confirmPaymentYes to also send WA receipt ──────────
-const _origConfirmPaymentYes = confirmPaymentYes;
-async function confirmPaymentYes() {
-  await _origConfirmPaymentYes();
-  // Also try WhatsApp receipt (non-blocking)
-  if (window._pendingOrder) {
-    sendWhatsAppReceipt(window._pendingOrder).catch(() => {});
-  }
-}
+/* _origConfirmPaymentYes removed */
 
 
 // ══ INIT ══
@@ -2629,30 +2585,7 @@ function selectPayMethod(method) {
 }
 
 // ══ OVERRIDE openCheckout ════════════════════════════════════════
-const _origOpenCheckout = openCheckout;
-function openCheckout() {
-  if (_orderType === 'dine' && !_tableNumber) {
-    showToast('Please select a table number first');
-    document.getElementById('table-num-row')?.classList.add('show');
-    buildTableNumBtns();
-    return;
-  }
-  _origOpenCheckout();
-  // Build compact summary
-  const entries = Object.values(cart);
-  const sub = entries.reduce((s,i) => s + i.price * i.qty, 0);
-  const tax = sub * getTax();
-  const total = sub + tax;
-  const orderLabel = _orderType === 'dine' ? '🍽 Dine In — Table ' + _tableNumber
-    : _orderType === 'take' ? '🛍 Takeaway' : '🏪 Stall';
-  const summaryHtml = '<div style="font-size:11px;font-weight:700;color:var(--brand);margin-bottom:6px">' + orderLabel + ' · ' + entries.length + ' item' + (entries.length > 1 ? 's' : '') + '</div>'
-    + entries.map(i => '<div class="co-sum-row"><span>' + (i.icon||'') + ' ' + i.name + ' ×' + i.qty + '</span><span>₹' + (i.price * i.qty).toFixed(2) + '</span></div>').join('')
-    + '<div class="co-sum-row co-sum-total"><span>Total</span><span>₹' + total.toFixed(2) + '</span></div>';
-  const s1 = document.getElementById('co-summary');
-  if (s1) s1.innerHTML = summaryHtml;
-  goToStep1();
-  _selectedPayMethod = 'upi';
-}
+/* _origOpenCheckout removed — see overrideOpenCheckout below */
 
 // ══ KOT ══════════════════════════════════════════════════════════
 function showKOT(order) {
@@ -3143,6 +3076,8 @@ function populateSettingsForm(){
   document.getElementById('set-kiosk-id').value=s.kioskId;
   document.getElementById('set-tax').value=s.taxRate;
   updateUpiPreview();
+  populateWASettingsForm();
+  populateTableSettings();
 }
 function updateUpiPreview(){
   const val=document.getElementById('set-upi').value.trim();
@@ -3376,6 +3311,7 @@ async function confirmPaymentYes(){
   showSuccessModal(finalOrder,'paid');
   // Auto-send receipt email the moment payment is confirmed
   autoSendReceipt(finalOrder);
+  if (window._pendingOrder) sendWhatsAppReceipt(window._pendingOrder).catch(function(){});
 }
 
 // ══ SUCCESS ══
